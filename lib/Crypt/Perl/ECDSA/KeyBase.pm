@@ -1,0 +1,193 @@
+package Crypt::Perl::ECDSA::KeyBase;
+
+use strict;
+use warnings;
+
+use Crypt::Perl::ASN1 ();
+use Crypt::Perl::Math ();
+use Crypt::Perl::ECDSA::EC::Curve ();
+use Crypt::Perl::ECDSA::EC::Point ();
+use Crypt::Perl::ECDSA::ECParameters ();
+use Crypt::Perl::ECDSA::Utils ();
+use Crypt::Perl::Load ();
+
+use constant ASN1_SIGNATURE => q<
+    SEQUENCE {
+        r   INTEGER,
+        s   INTEGER
+    }
+>;
+
+#$msg has to be small enough that the key could have signed it.
+#It’s probably a digest rather than the original message.
+sub verify {
+    my ($self, $msg, $sig) = @_;
+
+    my $struct = Crypt::Perl::ASN1->new()->prepare(ASN1_SIGNATURE)->decode($sig);
+    my ($r, $s) = @{$struct}{ qw( r s ) };
+
+    if ($r >= 1 && $s >= 1) {
+        my ($x, $y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+        $_ = Crypt::Perl::BigInt->from_bytes($_) for ($x, $y);
+
+        my $curve = $self->_get_curve_obj();
+
+        my $Q = Crypt::Perl::ECDSA::EC::Point->new(
+            $curve,
+            $curve->from_bigint($x),
+            $curve->from_bigint($y),
+        );
+
+        my $e = Crypt::Perl::BigInt->from_bytes($msg);
+
+        #----------------------------------------------------------------------
+
+        my $n = $self->_curve()->{'n'};
+
+        if ($r < $n && $s < $n) {
+            my $c = $s->copy()->bmodinv($n);
+
+            my $u1 = ($e * $c) % $n;
+            my $u2 = ($r * $c) % $n;
+
+            my $point = $self->G()->multiply($u1)->add( $Q->multiply($u2) );
+
+            my $v = $point->get_x()->to_bigint() % $n;
+
+            return 1 if $v == $r;
+        }
+    }
+
+    return 0;
+}
+
+#return isa EC::Point
+sub G {
+    my ($self) = @_;
+    return $self->_get_curve_obj()->decode_point( @{$self->_curve()}{ qw( gx gy ) } );
+}
+
+sub max_sign_bits {
+    my ($self) = @_;
+
+    return $self->_get_curve_obj()->keylen();
+}
+
+sub _pad_bytes_for_asn1 {
+    my ($self, $bytes) = @_;
+
+    my $curve_hr = $self->_curve();
+    my $nbytes = length $curve_hr->{'n'}->as_bytes();
+
+#print "pad: $nbytes / " . length($bytes) . $/;
+    substr( $bytes, 0, 0 ) = ("\0" x ($nbytes - length $bytes));
+
+    return $bytes;
+}
+
+sub _to_der_with_curve_name {
+    my ($self, $macro, $template, $data_hr) = @_;
+
+    my $curve_name = Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data( $self->_curve() );
+
+    local $data_hr->{'parameters'} = {
+        namedCurve => Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name($curve_name),
+    };
+
+    return $self->__to_der($macro, $template, $data_hr);
+}
+
+sub _to_der_with_explicit_curve {
+    my ($self, $macro, $template, $data_hr) = @_;
+
+    my $curve_hr = $self->_curve();
+
+    my ($gx, $gy) = map { $_->as_bytes() } @{$curve_hr}{'gx', 'gy'};
+
+    for my $str ( $gx, $gy ) {
+        $str = $self->_pad_bytes_for_asn1($str);
+    }
+
+    local $data_hr->{'parameters'} = {
+        ecParameters => {
+            version => 1,
+            fieldID => {
+                fieldType => Crypt::Perl::ECDSA::ECParameters::OID_prime_field(),
+                parameters => {
+                    'prime-field' => $curve_hr->{'p'},
+                },
+            },
+            curve => {
+                a => $curve_hr->{'a'}->as_bytes(),
+                b => $curve_hr->{'b'}->as_bytes(),
+            },
+            base => "\x{04}$gx$gy",
+            order => $curve_hr->{'n'},
+            cofactor => $curve_hr->{'h'},
+        },
+    };
+
+    return $self->__to_der($macro, $template, $data_hr);
+}
+
+sub __to_der {
+    my ($self, $macro, $template, $data_hr) = @_;
+
+    my $curve_hr = $self->_curve();
+
+    my $nbytes = Crypt::Perl::Math::ceil( $curve_hr->{'n'} / 8 );
+
+    my ($pub_x, $pub_y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+
+    for my $str ( $pub_x, $pub_y ) {
+        $str = $self->_pad_bytes_for_asn1($str);
+    }
+
+    local $data_hr->{'publicKey'} = "\x04$pub_x$pub_y";
+
+#use Data::Dumper;
+#print Dumper($data_hr);
+#print $template;
+
+    Crypt::Perl::Load::module('Crypt::Perl::ASN1');
+    my $asn1 = Crypt::Perl::ASN1->new()->prepare($template);
+
+    return $asn1->find($macro)->encode( $data_hr );
+}
+
+#return isa EC::Curve
+sub _get_curve_obj {
+    my ($self) = @_;
+
+    return $self->{'_curve_obj'} ||= Crypt::Perl::ECDSA::EC::Curve->new( @{$self->_curve()}{ qw( p a b ) } );
+}
+
+sub _add_params {
+    my ($self, $params_struct) = @_;
+
+    if (my $params = $params_struct->{'ecParameters'}) {
+        $self->{'curve'} = Crypt::Perl::ECDSA::ECParameters::normalize($params);
+    }
+    else {
+        $self->{'curve'} = $self->_curve_params_for_OID($params_struct->{'namedCurve'});
+    }
+
+    return $self;
+}
+
+sub _curve_params_for_OID {
+    my ($self, $oid) = @_;
+
+    require Crypt::Perl::ECDSA::EC::DB;
+    return Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_oid($oid);
+}
+
+sub _curve {
+    my ($self) = @_;
+
+    return $self->{'curve'} ||= $self->_curve_params_for_OID();
+}
+
+#----------------------------------------------------------------------
+
+1;
