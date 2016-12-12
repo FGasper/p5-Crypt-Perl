@@ -17,13 +17,15 @@ use Test::NoWarnings;
 use Test::Deep;
 use Test::Exception;
 
-use lib "$FindBin::Bin/lib";
-
 use parent qw(
     Test::Class
 );
 
-use Crypt::Perl::RSA::Math ();
+use Math::BigInt ();
+
+use lib "$FindBin::Bin/lib";
+
+use Crypt::Perl::Math ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -33,19 +35,28 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
-sub test_create_random_bit_length : Tests(745) {
-    my ($self) = @_;
+#sub test_create_random_bit_length : Tests(745) {
+#    my ($self) = @_;
+#
+#    for ( 24 .. 768 ) {
+#        my $num = Crypt::Perl::Math::create_random_bit_length($_);
+#        is(
+#            $num->bit_length(),
+#            $_,
+#            "$_-bit random number created correctly: " . $num->as_hex(),
+#        );
+#    }
+#
+#    return;
+#}
 
-    for ( 24 .. 768 ) {
-        my $num = Crypt::Perl::RSA::Math::create_random_bit_length($_);
-        is(
-            $num->bit_length(),
-            $_,
-            "$_-bit random number created correctly: " . $num->as_hex(),
-        );
+sub test_randint : Tests(30) {
+    for my $lim ( 234, 0x111fffff, Math::BigInt->from_hex('1111ffffffffffff') ) {
+        for ( 1 .. 10 ) {
+            my $randint = Crypt::Perl::Math::randint($lim);
+            cmp_ok( $randint, '<=', $lim, "$randint <= $lim (test $_)" );
+        }
     }
-
-    return;
 }
 
 sub test_ceil : Tests(10) {
@@ -53,7 +64,7 @@ sub test_ceil : Tests(10) {
 
     for ( map { $_ / 10 } 11 .. 20 ) {
         is(
-            Crypt::Perl::RSA::Math::ceil($_),
+            Crypt::Perl::Math::ceil($_),
             2,
             "ceil($_)",
         );
