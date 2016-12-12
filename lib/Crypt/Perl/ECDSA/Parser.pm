@@ -59,18 +59,18 @@ sub private {
 }
 
 sub public {
-    my ($der) = @_;
+    my ($pem_or_der) = @_;
 
     Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PublicKey');
 
-    Crypt::Perl::ToDER::ensure_der($der);
+    Crypt::Perl::ToDER::ensure_der($pem_or_der);
 
     my $asn1 = _public_asn1();
     my $asn1_ec = $asn1->find('ECPublicKey');
 
     my $struct;
     try {
-        $struct = $asn1_ec->decode($der);
+        $struct = $asn1_ec->decode($pem_or_der);
     }
     catch {
         my $ec_err = $_;
@@ -78,7 +78,7 @@ sub public {
         my $asn1_pkcs8 = $asn1->find('SubjectPublicKeyInfo');
 
         try {
-            my $spk_struct = $asn1_pkcs8->decode($der);
+            my $spk_struct = $asn1_pkcs8->decode($pem_or_der);
 
             #It still might succeed, even if this is wrong, so don’t die().
             if ( $spk_struct->{'algorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::PublicKey->OID_ecPublicKey() ) {
@@ -92,7 +92,7 @@ sub public {
             $struct->{'keydata'}{'parameters'} = $params;
         }
         catch {
-            die "Failed to decode private key as either ECDSA native ($ec_err) or PKCS8 ($_)";
+            die "Failed to decode public key as either ECDSA native ($ec_err) or PKCS8 ($_)";
         };
     };
 

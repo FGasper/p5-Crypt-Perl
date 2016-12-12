@@ -37,3 +37,5 @@ sub test_bit_length : Tests(2) {
 
     return;
 }
+
+1;

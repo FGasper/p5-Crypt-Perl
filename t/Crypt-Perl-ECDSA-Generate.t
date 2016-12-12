@@ -28,8 +28,8 @@ use File::Temp ();
 
 use lib "$FindBin::Bin/lib";
 use parent qw(
-    Test::Class
     NeedsOpenSSL
+    Test::Class
 );
 
 use OpenSSL_Control ();
@@ -81,3 +81,5 @@ sub test_generate : Tests(3) {
 
     return;
 }
+
+1;

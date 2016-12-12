@@ -22,8 +22,8 @@ use File::Temp;
 use lib "$FindBin::Bin/lib";
 
 use parent qw(
-    Test::Class
     NeedsOpenSSL
+    Test::Class
 );
 
 use Crypt::Format ();
@@ -71,3 +71,5 @@ sub test_generate : Tests(1) {
 
     return;
 }
+
+1;

@@ -25,8 +25,8 @@ use File::Temp ();
 use lib "$FindBin::Bin/lib";
 
 use parent qw(
-    Test::Class
     NeedsOpenSSL
+    Test::Class
 );
 
 use Crypt::Perl::ECDSA::Parser ();
@@ -140,3 +140,5 @@ sub test_verify : Tests(2) {
 
     return;
 }
+
+1;

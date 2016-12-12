@@ -28,8 +28,8 @@ use File::Temp ();
 
 use lib "$FindBin::Bin/lib";
 use parent qw(
-    Test::Class
     NeedsOpenSSL
+    Test::Class
 );
 
 use lib "$FindBin::Bin/../lib";
@@ -56,29 +56,6 @@ sub new {
     $self->num_method_tests( 'test_sign', 2 * @{ [ $class->_CURVE_NAMES() ] } );
 
     return $self;
-}
-
-#XXX TODO: Move this to a Parser.pm test since that’s really what it’s testing.
-sub test_pkcs8 : Tests(1) {
-    my ($self) = @_;
-
-    my $openssl_bin = $self->_get_openssl();
-
-    my $key_path = "$FindBin::Bin/assets/prime256v1.key";
-
-    my $plain = File::Slurp::read_file($key_path);
-    my $pkcs8 = `$openssl_bin pkey -in $key_path`;
-    die if $?;
-
-    $_ = Crypt::Perl::ECDSA::Parser::private($_) for ($pkcs8, $plain);
-
-    is_deeply(
-        $pkcs8,
-        $plain,
-        'PKCS8 key parsed the same as a regular one',
-    );
-
-    return;
 }
 
 sub test_get_public_key : Tests(1) {
@@ -145,7 +122,6 @@ sub test_sign : Tests() {
     #Use SHA1 since it’s the smallest digest that the latest OpenSSL accepts.
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
-use Carp::Always;
 
     for my $curve ( _CURVE_NAMES() ) {
         for my $param_enc ( qw( named_curve explicit ) ) {
@@ -254,3 +230,5 @@ sub test_verify : Tests(2) {
 
     return;
 }
+
+1;
