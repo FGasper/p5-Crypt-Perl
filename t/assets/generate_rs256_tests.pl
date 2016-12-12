@@ -20,6 +20,6 @@ my @rs256_tests = map {
     [ "$_-bit key" . ($use_exp_3 ? ', exp = 3' : q<>), $orsa->get_private_key_string(), $msg, MIME::Base64::encode($orsa->sign($msg)) ];
 } (510 .. 768);
 
-open my $rs256_wfh, '>', "$FindBin::Bin/assets/RS256.json";
+open my $rs256_wfh, '>', "$FindBin::Bin/RS256.json";
 print {$rs256_wfh} JSON::encode_json(\@rs256_tests) or die $!;
 close $rs256_wfh;

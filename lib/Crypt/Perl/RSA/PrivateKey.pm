@@ -56,6 +56,17 @@ sub sign_RS512 {
     return $self->_sign($msg, 'Digest::SHA', 'sha512', 'PKCS1_v1_5');
 }
 
+sub get_public_key {
+    my ($self) = @_;
+
+    Crypt::Perl::Load::module('Crypt::Perl::RSA::PublicKey');
+
+    return Crypt::Perl::RSA::PublicKey->new( {
+        modulus => $self->{'modulus'},
+        exponent => $self->{'publicExponent'},
+    } );
+}
+
 sub to_der {
     my ($self) = @_;
 
