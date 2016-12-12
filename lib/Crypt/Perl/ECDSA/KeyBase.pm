@@ -11,10 +11,19 @@ use Crypt::Perl::ECDSA::ECParameters ();
 use Crypt::Perl::ECDSA::Utils ();
 use Crypt::Perl::Load ();
 
+use constant OID_ecPublicKey => '1.2.840.10045.2.1';
+
 use constant ASN1_SIGNATURE => q<
     SEQUENCE {
         r   INTEGER,
         s   INTEGER
+    }
+>;
+
+use constant ASN1_Params => Crypt::Perl::ECDSA::ECParameters::ASN1_ECParameters() . q<
+    EcpkParameters ::= CHOICE {
+        namedCurve      OBJECT IDENTIFIER,
+        ecParameters    ECParameters
     }
 >;
 
@@ -61,6 +70,18 @@ sub verify {
     return 0;
 }
 
+sub to_der_with_curve_name {
+    my ($self) = @_;
+
+    return $self->_get_asn1_parts($self->_named_curve_parameters());
+}
+
+sub to_der_with_explicit_curve {
+    my ($self) = @_;
+
+    return $self->_get_asn1_parts($self->_explicit_curve_parameters());
+}
+
 #return isa EC::Point
 sub G {
     my ($self) = @_;
@@ -85,21 +106,18 @@ sub _pad_bytes_for_asn1 {
     return $bytes;
 }
 
-sub _to_der_with_curve_name {
-    my ($self, $macro, $template, $data_hr) = @_;
+sub _named_curve_parameters {
+    my ($self) = @_;
 
     my $curve_name = Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data( $self->_curve() );
 
-    local $data_hr->{'parameters'} = {
+    return {
         namedCurve => Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name($curve_name),
     };
-
-    return $self->__to_der($macro, $template, $data_hr);
 }
 
-sub _to_der_with_explicit_curve {
-    my ($self, $macro, $template, $data_hr) = @_;
-
+sub _explicit_curve_parameters {
+    my ($self) = @_;
     my $curve_hr = $self->_curve();
 
     my ($gx, $gy) = map { $_->as_bytes() } @{$curve_hr}{'gx', 'gy'};
@@ -108,7 +126,7 @@ sub _to_der_with_explicit_curve {
         $str = $self->_pad_bytes_for_asn1($str);
     }
 
-    local $data_hr->{'parameters'} = {
+    return {
         ecParameters => {
             version => 1,
             fieldID => {
@@ -126,8 +144,6 @@ sub _to_der_with_explicit_curve {
             cofactor => $curve_hr->{'h'},
         },
     };
-
-    return $self->__to_der($macro, $template, $data_hr);
 }
 
 sub __to_der {

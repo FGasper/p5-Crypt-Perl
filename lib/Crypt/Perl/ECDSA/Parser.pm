@@ -6,14 +6,15 @@ use warnings;
 use Try::Tiny;
 
 use Crypt::Perl::ASN1 ();
+use Crypt::Perl::Load ();
 use Crypt::Perl::PKCS8 ();
 use Crypt::Perl::ToDER ();
 use Crypt::Perl::ECDSA::ECParameters ();
-use Crypt::Perl::ECDSA::PrivateKey ();
-use Crypt::Perl::ECDSA::PublicKey ();
 
 sub private {
     my ($pem_or_der) = @_;
+
+    Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PrivateKey');
 
     Crypt::Perl::ToDER::ensure_der($pem_or_der);
 
@@ -33,7 +34,7 @@ sub private {
             my $pk8_struct = $asn1_pkcs8->decode($pem_or_der);
 
             #It still might succeed, even if this is wrong, so don’t die().
-            if ( $pk8_struct->{'privateKeyAlgorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::PublicKey::OID_ecPublicKey() ) {
+            if ( $pk8_struct->{'privateKeyAlgorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::PrivateKey->OID_ecPublicKey() ) {
                 warn "Unknown private key algorithm OID: “$pk8_struct->{'privateKeyAlgorithm'}{'algorithm'}”";
             }
 
@@ -57,33 +58,58 @@ sub private {
     return Crypt::Perl::ECDSA::PrivateKey->new($key_parts, $struct->{'parameters'});
 }
 
-#This is not the standard ASN.1 template as found in RFC 5915,
-#but it seems to generate equivalent results.
-#
-#The specific patterns for ECDSA explicit parameters seem to be
-#locked behind some silly thing that someone wants me to pay for.
-#TODO: Find out this information.
-use constant ASN1_PRIVATE => q<
+sub public {
+    my ($der) = @_;
 
-    ECPrivateKey ::= SEQUENCE {
-        version         INTEGER,
-        privateKey      OCTET STRING,
-        parameters      [0] EXPLICIT EcpkParameters OPTIONAL,
-        publicKey       [1] EXPLICIT BIT STRING
-    }
->;
+    Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PublicKey');
 
-use constant ASN1_Params => Crypt::Perl::ECDSA::ECParameters::ASN1_ECParameters() . q<
-    EcpkParameters ::= CHOICE {
-        namedCurve      OBJECT IDENTIFIER,
-        ecParameters    ECParameters
+    Crypt::Perl::ToDER::ensure_der($der);
+
+    my $asn1 = _public_asn1();
+    my $asn1_ec = $asn1->find('ECPublicKey');
+
+    my $struct;
+    try {
+        $struct = $asn1_ec->decode($der);
     }
->;
+    catch {
+        my $ec_err = $_;
+
+        my $asn1_pkcs8 = $asn1->find('SubjectPublicKeyInfo');
+
+        try {
+            my $spk_struct = $asn1_pkcs8->decode($der);
+
+            #It still might succeed, even if this is wrong, so don’t die().
+            if ( $spk_struct->{'algorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::PublicKey->OID_ecPublicKey() ) {
+                warn "Unknown private key algorithm OID: “$spk_struct->{'algorithm'}{'algorithm'}”";
+            }
+
+            my $asn1_params = $asn1->find('EcpkParameters');
+            my $params = $asn1_params->decode($spk_struct->{'algorithm'}{'parameters'});
+
+            $struct = { publicKey => $spk_struct->{'subjectPublicKey'} };
+            $struct->{'keydata'}{'parameters'} = $params;
+        }
+        catch {
+            die "Failed to decode private key as either ECDSA native ($ec_err) or PKCS8 ($_)";
+        };
+    };
+
+    return Crypt::Perl::ECDSA::PublicKey->new(
+        $struct->{'publicKey'}[0],
+        $struct->{'keydata'}{'parameters'},
+    );
+}
 
 sub _private_asn1 {
-    my ($self) = @_;
+    my $template = join("\n", Crypt::Perl::ECDSA::PrivateKey->ASN1_PRIVATE(), Crypt::Perl::PKCS8::ASN1());
 
-    my $template = join("\n", ASN1_Params(), ASN1_PRIVATE(), Crypt::Perl::PKCS8::ASN1());
+    return Crypt::Perl::ASN1->new()->prepare($template);
+}
+
+sub _public_asn1 {
+    my $template = join("\n", Crypt::Perl::ECDSA::PublicKey->ASN1_PUBLIC(), Crypt::Perl::PKCS8::ASN1());
 
     return Crypt::Perl::ASN1->new()->prepare($template);
 }

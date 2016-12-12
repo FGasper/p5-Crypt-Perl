@@ -12,11 +12,34 @@ use Bytes::Random::Secure::Tiny ();
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::BigInt ();
 use Crypt::Perl::PKCS8 ();
+use Crypt::Perl::Load ();
 use Crypt::Perl::RNG ();
 use Crypt::Perl::Math ();
 use Crypt::Perl::ToDER ();
 use Crypt::Perl::X ();
 
+#This is not the standard ASN.1 template as found in RFC 5915,
+#but it seems to generate equivalent results.
+#
+#The specific patterns for ECDSA explicit parameters seem to be
+#locked behind some silly thing that someone wants me to pay for.
+#TODO: Find out this information.
+use constant ASN1_PRIVATE => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
+
+    ECPrivateKey ::= SEQUENCE {
+        version         INTEGER,
+        privateKey      OCTET STRING,
+        parameters      [0] EXPLICIT EcpkParameters OPTIONAL,
+        publicKey       [1] EXPLICIT BIT STRING
+    }
+>;
+
+#Expects $key_parts to be a hash ref:
+#
+#   version - AFAICT unused
+#   private - BigInt or its byte-string representation
+#   public  - ^^
+#
 sub new_by_curve_name {
     my ($class, $key_parts, $curve_name) = @_;
 
@@ -24,13 +47,20 @@ sub new_by_curve_name {
     #in to_der_with_curve_name() proves prohibitive.
     return $class->new(
         $key_parts,
+
+        #“Fake out” the $curve_parts attribute by recreating
+        #the structure that ASN.1 would give from a named curve.
         {
             namedCurve => Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name($curve_name),
         },
     );
 }
 
-#Expects a hash ref:
+
+#$curve_parts is also a hash ref, defined as whatever the ASN.1
+#parse of the main key’s “parameters” returned, whether that be
+#explicit key parameters or a named curve.
+#
 sub new {
     my ($class, $key_parts, $curve_parts) = @_;
 
@@ -47,52 +77,90 @@ sub new {
         }
     }
 
-    #my $self = {
-    #    version => $struct->{'version'},
-    #    private => Crypt::Perl::BigInt->from_bytes($struct->{'privateKey'}),
-    #    public => Crypt::Perl::BigInt->from_bytes($struct->{'publicKey'}[0]),
-    #
-    #    #for parsing
-    #    public_bytes_r => \$struct->{'publicKey'}[0],
-    #};
-
     bless $self, $class;
 
-    $self->_add_params( $curve_parts );
-
-    return $self;
+    return $self->_add_params( $curve_parts );
 }
 
-sub _make_asn1_key_parts {
+#$whatsit is probably a message digest, e.g., from SHA256
+sub sign {
+    my ($self, $whatsit) = @_;
+
+    my $dgst = Crypt::Perl::BigInt->from_bytes( $whatsit );
+
+    my $priv_num = $self->{'private'}; #Math::BigInt->from_hex( $priv_hex );
+
+    my $n = $self->_curve()->{'n'}; #$curve_data->{'n'};
+
+    my $key_len = $self->max_sign_bits();
+    my $dgst_len = $dgst->bit_length();
+    if ( $dgst_len > $key_len ) {
+        die Crypt::Perl::X::create('TooLongToSign', $key_len, $dgst_len );
+    }
+
+    #isa ECPoint
+    my $G = $self->G();
+#printf "G.x: %s\n", $G->{'x'}->to_bigint()->as_hex();
+#printf "G.y: %s\n", $G->{'y'}->to_bigint()->as_hex();
+#printf "G.z: %s\n", $G->{'z'}->as_hex();
+
+    my ($k, $r);
+
+    do {
+        $k = Crypt::Perl::Math::randint($n);
+#print "once\n";
+#printf "big random: %s\n", $k->as_hex();
+#$k = Crypt::Perl::BigInt->new("98452900523450592996995215574085435893040452563985855319633891614520662229711");
+#printf "k: %s\n", $k->bstr();
+        my $Q = $G->multiply($k);   #$Q isa ECPoint
+#printf "Q.x: %s\n", $Q->{'x'}->to_bigint()->as_hex();
+#printf "Q.y: %s\n", $Q->{'y'}->to_bigint()->as_hex();
+#printf "Q.z: %s\n", $Q->{'z'}->as_hex();
+        $r = $Q->get_x()->to_bigint()->bmod($n);
+    } while ($r <= 0);
+
+#printf "k: %s\n", $k->as_hex();
+#printf "n: %s\n", $n->as_hex();
+#printf "e: %s\n", $dgst->as_hex();
+#printf "d: %s\n", $priv_num->as_hex();
+#printf "r: %s\n", $r->as_hex();
+
+    my $s = $k->bmodinv($n);
+    $s *= ( $dgst + ( $priv_num * $r ) );
+    $s %= $n;
+
+    return $self->_serialize_sig( $r, $s );
 }
 
-sub _get_private_der {
-    my ($self, $method) = @_;
+sub get_public_key {
+    my ($self) = @_;
+
+    Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PublicKey');
+
+    return Crypt::Perl::ECDSA::PublicKey->new(
+        $self->{'public'},
+        $self->_explicit_curve_parameters(),
+    );
+}
+
+#----------------------------------------------------------------------
+
+sub _get_asn1_parts {
+    my ($self, $curve_parts) = @_;
 
     my $private_str = $self->{'private'}->as_bytes();
 
     #XXX Circular dependency
     use Crypt::Perl::ECDSA::Parser ();
-    return $self->$method(
+    return $self->__to_der(
         'ECPrivateKey',
-        Crypt::Perl::ECDSA::Parser::ASN1_PRIVATE() . Crypt::Perl::ECDSA::Parser::ASN1_Params(),
+        ASN1_PRIVATE(),
         {
             version => 1,
             privateKey => $self->_pad_bytes_for_asn1($private_str),
+            parameters => $curve_parts,
         },
     );
-}
-
-sub to_der_with_curve_name {
-    my ($self) = @_;
-
-    return $self->_get_private_der('_to_der_with_curve_name');
-}
-
-sub to_der_with_explicit_curve {
-    my ($self) = @_;
-
-    return $self->_get_private_der('_to_der_with_explicit_curve');
 }
 
 #Accepts der
@@ -148,56 +216,6 @@ sub to_der_with_explicit_curve {
 #
 #    return $self;
 #}
-
-#$whatsit is probably a message digest, e.g., from SHA256
-sub sign {
-    my ($self, $whatsit) = @_;
-
-    my $dgst = Crypt::Perl::BigInt->from_bytes( $whatsit );
-
-    my $priv_num = $self->{'private'}; #Math::BigInt->from_hex( $priv_hex );
-
-    my $n = $self->_curve()->{'n'}; #$curve_data->{'n'};
-
-    my $key_len = $self->max_sign_bits();
-    my $dgst_len = $dgst->bit_length();
-    if ( $dgst_len > $key_len ) {
-        die Crypt::Perl::X::create('TooLongToSign', $key_len, $dgst_len );
-    }
-
-    #isa ECPoint
-    my $G = $self->G();
-#printf "G.x: %s\n", $G->{'x'}->to_bigint()->as_hex();
-#printf "G.y: %s\n", $G->{'y'}->to_bigint()->as_hex();
-#printf "G.z: %s\n", $G->{'z'}->as_hex();
-
-    my ($k, $r);
-
-    do {
-        $k = Crypt::Perl::Math::randint($n);
-#print "once\n";
-#printf "big random: %s\n", $k->as_hex();
-#$k = Crypt::Perl::BigInt->new("98452900523450592996995215574085435893040452563985855319633891614520662229711");
-#printf "k: %s\n", $k->bstr();
-        my $Q = $G->multiply($k);   #$Q isa ECPoint
-#printf "Q.x: %s\n", $Q->{'x'}->to_bigint()->as_hex();
-#printf "Q.y: %s\n", $Q->{'y'}->to_bigint()->as_hex();
-#printf "Q.z: %s\n", $Q->{'z'}->as_hex();
-        $r = $Q->get_x()->to_bigint()->bmod($n);
-    } while ($r <= 0);
-
-#printf "k: %s\n", $k->as_hex();
-#printf "n: %s\n", $n->as_hex();
-#printf "e: %s\n", $dgst->as_hex();
-#printf "d: %s\n", $priv_num->as_hex();
-#printf "r: %s\n", $r->as_hex();
-
-    my $s = $k->bmodinv($n);
-    $s *= ( $dgst + ( $priv_num * $r ) );
-    $s %= $n;
-
-    return $self->_serialize_sig( $r, $s );
-}
 
 #could be faster; see JS implementation?
 sub _getBigRandom {

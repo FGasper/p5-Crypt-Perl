@@ -29,7 +29,7 @@ use parent qw(
     NeedsOpenSSL
 );
 
-use Crypt::Perl::ECDSA::PublicKey ();
+use Crypt::Perl::ECDSA::Parser ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -52,12 +52,54 @@ sub test_subject_public_key : Tests(1) {
 
     $_ = Crypt::Format::pem2der($_) for ($pkcs8, $plain);
 
-    $_ = Crypt::Perl::ECDSA::PublicKey->new($_) for ($pkcs8, $plain);
+    $_ = Crypt::Perl::ECDSA::Parser::public($_) for ($pkcs8, $plain);
 
     is_deeply(
         $pkcs8,
         $plain,
         'PKCS8 key parsed the same as a regular one',
+    );
+
+    return;
+}
+
+sub test_to_der_with_explicit_curve : Tests(1) {
+    my $key_path = "$FindBin::Bin/assets/prime256v1_explicit.key.public";
+
+    my $pkey_pem = File::Slurp::read_file($key_path);
+    my $der1 = Crypt::Format::pem2der($pkey_pem);
+
+    my $ecdsa = Crypt::Perl::ECDSA::Parser::public($pkey_pem);
+
+    my $der2 = $ecdsa->to_der_with_explicit_curve();
+
+    $_ = unpack('H*', $_) for $der2, $der1;
+
+    is(
+        $der2,
+        $der1,
+        'output DER matches the input',
+    );
+
+    return;
+}
+
+sub test_to_der_with_curve_name : Tests(1) {
+    my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
+
+    my $pkey_pem = File::Slurp::read_file($key_path);
+    my $der1 = Crypt::Format::pem2der($pkey_pem);
+
+    my $ecdsa = Crypt::Perl::ECDSA::Parser::public($pkey_pem);
+
+    my $der2 = $ecdsa->to_der_with_curve_name();
+
+    $_ = unpack('H*', $_) for $der2, $der1;
+
+    is(
+        $der2,
+        $der1,
+        'output DER matches the input',
     );
 
     return;
@@ -73,9 +115,8 @@ sub test_verify : Tests(2) {
         my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
 
         my $pkey_pem = File::Slurp::read_file($key_path);
-        my $pkey_der = Crypt::Format::pem2der($pkey_pem);
 
-        my $ecdsa = Crypt::Perl::ECDSA::PublicKey->new($pkey_der);
+        my $ecdsa = Crypt::Perl::ECDSA::Parser::public($pkey_pem);
 
         my $msg = 'Hello';
 

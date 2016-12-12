@@ -58,7 +58,7 @@ sub new {
     return $self;
 }
 
-#XXX TODO: Move this to a Parser.pm test
+#XXX TODO: Move this to a Parser.pm test since that’s really what it’s testing.
 sub test_pkcs8 : Tests(1) {
     my ($self) = @_;
 
@@ -77,6 +77,24 @@ sub test_pkcs8 : Tests(1) {
         $plain,
         'PKCS8 key parsed the same as a regular one',
     );
+
+    return;
+}
+
+sub test_get_public_key : Tests(1) {
+    my $key_path = "$FindBin::Bin/assets/prime256v1.key";
+
+    my $key_str = File::Slurp::read_file($key_path);
+
+    my $key_obj = Crypt::Perl::ECDSA::Parser::private($key_str);
+
+    my $public = $key_obj->get_public_key();
+
+    my $msg = 'Hello';
+
+    my $sig = $key_obj->sign($msg);
+
+    ok( $public->verify($msg, $sig), 'get_public_key() produces a working public key' );
 
     return;
 }
@@ -139,7 +157,6 @@ use Carp::Always;
 
                 my $key_path = "$dir/key";
 
-note "BEFORE";
                 system(
                     $openssl_bin, 'ecparam',
                     '-genkey',
@@ -149,7 +166,6 @@ note "BEFORE";
                     -param_enc => $param_enc,
                 );
                 die if $?;
-note "AFTER";
 
                 my $pkey_pem = File::Slurp::read_file($key_path);
 
