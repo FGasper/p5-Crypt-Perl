@@ -8,9 +8,9 @@ Crypt::Perl - Cryptography in Pure Perl
 
 Just as it sounds: cryptography with no XS dependences! This is useful in
 environments where you want to encrypt things but may not have access to
-other tools that do this work like OpenSSL, C<CryptX>, etc. Of course,
-if you do have access to one of those tools, they may suit your purpose
-better.
+other tools that do this work like L<OpenSSL|http://openssl.org>, L<CryptX>,
+etc. Of course, if you do have access to one of those tools, they may suit
+your purpose better.
 
 See submodules for usage examples of:
 
@@ -20,9 +20,9 @@ See submodules for usage examples of:
 
 =item * Key parsing
 
-=item * Signing
+=item * Signing & verification
 
-=item * Signature verification
+=item * Encryption & decryption
 
 =back
 
@@ -32,15 +32,16 @@ See submodules for usage examples of:
 
 =item * RSA
 
-=item * ECDSA (including all curves from OpenSSL 1.0.2j)
+=item * ECDSA
 
 =back
 
 =head1 SECURITY
 
 B<NO GUARANTEES!!!> So far this is just my own effort—and a port of existing
-(likely also un-audited) logic at that. There has been no formal security
-review. I did find L<one security problem|https://github.com/kjur/jsrsasign/issues/221>
+(likely also un-audited) logic at that.
+B<There has been no formal security review.>
+L<I did find one security problem|https://github.com/kjur/jsrsasign/issues/221>
 in one of the source libraries; there may well be more.
 
 That said, I am B<reasonably> confident that this is a “good enough” effort
@@ -49,9 +50,12 @@ always welcome! :)
 
 =head1 SPEED
 
-It ain’t fast. :) That said, most operations here are reasonably quick.
-This code does take advantage of XS-based backends for C<Math::BigInt> and
-C<Bytes::Random::Secure::Tiny> where available.
+Most operations here are reasonably quick, but certain ones (e.g., RSA
+key generation) are pretty slow. Depending on your use case, this may or may
+not be workable for you. It will always, of course, be slower than C-based
+implementations like OpenSSL or L<LibTomCrypt|http://www.libtom.org/LibTomCrypt/>.
+This code does take advantage of XS-based backends for modules like
+C<Math::BigInt> and C<Bytes::Random::Secure::Tiny> where available.
 
 =head1 TODO
 
@@ -60,8 +64,8 @@ to the entire distribution.
 
 =over 4
 
-=item * Security audit. A check against L<OpenSSL|http://openssl.org> or
-L<LibTomCrypt|http://www.libtom.org/LibTomCrypt/> would be awesome. I found
+=item * Security audit. A check against OpenSSL or LibTomCrypt
+would be awesome. I found
 OpenSSL overly confusing to read, and I didn’t think to check LibTomCrypt
 until I had solved the major problems.
 
@@ -73,10 +77,8 @@ until I had solved the major problems.
 
 =head1 ACKNOWLEDGEMENTS
 
-Much of the logic here is taken from Kenji Urushima’s L<jsrsasign|https://github.com/kjur/jsrsasign>.
-The RSA prime number generation logic comes from my own L<Math::ProvablePrime>
-(itself being a port of a Python algorithm that I found).
+Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.com/kjur/jsrsasign>.
 
-Most of the tests depend on the near-ubiquitous OpenSSL.
-
-1;
+Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
+without which the Internet would be a very, very different reality from
+what we know!
