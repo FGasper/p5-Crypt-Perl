@@ -63,6 +63,23 @@ sub _display_raw {
     return sprintf( '%v02x', $_[0] );
 }
 
+sub check_raw_encrypt_decrypt : Tests(2) {
+    my ($self) = @_;
+
+    my $msg = 'Hello. This is a test.';
+
+    my $largest_pem = $self->{'_tests'}->[-1][1];
+    my $key = Crypt::Perl::RSA::Parser->new()->private($largest_pem);
+
+    my $crypted = $key->encrypt_raw($msg);
+    isnt( $crypted, $msg, 'encrypt() changes the message');
+
+    my $decrypted = $key->decrypt_raw($crypted);
+    is( $decrypted, $msg, '… and decrypt() undoes that change');
+
+    return;
+}
+
 sub check_RS384_and_RS512 : Tests(6) {
     my ($self) = @_;
 

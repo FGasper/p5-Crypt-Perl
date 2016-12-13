@@ -73,6 +73,40 @@ sub to_der {
     return $self->_to_der('RSAPrivateKey');
 }
 
+#----------------------------------------------------------------------
+#These two functions represent the the fundamental mathematical truth on which
+#RSA rests.
+#
+
+sub encrypt_raw {
+    my ($self, $bytes) = @_;
+
+    return Crypt::Perl::BigInt->from_bytes($bytes)->bmodpow($self->{'publicExponent'}, $self->{'modulus'})->as_bytes();
+}
+
+sub decrypt_raw {
+    my ($self, $x) = @_;
+
+    $x = Crypt::Perl::BigInt->from_bytes($x);
+
+    #jsrsasign avoids this when it has P and Q, which we have.
+    #presumably that’s because privateExponent (D) is quite large,
+    #so using it as an exponent is expensive.
+    #return ->bmodpow($self->{'privateExponent'}, $self->{'modulus'})->as_bytes();
+
+    my $p = $self->P();
+    my $q = $self->Q();
+
+    my $xp = ($x % $p)->bmodpow( $self->D() % ($p - 1), $p );
+    my $xq = ($x % $q)->bmodpow( $self->D() % ($q - 1), $q );
+
+    $xp += $p while $xp < $xq;
+
+    return ($xq + ((($xp - $xq) * $self->QINV()) % $p) * $q)->as_bytes();
+}
+
+#----------------------------------------------------------------------
+
 sub _sign {
     my ($self, $msg, $hash_module, $hasher, $scheme) = @_;
 
@@ -111,7 +145,7 @@ sub _sign {
     return $sig;
 }
 
-#RSA’s encryption/decryption operation.
+#RSA’s signing operation.
 #This function is based on _modPow() in forge’s js/rsa.js.
 #
 #Returns a BigInt.

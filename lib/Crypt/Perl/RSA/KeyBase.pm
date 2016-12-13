@@ -48,6 +48,12 @@ sub verify_RS512 {
     return $self->_verify($msg, $sig, 'Digest::SHA', 'sha512', 'PKCS1_v1_5');
 }
 
+sub encrypt_raw {
+    my ($self, $bytes) = @_;
+
+    return Crypt::Perl::BigInt->from_bytes($bytes)->bmodpow($self->{'publicExponent'}, $self->{'modulus'})->as_bytes();
+}
+
 #----------------------------------------------------------------------
 
 sub _to_der {

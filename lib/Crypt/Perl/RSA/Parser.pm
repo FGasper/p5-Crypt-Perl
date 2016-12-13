@@ -164,8 +164,6 @@ sub _decode_pkcs8_public {
 sub _new_public {
     my ($self, $parsed_hr) = @_;
 
-    local $parsed_hr->{'exponent'} = $parsed_hr->{'publicExponent'};
-
     Crypt::Perl::Load::module('Crypt::Perl::RSA::PublicKey');
     return Crypt::Perl::RSA::PublicKey->new($parsed_hr);
 }

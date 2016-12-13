@@ -9,8 +9,8 @@ my $ASN1_TEMPLATE = q<
     FG_FAUX_INTEGER ::= <WHAT_IS_FG_FAUX_INTEGER>
 
     RSAPublicKey ::= SEQUENCE {
-        modulus     FG_FAUX_INTEGER,  -- n
-        exponent    FG_FAUX_INTEGER   -- e
+        modulus         FG_FAUX_INTEGER,  -- n
+        publicExponent  FG_FAUX_INTEGER   -- e
     }
 
     -- FG: simplified from RFC for Convert::ASN1

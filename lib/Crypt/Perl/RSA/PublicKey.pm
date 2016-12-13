@@ -6,8 +6,9 @@ use parent qw(
 );
 
 BEGIN {
-    __PACKAGE__->mk_ro_accessors('exponent');
+    __PACKAGE__->mk_ro_accessors('publicExponent');
 
+    *exponent = \&publicExponent;
     *E = \&exponent;
 }
 
