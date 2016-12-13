@@ -74,15 +74,9 @@ sub to_der {
 }
 
 #----------------------------------------------------------------------
-#These two functions represent the the fundamental mathematical truth on which
-#RSA rests.
+#This function, in tandem with encrypt_raw(), represents the fundamental
+#mathematical truth on which RSA rests.
 #
-
-sub encrypt_raw {
-    my ($self, $bytes) = @_;
-
-    return Crypt::Perl::BigInt->from_bytes($bytes)->bmodpow($self->{'publicExponent'}, $self->{'modulus'})->as_bytes();
-}
 
 sub decrypt_raw {
     my ($self, $x) = @_;

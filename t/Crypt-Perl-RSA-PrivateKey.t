@@ -69,7 +69,7 @@ sub check_raw_encrypt_decrypt : Tests(2) {
     my $msg = 'Hello. This is a test.';
 
     my $largest_pem = $self->{'_tests'}->[-1][1];
-    my $key = Crypt::Perl::RSA::Parser->new()->private($largest_pem);
+    my $key = Crypt::Perl::RSA::Parser::private($largest_pem);
 
     my $crypted = $key->encrypt_raw($msg);
     isnt( $crypted, $msg, 'encrypt() changes the message');
@@ -84,7 +84,7 @@ sub check_RS384_and_RS512 : Tests(6) {
     my ($self) = @_;
 
     my $largest_pem = $self->{'_tests'}->[-1][1];
-    my $key = Crypt::Perl::RSA::Parser->new()->private($largest_pem);
+    my $key = Crypt::Perl::RSA::Parser::private($largest_pem);
 
     for my $alg ( qw( RS384 RS512 ) ) {
         my $message = rand;
@@ -127,7 +127,7 @@ sub do_RS256_tests : Tests() {
 
         my $ossl_sig = MIME::Base64::decode($sig_b64);
 
-        my $key = Crypt::Perl::RSA::Parser->new()->private($key_pem);
+        my $key = Crypt::Perl::RSA::Parser::private($key_pem);
 
         is(
             $key->verify_RS256( $message, $ossl_sig ),
