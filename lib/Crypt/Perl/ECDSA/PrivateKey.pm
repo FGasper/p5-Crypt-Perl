@@ -1,5 +1,57 @@
 package Crypt::Perl::ECDSA::PrivateKey;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::PrivateKey
+
+=head1 SYNOPSIS
+
+    #Use Generate.pm or Parser.pm rather
+    #than instantiating this class directly.
+
+    #This works even if the object came from a key file that doesn’t
+    #contain the curve name.
+    $prkey->get_curve_name();
+
+    if ($payload > ($prkey->max_sign_bits() / 8)) {
+        die "Payload too long!";
+    }
+
+    #$payload is probably a hash (e.g., SHA-256) of your original message.
+    my $sig = $prkey->sign($payload);
+
+    $prkey->verify($payload, $sig) or die "Invalid signature!";
+
+    #Corresponding “der” methods exist as well.
+    my $cn_pem = $prkey->to_pem_with_curve_name();
+    my $expc_pem = $prkey->to_pem_with_explicit_curve();
+
+    my $pbkey = $prkey->get_public_key();
+
+=head1 DISCUSSION
+
+The SYNOPSIS above should be illustration enough of how to use this class.
+
+=head1 SECURITY
+
+The security advantages of elliptic-curve cryptography (ECC) are a matter of
+some controversy. While the math itself is apparently bulletproof, there are
+varying opinions about the integrity of the various curves that are recommended
+for ECC. Some believe that some curves contain “backdoors” that would allow
+L<NIST|https://www.nist.gov> to sniff a transmission.
+
+That said, RSA will eventually no longer be viable: as the keys get bigger, the
+security advantage of increasing their size diminishes.
+
+=head1 TODO
+
+This minimal set of functionality can be augmented as feature requests come in.
+Patches are welcome—particularly with tests!
+
+=cut
+
 use strict;
 use warnings;
 
@@ -33,6 +85,8 @@ use constant ASN1_PRIVATE => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
         publicKey       [1] EXPLICIT BIT STRING
     }
 >;
+
+use constant _PEM_HEADER => 'EC PRIVATE KEY';
 
 #Expects $key_parts to be a hash ref:
 #
@@ -99,7 +153,7 @@ sub sign {
     }
 
     #isa ECPoint
-    my $G = $self->G();
+    my $G = $self->_G();
 #printf "G.x: %s\n", $G->{'x'}->to_bigint()->as_hex();
 #printf "G.y: %s\n", $G->{'y'}->to_bigint()->as_hex();
 #printf "G.z: %s\n", $G->{'z'}->as_hex();

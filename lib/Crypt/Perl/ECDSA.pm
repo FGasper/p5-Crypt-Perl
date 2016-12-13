@@ -29,6 +29,7 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
 
     my $prkey_by_name = Crypt::Perl::ECDSA::Generate::by_name('secp521r1');
 
+    #Probably only useful for trying out a custom curve?
     my $prkey_by_curve = Crypt::Perl::ECDSA::Generate::by_explicit_curve(
         {
             p => ..., #isa Crypt::Perl::BigInt
@@ -69,26 +70,35 @@ NOTE: The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://
 
 =over 4
 
-=item * It would be great to support characteristic-two curves.
+=item * I
 
 =back
 
-=head1 HANDY OPENSSL ONE-LINERS
+=head1 SECURITY
 
-These were so useful in testing (and, unlike the corresponding RSA commands,
-not immediately obvious to remember) that I think it useful to include them
-here.
+The security advantages of elliptic-curve cryptography (ECC) are a matter of
+some controversy. While the math itself is apparently bulletproof, there are
+varying opinions about the integrity of the various curves that are recommended
+for ECC. Some believe that some curves contain “backdoors” that would allow
+L<NIST|https://www.nist.gov> to sniff a transmission. For more information,
+look at L<http://safecurves.cr.yp.to>.
 
-    #Generate a key (prime256v1 curve)
-    openssl ecparam -genkey -name prime256v1 -noout
+That said, RSA will eventually no longer be viable: as RSA keys get bigger, the
+security advantage of increasing their size diminishes.
 
-    #Same operation, but include the curve parameters explicitly
-    openssl ecparam -genkey -name prime256v1 -noout -param_enc explicit
+This framework “has no opinion” regarding which curves you use; it ships all
+of the prime-field curves that (L<OpenSSL|http://openssl.org>) includes and
+works with any of them. You can try out custom curves as well.
 
-    #Verify a hash signature
-    #NB: OpenSSL can’t verify a signature of *just* a message;
-    #it always hashes the message when it verifies.
-    openssl dgst -sha256 -prverify $key_path -signature $sigfile $msgfile
+=head1 TODO
+
+This minimal set of functionality can be augmented as feature requests come in.
+Patches are welcome—particularly with tests!
+
+In particular, it would be great to support characteristic-two curves, though
+almost everything seems to expect the prime-field variety.
+OpenSSL is the only implementation I know of that
+supports characteristic-two.)
 
 =cut
 

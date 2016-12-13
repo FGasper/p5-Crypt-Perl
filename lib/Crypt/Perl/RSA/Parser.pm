@@ -1,5 +1,22 @@
 package Crypt::Perl::RSA::Parser;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::RSA::Parser - RSA key parsing
+
+=head1 SYNOPSIS
+
+    use Crypt::Perl::RSA::Parser ();
+
+    #These accept either DER or PEM, native format or PKCS8.
+    #
+    my $prkey = Crypt::Perl::RSA::Parser::private($buffer);
+    my $pbkey = Crypt::Perl::RSA::Parser::public($buffer);
+
+=cut
+
 use strict;
 use warnings;
 

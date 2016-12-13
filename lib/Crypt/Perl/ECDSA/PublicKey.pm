@@ -1,5 +1,36 @@
 package Crypt::Perl::ECDSA::PublicKey;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::PrivateKey
+
+=head1 SYNOPSIS
+
+    #Use Parser.pm or a private key’s get_public_key()
+    #rather #than instantiating this class directly.
+
+    #This works even if the object came from a key file that doesn’t
+    #contain the curve name.
+    $pbkey->get_curve_name();
+
+    if ($payload > ($pbkey->max_sign_bits() / 8)) {
+        die "Payload too long!";
+    }
+
+    $pbkey->verify($payload, $sig) or die "Invalid signature!";
+
+    #Corresponding “der” methods exist as well.
+    my $cn_pem = $pbkey->to_pem_with_curve_name();
+    my $expc_pem = $pbkey->to_pem_with_explicit_curve();
+
+=head1 DISCUSSION
+
+The SYNOPSIS above should be illustration enough of how to use this class.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -21,6 +52,8 @@ use constant ASN1_PUBLIC => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
         publicKey   BIT STRING
     }
 >;
+
+use constant _PEM_HEADER => 'EC PUBLIC KEY';
 
 #There’s no new_by_curve_name() method here because
 #that logic in PrivateKey is only really useful for when we

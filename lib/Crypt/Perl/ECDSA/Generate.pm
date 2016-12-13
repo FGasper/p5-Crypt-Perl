@@ -10,11 +10,31 @@ Crypt::Perl::ECDSA::Generate - ECDSA key generation
 
     use Crypt::Perl::ECDSA::Generate ();
 
-    my $key = Crypt::Perl::ECDSA::Generate::by_name('secp521r1');
+    #$prkey is a C::P::E::PrivateKey instance.
+    my $prkey = Crypt::Perl::ECDSA::Generate::by_name('secp521r1');
 
-    my $signature = $key->sign('Hello!');
+    my $signature = $prkey->sign('Hello!');
 
-    die 'Wut' if $key->verify('Hello!', $signature);
+    die 'Wut' if $prkey->verify('Hello!', $signature);
+
+    #You can also, in case it’s useful, do this. It’s probably
+    #only useful if you’re developing a new curve or something … ??
+    my $prkey2 = Crypt::Perl::ECDSA::Generate::by_explicit_curve(
+        {
+            p => Crypt::Perl::BigInt->new(...),
+            a => ...,
+            b => ...,
+            n => ...,
+            h => ...,
+            gx => ...,
+            gy => ...,
+        },
+    );
+
+=head1 DISCUSSION
+
+Thankfully, this is easy enough on processors that it’s feasible
+in pure Perl!
 
 =cut
 

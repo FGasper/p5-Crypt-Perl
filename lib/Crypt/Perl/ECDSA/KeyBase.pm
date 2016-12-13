@@ -3,6 +3,8 @@ package Crypt::Perl::ECDSA::KeyBase;
 use strict;
 use warnings;
 
+use Crypt::Format ();
+
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::Math ();
 use Crypt::Perl::ECDSA::EC::Curve ();
@@ -59,7 +61,7 @@ sub verify {
             my $u1 = ($e * $c) % $n;
             my $u2 = ($r * $c) % $n;
 
-            my $point = $self->G()->multiply($u1)->add( $Q->multiply($u2) );
+            my $point = $self->_G()->multiply($u1)->add( $Q->multiply($u2) );
 
             my $v = $point->get_x()->to_bigint() % $n;
 
@@ -82,16 +84,38 @@ sub to_der_with_explicit_curve {
     return $self->_get_asn1_parts($self->_explicit_curve_parameters());
 }
 
-#return isa EC::Point
-sub G {
+sub to_pem_with_curve_name {
     my ($self) = @_;
-    return $self->_get_curve_obj()->decode_point( @{$self->_curve()}{ qw( gx gy ) } );
+
+    my $der = $self->to_der_with_curve_name();
+
+    return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
+}
+
+sub to_pem_with_explicit_curve {
+    my ($self) = @_;
+
+    my $der = $self->to_der_with_explicit_curve();
+
+    return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
 }
 
 sub max_sign_bits {
     my ($self) = @_;
 
     return $self->_get_curve_obj()->keylen();
+}
+
+sub get_curve_name {
+    my ($self) = @_;
+
+    return Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data( $self->_curve() );
+}
+
+#return isa EC::Point
+sub _G {
+    my ($self) = @_;
+    return $self->_get_curve_obj()->decode_point( @{$self->_curve()}{ qw( gx gy ) } );
 }
 
 sub _pad_bytes_for_asn1 {
@@ -109,7 +133,7 @@ sub _pad_bytes_for_asn1 {
 sub _named_curve_parameters {
     my ($self) = @_;
 
-    my $curve_name = Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data( $self->_curve() );
+    my $curve_name = $self->get_curve_name();
 
     return {
         namedCurve => Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name($curve_name),

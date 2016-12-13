@@ -1,5 +1,29 @@
 package Crypt::Perl::RSA::Generate;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::RSA::Generate - RSA key generation
+
+=head1 SYNOPSIS
+
+    use Crypt::Perl::RSA::Generate ();
+
+    #$prkey is a C::P::R::PrivateKey instance.
+    my $prkey = Crypt::Perl::RSA::Generate::create(2048);
+
+=head1 DISCUSSION
+
+Unfortunately, this is quite slow in Perl. It’s faster if you have
+the optional XS backends for L<Math::BigInt> and/or L<Bytes::Random::Secure::Tiny>,
+but it’ll still be orders of magnitude slower than OpenSSL.
+
+If you want it to be faster, have a look at L<Math::ProvablePrime>,
+and see if you can make any improvements there!
+
+=cut
+
 use strict;
 use warnings;
 

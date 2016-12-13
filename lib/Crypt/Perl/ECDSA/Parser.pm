@@ -1,5 +1,22 @@
 package Crypt::Perl::ECDSA::Parser;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::Parser - ECDSA key parsing
+
+=head1 SYNOPSIS
+
+    use Crypt::Perl::ECDSA::Parser ();
+
+    #These accept either DER or PEM, native format or PKCS8.
+    #
+    my $prkey = Crypt::Perl::ECDSA::Parser::private($buffer);
+    my $pbkey = Crypt::Perl::ECDSA::Parser::public($buffer);
+
+=cut
+
 use strict;
 use warnings;
 
