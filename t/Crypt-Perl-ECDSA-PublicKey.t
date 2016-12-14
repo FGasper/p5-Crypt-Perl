@@ -29,7 +29,7 @@ use parent qw(
     Test::Class
 );
 
-use Crypt::Perl::ECDSA::Parser ();
+use Crypt::Perl::ECDSA::Parse ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -52,7 +52,7 @@ sub test_subject_public_key : Tests(1) {
 
     $_ = Crypt::Format::pem2der($_) for ($pkcs8, $plain);
 
-    $_ = Crypt::Perl::ECDSA::Parser::public($_) for ($pkcs8, $plain);
+    $_ = Crypt::Perl::ECDSA::Parse::public($_) for ($pkcs8, $plain);
 
     is_deeply(
         $pkcs8,
@@ -69,7 +69,7 @@ sub test_to_der_with_explicit_curve : Tests(1) {
     my $pkey_pem = File::Slurp::read_file($key_path);
     my $der1 = Crypt::Format::pem2der($pkey_pem);
 
-    my $ecdsa = Crypt::Perl::ECDSA::Parser::public($pkey_pem);
+    my $ecdsa = Crypt::Perl::ECDSA::Parse::public($pkey_pem);
 
     my $der2 = $ecdsa->to_der_with_explicit_curve();
 
@@ -90,7 +90,7 @@ sub test_to_der_with_curve_name : Tests(1) {
     my $pkey_pem = File::Slurp::read_file($key_path);
     my $der1 = Crypt::Format::pem2der($pkey_pem);
 
-    my $ecdsa = Crypt::Perl::ECDSA::Parser::public($pkey_pem);
+    my $ecdsa = Crypt::Perl::ECDSA::Parse::public($pkey_pem);
 
     my $der2 = $ecdsa->to_der_with_curve_name();
 
@@ -116,7 +116,7 @@ sub test_verify : Tests(2) {
 
         my $pkey_pem = File::Slurp::read_file($key_path);
 
-        my $ecdsa = Crypt::Perl::ECDSA::Parser::public($pkey_pem);
+        my $ecdsa = Crypt::Perl::ECDSA::Parse::public($pkey_pem);
 
         my $msg = 'Hello';
 

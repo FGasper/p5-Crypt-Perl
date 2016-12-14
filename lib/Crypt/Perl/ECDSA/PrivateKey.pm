@@ -8,7 +8,7 @@ Crypt::Perl::ECDSA::PrivateKey
 
 =head1 SYNOPSIS
 
-    #Use Generate.pm or Parser.pm rather
+    #Use Generate.pm or Parse.pm rather
     #than instantiating this class directly.
 
     #This works even if the object came from a key file that doesn’t
@@ -204,8 +204,6 @@ sub _get_asn1_parts {
 
     my $private_str = $self->{'private'}->as_bytes();
 
-    #XXX Circular dependency
-    use Crypt::Perl::ECDSA::Parser ();
     return $self->__to_der(
         'ECPrivateKey',
         ASN1_PRIVATE(),

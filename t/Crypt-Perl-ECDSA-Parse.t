@@ -1,4 +1,4 @@
-package t::Crypt::Perl::ECDSA::Parser;
+package t::Crypt::Perl::ECDSA::Parse;
 
 use strict;
 use warnings;
@@ -34,7 +34,7 @@ use parent qw(
 
 use lib "$FindBin::Bin/../lib";
 
-use Crypt::Perl::ECDSA::Parser ();
+use Crypt::Perl::ECDSA::Parse ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -55,7 +55,7 @@ sub test_pkcs8_private : Tests(1) {
     my $pkcs8 = `$openssl_bin pkey -in $key_path`;
     die if $?;
 
-    $_ = Crypt::Perl::ECDSA::Parser::private($_) for ($pkcs8, $plain);
+    $_ = Crypt::Perl::ECDSA::Parse::private($_) for ($pkcs8, $plain);
 
     is_deeply(
         $pkcs8,
@@ -77,7 +77,7 @@ sub test_pkcs8_public : Tests(1) {
     my $pkcs8 = `$openssl_bin pkey -pubin -in $key_path`;
     die if $?;
 
-    $_ = Crypt::Perl::ECDSA::Parser::public($_) for ($pkcs8, $plain);
+    $_ = Crypt::Perl::ECDSA::Parse::public($_) for ($pkcs8, $plain);
 
     is_deeply(
         $pkcs8,

@@ -34,7 +34,7 @@ use parent qw(
 
 use lib "$FindBin::Bin/../lib";
 
-use Crypt::Perl::ECDSA::Parser ();
+use Crypt::Perl::ECDSA::Parse ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -63,7 +63,7 @@ sub test_get_public_key : Tests(1) {
 
     my $key_str = File::Slurp::read_file($key_path);
 
-    my $key_obj = Crypt::Perl::ECDSA::Parser::private($key_str);
+    my $key_obj = Crypt::Perl::ECDSA::Parse::private($key_str);
 
     my $public = $key_obj->get_public_key();
 
@@ -81,7 +81,7 @@ sub test_to_der : Tests(2) {
 
     my $key_str = File::Slurp::read_file($key_path);
 
-    my $key_obj = Crypt::Perl::ECDSA::Parser::private($key_str);
+    my $key_obj = Crypt::Perl::ECDSA::Parse::private($key_str);
 
     my $der = $key_obj->to_der_with_curve_name();
 
@@ -96,7 +96,7 @@ sub test_to_der : Tests(2) {
 
     $key_path = "$FindBin::Bin/assets/prime256v1_explicit.key";
     $key_str = File::Slurp::read_file($key_path);
-    $key_obj = Crypt::Perl::ECDSA::Parser::private($key_str);
+    $key_obj = Crypt::Perl::ECDSA::Parse::private($key_str);
 
     my $explicit_der = $key_obj->to_der_with_explicit_curve();
     $ossl_der = Crypt::Format::pem2der($key_str);
@@ -147,7 +147,7 @@ sub test_sign : Tests() {
 
                 my $ecdsa;
                 try {
-                    $ecdsa = Crypt::Perl::ECDSA::Parser::private($pkey_pem);
+                    $ecdsa = Crypt::Perl::ECDSA::Parse::private($pkey_pem);
                 }
                 catch {
                     my $ok = try { $_->isa('Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported') };
@@ -206,7 +206,7 @@ sub test_verify : Tests(2) {
 
         my $pkey_pem = File::Slurp::read_file($key_path);
 
-        my $ecdsa = Crypt::Perl::ECDSA::Parser::private($pkey_pem);
+        my $ecdsa = Crypt::Perl::ECDSA::Parse::private($pkey_pem);
 
         my $msg = 'Hello';
 

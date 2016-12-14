@@ -8,7 +8,7 @@ Crypt::Perl::ECDSA::PrivateKey
 
 =head1 SYNOPSIS
 
-    #Use Parser.pm or a private key’s get_public_key()
+    #Use Parse.pm or a private key’s get_public_key()
     #rather #than instantiating this class directly.
 
     #This works even if the object came from a key file that doesn’t

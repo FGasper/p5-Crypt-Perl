@@ -1,19 +1,19 @@
-package Crypt::Perl::RSA::Parser;
+package Crypt::Perl::RSA::Parse;
 
 =encoding utf-8
 
 =head1 NAME
 
-Crypt::Perl::RSA::Parser - RSA key parsing
+Crypt::Perl::RSA::Parse - RSA key parsing
 
 =head1 SYNOPSIS
 
-    use Crypt::Perl::RSA::Parser ();
+    use Crypt::Perl::RSA::Parse ();
 
     #These accept either DER or PEM, native format or PKCS8.
     #
-    my $prkey = Crypt::Perl::RSA::Parser::private($buffer);
-    my $pbkey = Crypt::Perl::RSA::Parser::public($buffer);
+    my $prkey = Crypt::Perl::RSA::Parse::private($buffer);
+    my $pbkey = Crypt::Perl::RSA::Parse::public($buffer);
 
 =cut
 
