@@ -24,7 +24,6 @@ lib/Crypt/Perl/RNG.pm
 lib/Crypt/Perl/RSA.pm
 lib/Crypt/Perl/RSA/Generate.pm
 lib/Crypt/Perl/RSA/KeyBase.pm
-lib/Crypt/Perl/RSA/Math.pm
 lib/Crypt/Perl/RSA/PKCS1_v1_5.pm
 lib/Crypt/Perl/RSA/Parse.pm
 lib/Crypt/Perl/RSA/PrivateKey.pm
