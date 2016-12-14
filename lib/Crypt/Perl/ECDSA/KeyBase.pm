@@ -3,12 +3,15 @@ package Crypt::Perl::ECDSA::KeyBase;
 use strict;
 use warnings;
 
+use Call::Context ();
 use Crypt::Format ();
 use Module::Load ();
 
 use Crypt::Perl::ASN1 ();
+use Crypt::Perl::BigInt ();
 use Crypt::Perl::Math ();
 use Crypt::Perl::ECDSA::EC::Curve ();
+use Crypt::Perl::ECDSA::EC::DB ();
 use Crypt::Perl::ECDSA::EC::Point ();
 use Crypt::Perl::ECDSA::ECParameters ();
 use Crypt::Perl::ECDSA::Utils ();
@@ -111,6 +114,18 @@ sub get_curve_name {
 
     return Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data( $self->_curve() );
 }
+
+sub public_x_and_y {
+    my ($self) = @_;
+
+    Call::Context::must_be_list();
+
+    my @xy = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+
+    return map { Crypt::Perl::BigInt->from_bytes($_) } @xy;
+}
+
+#----------------------------------------------------------------------
 
 #return isa EC::Point
 sub _G {
@@ -218,7 +233,6 @@ sub _add_params {
 sub _curve_params_for_OID {
     my ($self, $oid) = @_;
 
-    require Crypt::Perl::ECDSA::EC::DB;
     return Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_oid($oid);
 }
 

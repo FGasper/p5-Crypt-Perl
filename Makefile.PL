@@ -15,6 +15,7 @@ WriteMakefile(
         'constant'                 => 1.23,
         'parent'                   => 0.225,
         'Bytes::Random::Secure::Tiny' => 1.008,
+        'Call::Context'             => 0,
         'Class::Accessor::Fast' => 0.34,
         'Convert::ASN1' => 0.27,
         'Crypt::Format'            => 0.06,
