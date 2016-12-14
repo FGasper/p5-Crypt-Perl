@@ -1,5 +1,17 @@
 package Crypt::Perl::ECDSA::Utils;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::Utils
+
+=head1 DISCUSSION
+
+This interface is undocumented for now.
+
+=cut
+
 use strict;
 use warnings;
 

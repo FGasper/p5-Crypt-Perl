@@ -1,5 +1,36 @@
 package Crypt::Perl::ECDSA::EC::DB;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::EC::DB - Interface to this module’s CurvesDB datastore
+
+=head1 SYNOPSIS
+
+    my $oid = Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name('prime256v1');
+
+    my $data_hr = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_oid('1.2.840.10045.3.1.7');
+
+    my $name = Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data(
+        p => ...,   #isa Crypt::Perl::BigInt
+        a => ...,   #isa Crypt::Perl::BigInt
+        b => ...,   #isa Crypt::Perl::BigInt
+        n => ...,   #isa Crypt::Perl::BigInt
+        h => ...,   #isa Crypt::Perl::BigInt
+        gx => ...,   #isa Crypt::Perl::BigInt
+        gy => ...,   #isa Crypt::Perl::BigInt
+    );
+
+    #The opposite query from the preceding.
+    my $data_hr = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_name('prime256v1');
+
+=head1 DISCUSSION
+
+This interface is undocumented for now.
+
+=cut
+
 use strict;
 use warnings;
 
@@ -97,6 +128,18 @@ sub get_curve_data_by_name {
     return get_curve_data_by_oid( $oid );
 }
 
+#This returns the same information as
+#Crypt::Perl::ECDSA::ECParameters::normalize().
+sub get_curve_data_by_oid {
+    my ($oid) = @_;
+
+    my $data_hr = _get_curve_hex_data_by_oid($oid);
+
+    $_ = Crypt::Perl::BigInt->from_hex($_) for @{$data_hr}{ CURVE_ORDER() };
+
+    return $data_hr;
+}
+
 sub _get_curve_hex_data_by_oid {
     my ($oid) = @_;
 
@@ -118,18 +161,6 @@ sub _upgrade_hex_to_bigint {
     $_ = Crypt::Perl::BigInt->from_hex($_) for @{$data_hr}{ CURVE_ORDER() };
 
     return;
-}
-
-#This returns the same information as
-#Crypt::Perl::ECDSA::ECParameters::normalize().
-sub get_curve_data_by_oid {
-    my ($oid) = @_;
-
-    my $data_hr = _get_curve_hex_data_by_oid($oid);
-
-    $_ = Crypt::Perl::BigInt->from_hex($_) for @{$data_hr}{ CURVE_ORDER() };
-
-    return $data_hr;
 }
 
 1;

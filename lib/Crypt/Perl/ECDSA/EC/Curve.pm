@@ -1,5 +1,17 @@
 package Crypt::Perl::ECDSA::EC::Curve;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::EC::Curve
+
+=head1 DISCUSSION
+
+This interface is undocumented for now.
+
+=cut
+
 use strict;
 use warnings;
 

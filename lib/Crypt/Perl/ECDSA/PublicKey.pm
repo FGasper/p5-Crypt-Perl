@@ -4,7 +4,7 @@ package Crypt::Perl::ECDSA::PublicKey;
 
 =head1 NAME
 
-Crypt::Perl::ECDSA::PrivateKey
+Crypt::Perl::ECDSA::PublicKey - object representation of ECDSA public key
 
 =head1 SYNOPSIS
 

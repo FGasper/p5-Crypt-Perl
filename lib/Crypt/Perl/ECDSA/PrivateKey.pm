@@ -4,7 +4,7 @@ package Crypt::Perl::ECDSA::PrivateKey;
 
 =head1 NAME
 
-Crypt::Perl::ECDSA::PrivateKey
+Crypt::Perl::ECDSA::PrivateKey - object representation of ECDSA private key
 
 =head1 SYNOPSIS
 

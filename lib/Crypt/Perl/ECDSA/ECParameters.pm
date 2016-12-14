@@ -1,8 +1,16 @@
 package Crypt::Perl::ECDSA::ECParameters;
 
-#----------------------------------------------------------------------
-# Parsing logic for curve parameters as explicitly included in the key.
-#----------------------------------------------------------------------
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::ECDSA::ECParameters - Parse RFC 3279 explicit curves
+
+=head1 DISCUSSION
+
+This interface is undocumented for now.
+
+=cut
 
 use strict;
 use warnings;

@@ -15,6 +15,11 @@ Crypt::Perl::ECDSA::Parse - ECDSA key parsing
     my $prkey = Crypt::Perl::ECDSA::Parse::private($buffer);
     my $pbkey = Crypt::Perl::ECDSA::Parse::public($buffer);
 
+=head1 DISCUSSION
+
+See L<Crypt::Perl::ECDSA::PrivateKey> and L<Crypt::Perl::ECDSA::PublicKey>
+for descriptions of the interfaces of these two classes.
+
 =cut
 
 use strict;

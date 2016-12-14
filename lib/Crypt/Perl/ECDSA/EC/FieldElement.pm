@@ -1,5 +1,8 @@
 package Crypt::Perl::ECDSA::EC::FieldElement;
 
+use strict;
+use warnings;
+
 #both bigint
 sub new {
     my ($class, $q, $x) = @_;

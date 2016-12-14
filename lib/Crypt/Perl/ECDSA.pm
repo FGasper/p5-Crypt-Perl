@@ -11,19 +11,8 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
 
 =head1 SYNOPSIS
 
-    my $key1 = Crypt::Perl::ECDSA::key($public_or_private__pem_or_der);
-
-    my $key2 = Crypt::Perl::ECDSA::key_pem($public_or_private);
-    my $key3 = Crypt::Perl::ECDSA::key_der($public_or_private);
-
-    my $pub_key1 = Crypt::Perl::ECDSA::public_key($pem_or_der);
-    my $prv_key1 = Crypt::Perl::ECDSA::private_key($pem_or_der);
-
-    my $pub_key2 = Crypt::Perl::ECDSA::public_key_pem($pem);
-    my $prv_key2 = Crypt::Perl::ECDSA::private_key_pem($pem);
-
-    my $pub_key3 = Crypt::Perl::ECDSA::public_key_der($der);
-    my $prv_key3 = Crypt::Perl::ECDSA::private_key_der($der);
+    my $pub_key1 = Crypt::Perl::ECDSA::Parse::public($pem_or_der);
+    my $prv_key1 = Crypt::Perl::ECDSA::Parse::private($pem_or_der);
 
     #----------------------------------------------------------------------
 

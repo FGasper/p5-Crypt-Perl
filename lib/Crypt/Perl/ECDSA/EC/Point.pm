@@ -1,5 +1,8 @@
 package Crypt::Perl::ECDSA::EC::Point;
 
+use strict;
+use warnings;
+
 use Crypt::Perl::BigInt ();
 
 sub new_infinity {
