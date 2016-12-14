@@ -82,3 +82,8 @@ Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.
 Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
+
+=head1 LICENSE
+
+C<Crypt::Perl> is licensed under the same license as Perl.
+
