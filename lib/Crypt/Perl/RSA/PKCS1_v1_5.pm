@@ -6,11 +6,13 @@ use warnings;
 #----------------------------------------------------------------------
 #RFC 3447, page 42
 
-#These three aren’t in use because they’re too weak for modern hardware.
-#use constant DER_header_md2 => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x02\x05\x00\x04\x10";
-#use constant DER_header_md5 => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10";
-#use constant DER_header_sha1 => "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
+#These are too weak for modern hardware, but we’ll include them anyway.
+use constant DER_header_md2 => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x02\x05\x00\x04\x10";
+use constant DER_header_md5 => "\x30\x20\x30\x0c\x06\x08\x2a\x86\x48\x86\xf7\x0d\x02\x05\x05\x00\x04\x10";
+use constant DER_header_sha1 => "\x30\x21\x30\x09\x06\x05\x2b\x0e\x03\x02\x1a\x05\x00\x04\x14";
 
+
+#As of December 2016, the following are considered safe for general use.
 use constant DER_header_sha256 => "\x30\x31\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x01\x05\x00\x04\x20";
 use constant DER_header_sha384 => "\x30\x41\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x02\x05\x00\x04\x30";
 use constant DER_header_sha512 => "\x30\x51\x30\x0d\x06\x09\x60\x86\x48\x01\x65\x03\x04\x02\x03\x05\x00\x04\x40";
@@ -42,7 +44,6 @@ sub decode {
 
     my $hdr = _get_der_header($digest_oid);
 
-    #TODO: Add in the other checks.
     $octets =~ m<\A \x00 \x01 \xff+ \x00 \Q$hdr\E >x or do {
         die( sprintf "Invalid EMSA-PKCS1-v1_5/$digest_oid: %v02x", $octets );
     };
@@ -65,7 +66,7 @@ sub _asn1_DigestInfo {
 #sub _asn1_DigestInfo {
 #    my ($digest, $algorithm_oid) = @_;
 #
-#    #TODO: We shouldn’t need Convert::ASN1 for this.
+#    #We shouldn’t need Convert::ASN1 for this.
 #    my $asn1 = Crypt::Sign::RSA::Convert_ASN1->new();
 #    $asn1->prepare_or_die(
 #        q<

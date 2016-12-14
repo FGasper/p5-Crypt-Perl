@@ -73,9 +73,6 @@ use Crypt::Perl::X ();
 #This is not the standard ASN.1 template as found in RFC 5915,
 #but it seems to generate equivalent results.
 #
-#The specific patterns for ECDSA explicit parameters seem to be
-#locked behind some silly thing that someone wants me to pay for.
-#TODO: Find out this information.
 use constant ASN1_PRIVATE => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
 
     ECPrivateKey ::= SEQUENCE {

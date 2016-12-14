@@ -1,6 +1,6 @@
 package Crypt::Perl::PKCS8;
 
-#XXX TODO: Rename this, and split up the public/private as appropriate.
+#TODO: Rename this, and split up the public/private as appropriate.
 
 use strict;
 use warnings;
