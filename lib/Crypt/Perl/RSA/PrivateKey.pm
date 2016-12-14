@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use parent qw(
-    Class::Accessor::Fast
     Crypt::Perl::RSA::KeyBase
 );
 
