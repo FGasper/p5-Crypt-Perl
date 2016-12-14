@@ -22,6 +22,8 @@ use warnings;
 
 use Try::Tiny;
 
+use Module::Load ();
+
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::PKCS8 ();
 use Crypt::Perl::ToDER ();
