@@ -82,6 +82,8 @@ use parent qw(
 
 use Module::Load ();
 
+use Crypt::Perl::RNG ();
+
 use constant _PEM_HEADER => 'RSA PRIVATE KEY';
 use constant _ASN1_MACRO => 'RSAPrivateKey';
 
