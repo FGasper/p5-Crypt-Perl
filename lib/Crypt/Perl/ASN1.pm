@@ -2,6 +2,9 @@ package Crypt::Perl::ASN1;
 
 #Wrappers around basic methods to get exceptions thrown on errors.
 
+use strict;
+use warnings;
+
 use parent 'Convert::ASN1';
 
 use Crypt::Perl::BigInt ();

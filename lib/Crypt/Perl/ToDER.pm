@@ -1,5 +1,8 @@
 package Crypt::Perl::ToDER;
 
+use strict;
+use warnings;
+
 use Crypt::Format ();
 
 #Modifies in-place.
