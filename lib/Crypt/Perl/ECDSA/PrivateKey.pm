@@ -60,11 +60,11 @@ use parent qw( Crypt::Perl::ECDSA::KeyBase );
 use Try::Tiny;
 
 use Bytes::Random::Secure::Tiny ();
+use Module::Load ();
 
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::BigInt ();
 use Crypt::Perl::PKCS8 ();
-use Crypt::Perl::Load ();
 use Crypt::Perl::RNG ();
 use Crypt::Perl::Math ();
 use Crypt::Perl::ToDER ();
@@ -186,7 +186,7 @@ sub sign {
 sub get_public_key {
     my ($self) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PublicKey');
+    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
 
     return Crypt::Perl::ECDSA::PublicKey->new(
         $self->{'public'},

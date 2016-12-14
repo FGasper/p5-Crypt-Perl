@@ -23,7 +23,6 @@ use warnings;
 use Try::Tiny;
 
 use Crypt::Perl::ASN1 ();
-use Crypt::Perl::Load ();
 use Crypt::Perl::PKCS8 ();
 use Crypt::Perl::ToDER ();
 use Crypt::Perl::ECDSA::ECParameters ();
@@ -31,7 +30,7 @@ use Crypt::Perl::ECDSA::ECParameters ();
 sub private {
     my ($pem_or_der) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PrivateKey');
+    Module::Load::load('Crypt::Perl::ECDSA::PrivateKey');
 
     Crypt::Perl::ToDER::ensure_der($pem_or_der);
 
@@ -78,7 +77,7 @@ sub private {
 sub public {
     my ($pem_or_der) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::ECDSA::PublicKey');
+    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
 
     Crypt::Perl::ToDER::ensure_der($pem_or_der);
 

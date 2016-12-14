@@ -9,8 +9,7 @@ use parent qw(
 );
 
 use File::Spec ();
-
-use Crypt::Perl::Load ();
+use Module::Load ();
 
 BEGIN {
     __PACKAGE__->mk_ro_accessors(
@@ -59,7 +58,7 @@ sub sign_RS512 {
 sub get_public_key {
     my ($self) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::RSA::PublicKey');
+    Module::Load::load('Crypt::Perl::RSA::PublicKey');
 
     return Crypt::Perl::RSA::PublicKey->new( {
         modulus => $self->{'modulus'},
@@ -104,14 +103,14 @@ sub decrypt_raw {
 sub _sign {
     my ($self, $msg, $hash_module, $hasher, $scheme) = @_;
 
-    Crypt::Perl::Load::module($hash_module);
+    Module::Load::load($hash_module);
 
     my $dgst = $hash_module->can($hasher)->($msg);
 
     my $sig;
 
     if ($scheme eq 'PKCS1_v1_5') {
-        Crypt::Perl::Load::module('Crypt::Perl::RSA::PKCS1_v1_5');
+        Module::Load::load('Crypt::Perl::RSA::PKCS1_v1_5');
 
         my $sig_length = $self->get_modulus_byte_length();
 
@@ -133,7 +132,7 @@ sub _sign {
         substr( $sig, 0, 0 ) = "\0" x ($sig_length - length $sig);
     }
     else {
-        die "Unknown scheme: “$scheme”";
+        die "Unknown signature scheme: “$scheme”";
     }
 
     return $sig;

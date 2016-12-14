@@ -23,9 +23,9 @@ use warnings;
 use Try::Tiny;
 
 use Crypt::Format ();
+use Module::Load ();
 
 use Crypt::Perl::ASN1 ();
-use Crypt::Perl::Load ();
 use Crypt::Perl::RSA::Template ();
 
 sub _asn1 {
@@ -177,14 +177,14 @@ sub _decode_pkcs8_public {
 sub _new_public {
     my ($parsed_hr) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::RSA::PublicKey');
+    Module::Load::load('Crypt::Perl::RSA::PublicKey');
     return Crypt::Perl::RSA::PublicKey->new($parsed_hr);
 }
 
 sub _new_private {
     my ($parsed_hr) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::RSA::PrivateKey');
+    Module::Load::load('Crypt::Perl::RSA::PrivateKey');
     return Crypt::Perl::RSA::PrivateKey->new($parsed_hr);
 }
 

@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Crypt::Format ();
+use Module::Load ();
 
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::Math ();
@@ -11,7 +12,6 @@ use Crypt::Perl::ECDSA::EC::Curve ();
 use Crypt::Perl::ECDSA::EC::Point ();
 use Crypt::Perl::ECDSA::ECParameters ();
 use Crypt::Perl::ECDSA::Utils ();
-use Crypt::Perl::Load ();
 
 use constant OID_ecPublicKey => '1.2.840.10045.2.1';
 
@@ -189,7 +189,7 @@ sub __to_der {
 #print Dumper($data_hr);
 #print $template;
 
-    Crypt::Perl::Load::module('Crypt::Perl::ASN1');
+    Module::Load::load('Crypt::Perl::ASN1');
     my $asn1 = Crypt::Perl::ASN1->new()->prepare($template);
 
     return $asn1->find($macro)->encode( $data_hr );

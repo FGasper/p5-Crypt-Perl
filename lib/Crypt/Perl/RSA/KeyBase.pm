@@ -5,8 +5,9 @@ use warnings;
 
 use parent qw(Class::Accessor::Fast);
 
+use Module::Load ();
+
 use Crypt::Perl::BigInt ();
-use Crypt::Perl::Load ();
 use Crypt::Perl::RNG ();
 
 BEGIN {
@@ -59,8 +60,8 @@ sub encrypt_raw {
 sub _to_der {
     my ($self, $macro) = @_;
 
-    Crypt::Perl::Load::module('Crypt::Perl::ASN1');
-    Crypt::Perl::Load::module('Crypt::Perl::RSA::Template');
+    Module::Load::load('Crypt::Perl::ASN1');
+    Module::Load::load('Crypt::Perl::RSA::Template');
     my $asn1 = Crypt::Perl::ASN1->new()->prepare(
         Crypt::Perl::RSA::Template::get_template('INTEGER'),
     );
@@ -71,7 +72,7 @@ sub _to_der {
 sub _verify {
     my ($self, $message, $signature, $hash_module, $hasher, $scheme) = @_;
 
-    Crypt::Perl::Load::module($hash_module);
+    Module::Load::load($hash_module);
 
     my $digest = $hash_module->can($hasher)->($message);
 
@@ -92,7 +93,7 @@ sub _verify {
             die sprintf( "Invalid PKCS1_v1_5 length: %d (should be %d)", length($octets), $key_bytes_length );
         }
 
-        Crypt::Perl::Load::module('Crypt::Perl::RSA::PKCS1_v1_5');
+        Module::Load::load('Crypt::Perl::RSA::PKCS1_v1_5');
         return $digest eq Crypt::Perl::RSA::PKCS1_v1_5::decode($octets, $hasher);
     }
 
