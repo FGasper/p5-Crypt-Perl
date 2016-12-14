@@ -12,29 +12,29 @@ use Math::BigInt try => 'GMP,Pari,FastCalc';
 
 use parent -norequire => 'Math::BigInt';
 
-sub from_bytes {
-    my $class = shift;
-
-    return $class->from_hex( unpack 'H*', $_[0] );
-}
-
-sub as_bytes {
-    my ($self) = @_;
-
-    die "Negatives ($self) can’t convert to bytes!" if $self < 0;
-
-    my $hex = $self->as_hex();
-
-    #Ensure that we have an even number of hex digits.
-    if (length($hex) % 2) {
-        substr($hex, 1, 1) = q<>;   #just remove the “x” of “0x”
-    }
-    else {
-        substr($hex, 0, 2) = q<>;   #remove “0x”
-    }
-
-    return pack 'H*', $hex;
-}
+#sub from_bytes {
+#    my $class = shift;
+#
+#    return $class->from_hex( unpack 'H*', $_[0] );
+#}
+#
+#sub as_bytes {
+#    my ($self) = @_;
+#
+#    die "Negatives ($self) can’t convert to bytes!" if $self < 0;
+#
+#    my $hex = $self->as_hex();
+#
+#    #Ensure that we have an even number of hex digits.
+#    if (length($hex) % 2) {
+#        substr($hex, 1, 1) = q<>;   #just remove the “x” of “0x”
+#    }
+#    else {
+#        substr($hex, 0, 2) = q<>;   #remove “0x”
+#    }
+#
+#    return pack 'H*', $hex;
+#}
 
 sub bit_length {
     my ($self) = @_;

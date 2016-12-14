@@ -29,8 +29,30 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
+use constant _HEX => '028cff19d53ced26bdd41ca5d926751503e3f9561f6e5cb8afe189afd881e1086d';
+
+sub _num {
+    return Crypt::Perl::BigInt->from_hex(_HEX());
+}
+
+sub bytes_conversion : Tests(2) {
+    is(
+        _num()->as_bytes(),
+        pack('H*', _HEX()),
+        'as_bytes()',
+    );
+
+    is(
+        Crypt::Perl::BigInt->from_bytes( pack('H*', _HEX()) )->as_hex(),
+        _num()->as_hex(),
+        'from_bytes()',
+    );
+
+    return;
+}
+
 sub test_bit_length : Tests(2) {
-    my $num = Crypt::Perl::BigInt->new('295358701570351778990985646722256307679121357691957565958901674843561986689133');
+    my $num = _num();
 
     is( $num->bit_length(), 258, 'bit_length()' );
     is( $num->bit_length(), 258, 'bit_length(), repeated' );
