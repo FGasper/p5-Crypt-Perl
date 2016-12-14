@@ -29,7 +29,7 @@ Crypt::Perl::RSA - RSA in pure Perl (really!)
 
     die 'Wut' if !$prkey->verify_RS256($msg, $sig);
 
-    die 'Wut' if !$prkey->verify_RS256($msg, $sig);
+    die 'Wut' if !$pbkey->verify_RS256($msg, $sig);
 
 =head1 DISCUSSION
 
