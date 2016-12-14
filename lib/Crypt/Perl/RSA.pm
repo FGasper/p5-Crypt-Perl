@@ -34,25 +34,18 @@ Crypt::Perl::RSA - RSA in pure Perl (really!)
 =head1 DISCUSSION
 
 See the documentation for C<Crypt::Perl::RSA::PublicKey> and
-C<Crypt::Perl::RSA::PrivateKey> for discussions of what these interfaces
+C<Crypt::Perl::RSA::PrivateKey> for more on what these interfaces
 can do.
 
-NOTE: The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://kjur.github.io/jsrsasign/>.
-
-=head1 TODO
-
-=over 4
-
-=item * I
-
-=back
+NOTE: The RSA logic here is ported from Kenji Urushima’s
+L<jsrsasign|http://kjur.github.io/jsrsasign/>.
 
 =head1 SECURITY
 
 RSA is safe as long as factorization is “hard”. As computers get faster, RSA
 keys have needed to get bigger and bigger to maintain the “difficulty” of
-factoring the key’s modulus. RSA will eventually no longer be viable, though:
-as RSA keys get bigger, the
+factoring the key’s modulus. RSA will eventually no longer be viable toward
+this end: as RSA keys get bigger, the
 security advantage of increasing their size diminishes.
 
 =head1 SPEED
@@ -70,7 +63,7 @@ Ideas:
 
 =over 4
 
-=item * Support signature schemes besides PKCS #1 v1.5
+=item * Support signature schemes besides PKCS #1 v1.5.
 
 =item * Use faster prime-number-finder logic if it’s available.
 
