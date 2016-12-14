@@ -16,6 +16,16 @@ BEGIN {
     *N = \&modulus;
 }
 
+sub new {
+    my ($class, @args) = @_;
+
+    my $self = $class->SUPER::new(@args);
+
+    $self->{'publicExponent'} = Crypt::Perl::BigInt->new( $self->{'publicExponent'} );
+
+    return $self;
+}
+
 #i.e., modulus length, in bits
 sub size {
     my ($self) = @_;

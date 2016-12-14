@@ -17,16 +17,6 @@ BEGIN {
     *E = \&exponent;
 }
 
-sub new {
-    my ($class, @args) = @_;
-
-    my $self = $class->SUPER::new(@args);
-
-    $self->{'publicExponent'} = Crypt::Perl::BigInt->new( $self->{'publicExponent'} );
-
-    return $self;
-}
-
 sub to_der {
     my ($self) = @_;
 
