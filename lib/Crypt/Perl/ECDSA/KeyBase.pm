@@ -38,41 +38,22 @@ sub verify {
     my ($self, $msg, $sig) = @_;
 
     my $struct = Crypt::Perl::ASN1->new()->prepare(ASN1_SIGNATURE)->decode($sig);
-    my ($r, $s) = @{$struct}{ qw( r s ) };
 
-    if ($r >= 1 && $s >= 1) {
-        my ($x, $y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
-        $_ = Crypt::Perl::BigInt->from_bytes($_) for ($x, $y);
+    return $self->_verify($msg, @{$struct}{ qw( r s ) });
+}
 
-        my $curve = $self->_get_curve_obj();
+#cf. RFC 7518, page 8
+sub verify_jwa {
+    my ($self, $msg, $sig) = @_;
 
-        my $Q = Crypt::Perl::ECDSA::EC::Point->new(
-            $curve,
-            $curve->from_bigint($x),
-            $curve->from_bigint($y),
-        );
+    my $half_len = (length $sig) / 2;
 
-        my $e = Crypt::Perl::BigInt->from_bytes($msg);
+    my $r = substr($sig, 0, $half_len);
+    my $s = substr($sig, $half_len);
 
-        #----------------------------------------------------------------------
+    $_ = Crypt::Perl::BigInt->from_bytes($_) for ($r, $s);
 
-        my $n = $self->_curve()->{'n'};
-
-        if ($r < $n && $s < $n) {
-            my $c = $s->copy()->bmodinv($n);
-
-            my $u1 = ($e * $c) % $n;
-            my $u2 = ($r * $c) % $n;
-
-            my $point = $self->_G()->multiply($u1)->add( $Q->multiply($u2) );
-
-            my $v = $point->get_x()->to_bigint() % $n;
-
-            return 1 if $v == $r;
-        }
-    }
-
-    return 0;
+    return $self->_verify($msg, $r, $s);
 }
 
 sub to_der_with_curve_name {
@@ -126,6 +107,44 @@ sub public_x_and_y {
 }
 
 #----------------------------------------------------------------------
+
+sub _verify {
+    my ($self, $msg, $r, $s) = @_;
+
+    if ($r >= 1 && $s >= 1) {
+        my ($x, $y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+        $_ = Crypt::Perl::BigInt->from_bytes($_) for ($x, $y);
+
+        my $curve = $self->_get_curve_obj();
+
+        my $Q = Crypt::Perl::ECDSA::EC::Point->new(
+            $curve,
+            $curve->from_bigint($x),
+            $curve->from_bigint($y),
+        );
+
+        my $e = Crypt::Perl::BigInt->from_bytes($msg);
+
+        #----------------------------------------------------------------------
+
+        my $n = $self->_curve()->{'n'};
+
+        if ($r < $n && $s < $n) {
+            my $c = $s->copy()->bmodinv($n);
+
+            my $u1 = ($e * $c) % $n;
+            my $u2 = ($r * $c) % $n;
+
+            my $point = $self->_G()->multiply($u1)->add( $Q->multiply($u2) );
+
+            my $v = $point->get_x()->to_bigint() % $n;
+
+            return 1 if $v == $r;
+        }
+    }
+
+    return 0;
+}
 
 #return isa EC::Point
 sub _G {

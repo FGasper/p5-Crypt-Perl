@@ -22,7 +22,11 @@ Crypt::Perl::ECDSA::PrivateKey - object representation of ECDSA private key
     #$payload is probably a hash (e.g., SHA-256) of your original message.
     my $sig = $prkey->sign($payload);
 
+    #For JSON Web Algorithms (JWT et al.), cf. RFC 7518 page 8
+    my $sig_jwa = $prkey->sign_jwa($payload);
+
     $prkey->verify($payload, $sig) or die "Invalid signature!";
+    $prkey->verify_jwa($payload, $sig_jwa) or die "Invalid signature!";
 
     #Corresponding “der” methods exist as well.
     my $cn_pem = $prkey->to_pem_with_curve_name();
@@ -133,8 +137,41 @@ sub new {
     return $self->_add_params( $curve_parts );
 }
 
-#$whatsit is probably a message digest, e.g., from SHA256
 sub sign {
+    my ($self, $whatsit) = @_;
+
+    my ($r, $s) = $self->_sign($whatsit);
+    return $self->_serialize_sig( $r, $s );
+}
+
+#cf. RFC 7518, page 8
+sub sign_jwa {
+    my ($self, $whatsit) = @_;
+
+    my ($r, $s) = map { $_->as_bytes() } $self->_sign($whatsit);
+
+    my $octet_length = Crypt::Perl::Math::ceil($self->max_sign_bits() / 8);
+
+    substr( $_, 0, 0 ) = "\0" x ($octet_length - length) for ($r, $s);
+
+    return $r . $s;
+}
+
+sub get_public_key {
+    my ($self) = @_;
+
+    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
+
+    return Crypt::Perl::ECDSA::PublicKey->new(
+        $self->{'public'},
+        $self->_explicit_curve_parameters(),
+    );
+}
+
+#----------------------------------------------------------------------
+
+#$whatsit is probably a message digest, e.g., from SHA256
+sub _sign {
     my ($self, $whatsit) = @_;
 
     my $dgst = Crypt::Perl::BigInt->from_bytes( $whatsit );
@@ -180,21 +217,8 @@ sub sign {
     $s *= ( $dgst + ( $priv_num * $r ) );
     $s %= $n;
 
-    return $self->_serialize_sig( $r, $s );
+    return ($r, $s);
 }
-
-sub get_public_key {
-    my ($self) = @_;
-
-    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
-
-    return Crypt::Perl::ECDSA::PublicKey->new(
-        $self->{'public'},
-        $self->_explicit_curve_parameters(),
-    );
-}
-
-#----------------------------------------------------------------------
 
 sub _get_asn1_parts {
     my ($self, $curve_parts) = @_;

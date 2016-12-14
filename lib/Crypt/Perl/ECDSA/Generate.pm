@@ -87,7 +87,7 @@ sub _generate {
     my $biX = $epPub->get_x()->to_bigint();
     my $biY = $epPub->get_y()->to_bigint();
 
-    my $key_hex_len = Crypt::Perl::Math::ceil( $curve->keylen() / 4 );
+    my $key_hex_len = 2 * Crypt::Perl::Math::ceil( $curve->keylen() / 8 );
 
     my ($hx, $hy) = map { substr( $_->as_hex(), 2 ) } $biX, $biY;
 

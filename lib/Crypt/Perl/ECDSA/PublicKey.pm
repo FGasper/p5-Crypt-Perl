@@ -21,6 +21,9 @@ Crypt::Perl::ECDSA::PublicKey - object representation of ECDSA public key
 
     $pbkey->verify($payload, $sig) or die "Invalid signature!";
 
+    #For JSON Web Algorithms (JWT et al.), cf. RFC 7518 page 8
+    $pbkey->verify_jwa($payload, $sig) or die "Invalid signature!";
+
     #Corresponding “der” methods exist as well.
     my $cn_pem = $pbkey->to_pem_with_curve_name();
     my $expc_pem = $pbkey->to_pem_with_explicit_curve();

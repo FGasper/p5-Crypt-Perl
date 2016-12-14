@@ -34,6 +34,7 @@ use parent qw(
 
 use lib "$FindBin::Bin/../lib";
 
+use Crypt::Perl::ECDSA::Generate ();
 use Crypt::Perl::ECDSA::Parse ();
 
 if ( !caller ) {
@@ -193,6 +194,40 @@ sub test_sign : Tests() {
     }
 
     return;
+}
+
+sub test_jwa : Tests(6) {
+    my ($self) = @_;
+
+    for my $curve ( qw( prime256v1 secp384r1 secp521r1 ) ) {
+        my $msg = rand;
+        note "Message: [$msg]";
+
+        $curve =~ m<([0-9]+)> or die '??';
+        my $dgst = Digest::SHA::sha256($msg);
+
+        my $key = Crypt::Perl::ECDSA::Generate::by_name($curve);
+        note $key->to_pem_with_curve_name();
+
+        my $sig = $key->sign_jwa($dgst);
+        note( "Signature: " . unpack 'H*', $sig );
+
+        is(
+            $key->verify_jwa($dgst, $sig),
+            1,
+            "$curve: self-verify",
+        );
+
+        SKIP: {
+            eval 'require Crypt::PK::ECC' or skip 'No Crypt::PK::ECC', 1;
+
+            my $pk = Crypt::PK::ECC->new( \($key->to_pem_with_curve_name()) );
+            ok(
+                $pk->verify_message_rfc7518($sig, $msg, 'sha256'),
+                "$curve: Crypt::PK::ECC verifies what we produced",
+            );
+        }
+    }
 }
 
 sub test_verify : Tests(2) {

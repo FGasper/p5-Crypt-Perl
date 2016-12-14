@@ -46,7 +46,7 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
-sub test_generate : Tests(3) {
+sub test_generate : Tests(9) {
     my ($self) = @_;
 
     my $msg = rand;
@@ -55,29 +55,29 @@ sub test_generate : Tests(3) {
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
 
-    my $curve = 'prime256v1';
+    for my $curve ( qw( prime256v1 secp384r1 secp521r1 ) ) {
+        my $key_obj = Crypt::Perl::ECDSA::Generate::by_name($curve);
 
-    my $key_obj = Crypt::Perl::ECDSA::Generate::by_name($curve);
+        isa_ok(
+            $key_obj,
+            'Crypt::Perl::ECDSA::PrivateKey',
+            'return of by_name()',
+        );
 
-    isa_ok(
-        $key_obj,
-        'Crypt::Perl::ECDSA::PrivateKey',
-        'return of by_name()',
-    );
+        my $sig = $key_obj->sign($dgst);
 
-    my $sig = $key_obj->sign($dgst);
+        ok( $key_obj->verify( $dgst, $sig ), 'verify() on self' );
 
-    ok( $key_obj->verify( $dgst, $sig ), 'verify() on self' );
-
-    ok(
-        OpenSSL_Control::verify_private(
-            Crypt::Format::der2pem($key_obj->to_der_with_curve_name(), 'EC PRIVATE KEY'),
-            $msg,
-            $digest_alg,
-            $sig,
-        ),
-        "$curve: OpenSSL verifies",
-    );
+        ok(
+            OpenSSL_Control::verify_private(
+                Crypt::Format::der2pem($key_obj->to_der_with_curve_name(), 'EC PRIVATE KEY'),
+                $msg,
+                $digest_alg,
+                $sig,
+            ),
+            "$curve: OpenSSL verifies",
+        );
+    }
 
     return;
 }

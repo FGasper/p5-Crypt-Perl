@@ -5,3 +5,5 @@ Revision history for Perl module Crypt::Perl
 
 0.02 Wed Dec 14 2016
 - Add public_x_and_y() for ECDSA keys
+- Add sign_jwa() and verify_jwa() ECDSA methods
+- Fix generation of secp521r1 keys
