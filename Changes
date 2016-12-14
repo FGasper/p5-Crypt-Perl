@@ -1,0 +1,7 @@
+Revision history for Perl module Crypt::Perl
+
+0.01 Tue Dec 13 2016
+- original release
+
+0.02 Wed Dec 14 2016
+- Add public_x_and_y() for ECDSA keys
