@@ -1,26 +1,63 @@
 package Crypt::Perl::RSA::PublicKey;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::RSA::PublicKey - object representation of an RSA public key
+
+=head1 SYNOPSIS
+
+    #You’ll probably instantiate this class using Parser.pm
+    #or PrivateKey’s get_public_key() method.
+
+    #cf. JSON Web Algorithms (RFC 7518, page 5)
+    #These return 1 or 0 to indicate verification or non-verification.
+    $pbkey->verify_RS256($message, $sig);
+    $pbkey->verify_RS384($message, $sig);
+    $pbkey->verify_RS512($message, $sig);
+
+    #----------------------------------------------------------------------
+
+    my $enc = $pbkey->encrypt_raw($payload);
+
+    #----------------------------------------------------------------------
+
+    my $der = $pbkey->to_der();
+    my $pem = $pbkey->to_pem();
+
+    #----------------------------------------------------------------------
+
+    $pbkey->size();                 #modulus length, in bits
+    $pbkey->modulus_byte_length();
+
+    #----------------------------------------------------------------------
+    # The following all return instances of Crypt::Perl::BigInt,
+    # a subclass of Math::BigInt.
+    # The pairs (e.g., modulus() and N()) are aliases.
+    #----------------------------------------------------------------------
+
+    $pbkey->modulus();
+    $pbkey->N();
+
+    $pbkey->publicExponent();
+    $pbkey->E();
+    $pbkey->exponent();         #another alias of publicExponent()
+
+=cut
+
 use strict;
 use warnings;
 
 use parent qw(
-    Class::Accessor::Fast
     Crypt::Perl::RSA::KeyBase
 );
 
-use Crypt::Perl::BigInt ();
+use constant _PEM_HEADER => 'RSA PUBLIC KEY';
+use constant _ASN1_MACRO => 'RSAPublicKey';
 
 BEGIN {
-    __PACKAGE__->mk_ro_accessors('publicExponent');
-
-    *exponent = \&publicExponent;
-    *E = \&exponent;
-}
-
-sub to_der {
-    my ($self) = @_;
-
-    return $self->_to_der('RSAPublicKey');
+    *exponent = __PACKAGE__->can('publicExponent');
 }
 
 1;

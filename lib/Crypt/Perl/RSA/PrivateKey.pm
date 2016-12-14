@@ -1,5 +1,78 @@
 package Crypt::Perl::RSA::PrivateKey;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::RSA::PrivateKey - object representation of an RSA private key
+
+=head1 SYNOPSIS
+
+    #You’ll probably instantiate this class using Parser.pm
+    #or Generate.pm.
+
+    #cf. JSON Web Algorithms (RFC 7518, page 5)
+    #These return an octet string.
+    $sig = $prkey->sign_RS256($message);
+    $sig = $prkey->sign_RS384($message);
+    $sig = $prkey->sign_RS512($message);
+
+    #These return 1 or 0 to indicate verification or non-verification.
+    $prkey->verify_RS256($message, $sig);
+    $prkey->verify_RS384($message, $sig);
+    $prkey->verify_RS512($message, $sig);
+
+    #----------------------------------------------------------------------
+
+    my $enc = $prkey->encrypt_raw($payload);
+    my $orig = $prkey->decrypt_raw($enc);
+
+    #----------------------------------------------------------------------
+
+    my $der = $prkey->to_der();
+    my $pem = $prkey->to_pem();
+
+    my $pbkey = $prkey->get_public_key();
+
+    #----------------------------------------------------------------------
+
+    $prkey->version();              #scalar, integer
+
+    $prkey->size();                 #modulus length, in bits
+    $prkey->modulus_byte_length();
+
+    #----------------------------------------------------------------------
+    # The following all return instances of Crypt::Perl::BigInt,
+    # a subclass of Math::BigInt.
+    # The pairs (e.g., modulus() and N()) are aliases.
+    #----------------------------------------------------------------------
+
+    $prkey->modulus();
+    $prkey->N();
+
+    $prkey->publicExponent();
+    $prkey->E();
+
+    $prkey->privateExponent();
+    $prkey->D();
+
+    $prkey->prime1();
+    $prkey->P();
+
+    $prkey->prime2();
+    $prkey->Q();
+
+    $prkey->exponent1();
+    $prkey->DP();
+
+    $prkey->exponent2();
+    $prkey->DQ();
+
+    $prkey->coefficient();
+    $prkey->QINV();
+
+=cut
+
 use strict;
 use warnings;
 
@@ -7,8 +80,10 @@ use parent qw(
     Crypt::Perl::RSA::KeyBase
 );
 
-use File::Spec ();
 use Module::Load ();
+
+use constant _PEM_HEADER => 'RSA PRIVATE KEY';
+use constant _ASN1_MACRO => 'RSAPrivateKey';
 
 BEGIN {
     __PACKAGE__->mk_ro_accessors(
@@ -65,12 +140,6 @@ sub get_public_key {
     } );
 }
 
-sub to_der {
-    my ($self) = @_;
-
-    return $self->_to_der('RSAPrivateKey');
-}
-
 #----------------------------------------------------------------------
 #This function, in tandem with encrypt_raw(), represents the fundamental
 #mathematical truth on which RSA rests.
@@ -84,7 +153,7 @@ sub decrypt_raw {
     #jsrsasign avoids this when it has P and Q, which we have.
     #presumably that’s because privateExponent (D) is quite large,
     #so using it as an exponent is expensive.
-    #return ->bmodpow($self->{'privateExponent'}, $self->{'modulus'})->as_bytes();
+    #return $self->bmodpow($self->{'privateExponent'}, $self->{'modulus'})->as_bytes();
 
     my $p = $self->P();
     my $q = $self->Q();
@@ -111,7 +180,7 @@ sub _sign {
     if ($scheme eq 'PKCS1_v1_5') {
         Module::Load::load('Crypt::Perl::RSA::PKCS1_v1_5');
 
-        my $sig_length = $self->get_modulus_byte_length();
+        my $sig_length = $self->modulus_byte_length();
 
         #The encoded length equals the length, in bytes,
         #of the key’s modulus.
@@ -122,7 +191,7 @@ sub _sign {
         );
 
         #printf "PERL: %v02x\n", $eb;
-        #print "mod byte length: " . Crypt::Perl::RSA::get_modulus_byte_length($key_obj) . $/;
+        #print "mod byte length: " . Crypt::Perl::RSA::modulus_byte_length($key_obj) . $/;
 
         my $x = Crypt::Perl::BigInt->from_hex( unpack 'H*', $eb );
 
@@ -144,7 +213,7 @@ sub _sign {
 sub _transform {
     my ($self, $x) = @_;
 
-    my $key_bytes_length = $self->get_modulus_byte_length();
+    my $key_bytes_length = $self->modulus_byte_length();
 
     #cryptographic blinding
     my $r;

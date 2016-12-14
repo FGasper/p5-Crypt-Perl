@@ -5,15 +5,17 @@ use warnings;
 
 use parent qw(Class::Accessor::Fast);
 
+use Crypt::Format ();
 use Module::Load ();
 
 use Crypt::Perl::BigInt ();
-use Crypt::Perl::RNG ();
 
 BEGIN {
     __PACKAGE__->mk_ro_accessors('modulus');
+    __PACKAGE__->mk_ro_accessors('publicExponent');
 
     *N = \&modulus;
+    *E = \&publicExponent;
 }
 
 sub new {
@@ -26,6 +28,12 @@ sub new {
     return $self;
 }
 
+sub to_pem {
+    my ($self) = @_;
+
+    return Crypt::Format::der2pem( $self->to_der(), $self->_PEM_HEADER() );
+}
+
 #i.e., modulus length, in bits
 sub size {
     my ($self) = @_;
@@ -33,7 +41,7 @@ sub size {
     return length( $self->modulus()->as_bin() ) - 2;
 }
 
-sub get_modulus_byte_length {
+sub modulus_byte_length {
     my ($self) = @_;
 
     return length $self->N()->as_bytes();
@@ -63,6 +71,12 @@ sub encrypt_raw {
     my ($self, $bytes) = @_;
 
     return Crypt::Perl::BigInt->from_bytes($bytes)->bmodpow($self->{'publicExponent'}, $self->{'modulus'})->as_bytes();
+}
+
+sub to_der {
+    my ($self) = @_;
+
+    return $self->_to_der($self->_ASN1_MACRO());
 }
 
 #----------------------------------------------------------------------
@@ -98,7 +112,7 @@ sub _verify {
     #printf "OCTETS - %v02x\n", $octets;
 
     if ($scheme eq 'PKCS1_v1_5') {
-        my $key_bytes_length = $self->get_modulus_byte_length();
+        my $key_bytes_length = $self->modulus_byte_length();
         if (length($octets) != $key_bytes_length) {
             die sprintf( "Invalid PKCS1_v1_5 length: %d (should be %d)", length($octets), $key_bytes_length );
         }

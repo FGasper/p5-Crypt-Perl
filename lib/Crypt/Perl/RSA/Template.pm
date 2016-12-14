@@ -1,5 +1,8 @@
 package Crypt::Perl::RSA::Template;
 
+use strict;
+use warnings;
+
 #cf. RFC 3447 appendix A.1.1
 #
 #replacing INTEGER with FG_FAUX_INTEGER to facilitate “lite” mode

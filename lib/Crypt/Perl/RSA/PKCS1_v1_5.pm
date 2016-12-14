@@ -1,5 +1,54 @@
 package Crypt::Perl::RSA::PKCS1_v1_5;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::RSA::PKCS1_v1_5 - PKCS1 v1.5 signature padding
+
+=head1 SYNOPSIS
+
+    my $digest = Digest::SHA::sha256('This is my message.');
+
+    my $sig = Crypt::Perl::RSA::PKCS1_v1_5::encode(
+        $digest,
+        'sha256',   #digest OID; see below
+        2048,       #the bit length of the key’s modulus
+    );
+
+    #This value should match $digest.
+    my $digest_dec = Crypt::Perl::RSA::PKCS1_v1_5::decode(
+        $sig,
+        'sha256',
+    );
+
+=head1 LIST OF DIGEST OIDs
+
+=over 4
+
+=item * sha512
+
+=item * sha384
+
+=item * sha256
+
+=back
+
+The following are considered too weak for good security now;
+they’re included for historical interest.
+
+=over 4
+
+=item * sha1
+
+=item * md5
+
+=item * md2
+
+=back
+
+=cut
+
 use strict;
 use warnings;
 

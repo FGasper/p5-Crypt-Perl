@@ -15,6 +15,11 @@ Crypt::Perl::RSA::Parse - RSA key parsing
     my $prkey = Crypt::Perl::RSA::Parse::private($buffer);
     my $pbkey = Crypt::Perl::RSA::Parse::public($buffer);
 
+=head1 DISCUSSION
+
+See L<Crypt::Perl::RSA::PrivateKey> and L<Crypt::Perl::RSA::PublicKey>
+for descriptions of the interfaces that this module returns.
+
 =cut
 
 use strict;
