@@ -86,9 +86,7 @@ sub get_curve_name_by_data {
         return $name;
     }
 
-    #TODO object
-    my @parts = %hex_data;
-    die "No known curve name for parts: [@parts]";
+    die Crypt::Perl::X::create('NoCurveForParameters', %hex_data);
 }
 
 sub get_curve_data_by_name {

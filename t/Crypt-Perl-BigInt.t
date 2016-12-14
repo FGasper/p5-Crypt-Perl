@@ -35,6 +35,28 @@ sub _num {
     return Crypt::Perl::BigInt->from_hex(_HEX());
 }
 
+sub test_test_bit : Tests(4) {
+    my ($self) = @_;
+
+    my @bit_tests = (
+        [ '100', 0 => 0 ],
+        [ '100', 1 => 0 ],
+        [ '100', 2 => 1 ],
+        [ '100', 3 => 0 ],
+    );
+
+    for my $t (@bit_tests) {
+        my $bi = Crypt::Perl::BigInt->from_bin($t->[0]);
+        is(
+            $bi->test_bit($t->[1]),
+            $t->[2],
+            "0b$t->[0], bit $t->[1]: $t->[2]",
+        );
+    }
+
+    return;
+}
+
 sub bytes_conversion : Tests(2) {
     is(
         _num()->as_bytes(),

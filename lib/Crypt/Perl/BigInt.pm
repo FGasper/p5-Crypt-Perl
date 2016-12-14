@@ -43,4 +43,14 @@ sub bit_length {
     return( length($self->as_bin()) - 2 );
 }
 
+sub test_bit {
+    my ($self, $bit_from_least) = @_;
+
+    my $bstr = substr( $self->as_bin(), 2 );
+
+    return 0 if $bit_from_least >= length($bstr);
+
+    return substr($bstr, -$bit_from_least - 1, 1);
+}
+
 1;

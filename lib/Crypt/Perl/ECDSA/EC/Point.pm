@@ -79,7 +79,6 @@ sub twice {
     #    return $self->{'curve'}->get_infinity();
     #}
 
-    # TODO: optimized handling of constants
     my $x1 = $self->{'x'}->to_bigint();
     my $y1 = $self->{'y'}->to_bigint();
 
@@ -159,12 +158,12 @@ sub multiply {
     my $R = $self;
 
 #print "start loop: " . (_MBI_bit_length($h) - 2) . $/;
-    for my $i ( reverse( 1 .. ($h->bit_length() - 2) ) ) { #XXX
+    for my $i ( reverse( 1 .. ($h->bit_length() - 2) ) ) {
         $R = $R->twice();
 #$R->dump("R, loop $i");
 
-        my $hbit = _MBI_test_bit($h, $i); #XXX
-        my $ebit = _MBI_test_bit($e, $i);
+        my $hbit = $h->test_bit($i);
+        my $ebit = $e->test_bit($i);
 #print "hbit [$hbit], ebit [$ebit]\n";
 
         if ($hbit != $ebit) {
@@ -254,15 +253,6 @@ sub add {
         $self->{'curve'}->from_bigint($y3),
         $z3,
     );
-}
-
-#check whether the $nth bit from the least is on
-#TODO: Move to BigInt?
-sub _MBI_test_bit {
-    my ($mbi, $n) = @_;
-
-    #TODO: Optimize
-    return( $mbi & (Crypt::Perl::BigInt->new(2) ** $n) );
 }
 
 1;
