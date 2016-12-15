@@ -223,31 +223,26 @@ sub _transform {
         $r = Crypt::Perl::BigInt->from_hex(
             Crypt::Perl::RNG::bytes_hex( $key_bytes_length ),
         );
-    } while ($r >= $self->N()) || ($r->bgcd($self->N()) != 1);
+    } while ($r->bge($self->N())) || ($r->bgcd($self->N())->bne(1));
 
-    $x *= $r->copy()->bmodpow($self->E(), $self->N());
-    $x %= $self->N();
+    $x->bmul( $r->copy()->bmodpow($self->E(), $self->N()) )->bmod($self->N());
 
     #calculate xp and xq
-    my $xp = ($x % $self->P())->bmodpow($self->DP(), $self->P());
-    my $xq = ($x % $self->Q())->bmodpow($self->DQ(), $self->Q());
+    my $xp = $x->copy()->bmod($self->P())->bmodpow($self->DP(), $self->P());
+    my $xq = $x->copy()->bmod($self->Q())->bmodpow($self->DQ(), $self->Q());
 
     #xp must be larger than xq to avoid signed bit usage
-    while ($xp < $xq) {
-        $xp += $self->P();
-    }
+    $xp->badd($self->P()) while $xp->blt($xq);
 
-    my $y = $xp - $xq;
-    $y *= $self->QINV();
-    $y %= $self->P();
+    my $y = $xp->bsub($xq)->bmul($self->QINV())->bmod($self->P());
 
     #$y *= $self->Q();
     #$y += $xq;
     $y->bmuladd( $self->Q(), $xq );
 
     #remove effect of random for cryptographic blinding
-    $y *= $r->bmodinv($self->N());
-    $y %= $self->N();
+    $y->bmul( $r->bmodinv($self->N()) );
+    $y->bmod($self->N());
 
     return $y;
 }

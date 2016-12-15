@@ -111,7 +111,7 @@ sub public_x_and_y {
 sub _verify {
     my ($self, $msg, $r, $s) = @_;
 
-    if ($r >= 1 && $s >= 1) {
+    if ($r->bge(1) && $s->bge(1)) {
         my ($x, $y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
         $_ = Crypt::Perl::BigInt->from_bytes($_) for ($x, $y);
 
@@ -132,14 +132,14 @@ sub _verify {
         if ($r < $n && $s < $n) {
             my $c = $s->copy()->bmodinv($n);
 
-            my $u1 = ($e * $c) % $n;
-            my $u2 = ($r * $c) % $n;
+            my $u1 = $e->copy()->bmul($c)->bmod($n);
+            my $u2 = $r->copy()->bmul($c)->bmod($n);
 
             my $point = $self->_G()->multiply($u1)->add( $Q->multiply($u2) );
 
-            my $v = $point->get_x()->to_bigint() % $n;
+            my $v = $point->get_x()->to_bigint()->copy()->bmod($n);
 
-            return 1 if $v == $r;
+            return 1 if $v->beq($r);
         }
     }
 

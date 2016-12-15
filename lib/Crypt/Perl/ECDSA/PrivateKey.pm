@@ -216,9 +216,9 @@ sub _sign {
     my $s = $k->bmodinv($n);
 
     #$s *= ( $dgst + ( $priv_num * $r ) );
-    $s *= $priv_num->copy()->bmuladd( $r, $dgst );
+    $s->bmul( $priv_num->copy()->bmuladd( $r, $dgst ) );
 
-    $s %= $n;
+    $s->bmod($n);
 
     return ($r, $s);
 }
