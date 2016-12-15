@@ -3,7 +3,10 @@ package Crypt::Perl::RSA::KeyBase;
 use strict;
 use warnings;
 
-use parent qw(Class::Accessor::Fast);
+use parent qw(
+    Class::Accessor::Fast
+    Crypt::Perl::KeyBase
+);
 
 use Crypt::Format ();
 use Module::Load ();
@@ -17,6 +20,8 @@ BEGIN {
     *N = \&modulus;
     *E = \&publicExponent;
 }
+
+use constant _JWK_THUMBPRINT_JSON_ORDER => qw( e kty n );
 
 sub new {
     my ($class, @args) = @_;
@@ -77,6 +82,18 @@ sub to_der {
     my ($self) = @_;
 
     return $self->_to_der($self->_ASN1_MACRO());
+}
+
+sub get_struct_for_public_jwk {
+    my ($self) = @_;
+
+    Module::Load::load('MIME::Base64');
+
+    return {
+        kty => 'RSA',
+        n => MIME::Base64::encode_base64url($self->N()->as_bytes()),
+        e => MIME::Base64::encode_base64url($self->E()->as_bytes()),
+    }
 }
 
 #----------------------------------------------------------------------

@@ -3,7 +3,10 @@ package Crypt::Perl::ECDSA::KeyBase;
 use strict;
 use warnings;
 
-use Call::Context ();
+use parent qw(
+    Crypt::Perl::KeyBase
+);
+
 use Crypt::Format ();
 use Module::Load ();
 
@@ -15,6 +18,7 @@ use Crypt::Perl::ECDSA::EC::DB ();
 use Crypt::Perl::ECDSA::EC::Point ();
 use Crypt::Perl::ECDSA::ECParameters ();
 use Crypt::Perl::ECDSA::Utils ();
+use Crypt::Perl::X ();
 
 use constant OID_ecPublicKey => '1.2.840.10045.2.1';
 
@@ -32,6 +36,42 @@ use constant ASN1_Params => Crypt::Perl::ECDSA::ECParameters::ASN1_ECParameters(
     }
 >;
 
+use constant _JWK_THUMBPRINT_JSON_ORDER => qw( crv kty x y );
+
+use constant JWA_DIGEST_prime256v1 => 'sha256';
+use constant JWA_DIGEST_secp384r1 => 'sha384';
+use constant JWA_DIGEST_secp521r1 => 'sha512';
+
+use constant JWA_CURVE_ALG_prime256v1 => 'ES256';
+use constant JWA_CURVE_ALG_secp384r1 => 'ES384';
+use constant JWA_CURVE_ALG_secp521r1 => 'ES512';
+
+use constant JWK_CURVE_prime256v1 => 'P-256';
+use constant JWK_CURVE_secp384r1 => 'P-384';
+use constant JWK_CURVE_secp521r1 => 'P-512';
+
+#Expects $key_parts to be a hash ref:
+#
+#   version - AFAICT unused
+#   private - BigInt or its byte-string representation
+#   public  - ^^
+#
+sub new_by_curve_name {
+    my ($class, $key_parts, $curve_name) = @_;
+
+    #We could store the curve name on here if looking it up
+    #in to_der_with_curve_name() proves prohibitive.
+    return $class->new(
+        $key_parts,
+
+        #“Fake out” the $curve_parts attribute by recreating
+        #the structure that ASN.1 would give from a named curve.
+        {
+            namedCurve => Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name($curve_name),
+        },
+    );
+}
+
 #$msg has to be small enough that the key could have signed it.
 #It’s probably a digest rather than the original message.
 sub verify {
@@ -46,6 +86,8 @@ sub verify {
 sub verify_jwa {
     my ($self, $msg, $sig) = @_;
 
+    my $dgst_cr = $self->_get_jwk_digest_cr();
+
     my $half_len = (length $sig) / 2;
 
     my $r = substr($sig, 0, $half_len);
@@ -53,7 +95,7 @@ sub verify_jwa {
 
     $_ = Crypt::Perl::BigInt->from_bytes($_) for ($r, $s);
 
-    return $self->_verify($msg, $r, $s);
+    return $self->_verify($dgst_cr->($msg), $r, $s);
 }
 
 sub to_der_with_curve_name {
@@ -96,17 +138,60 @@ sub get_curve_name {
     return Crypt::Perl::ECDSA::EC::DB::get_curve_name_by_data( $self->_curve() );
 }
 
-sub public_x_and_y {
+sub get_struct_for_public_jwk {
     my ($self) = @_;
 
-    Call::Context::must_be_list();
+    my ($xb, $yb) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
 
-    my @xy = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+    Module::Load::load('MIME::Base64');
 
-    return map { Crypt::Perl::BigInt->from_bytes($_) } @xy;
+    return {
+        kty => 'EC',
+        crv => $self->_get_jwk_curve_name(),
+        x => MIME::Base64::encode_base64url($xb),
+        y => MIME::Base64::encode_base64url($yb),
+    }
+}
+
+sub get_jwa_alg {
+    my ($self) = @_;
+
+    my $name = $self->get_curve_name();
+
+    my $getter_cr = __PACKAGE__->can("JWA_CURVE_ALG_$name") or do {
+        die sprintf( "“%s” knows of no JWA “alg” for the curve “%s”!", ref($self), $name);
+    };
+
+    return $getter_cr->();
 }
 
 #----------------------------------------------------------------------
+
+sub _get_jwk_digest_cr {
+    my ($self) = @_;
+
+    my $name = $self->get_curve_name();
+
+    my $getter_cr = $self->can("JWA_DIGEST_$name") or do {
+        die sprintf( "“%s” knows of no digest to use for JWA with the curve “%s”!", ref($self), $name);
+    };
+
+    Module::Load::load('Digest::SHA');
+
+    return Digest::SHA->can( $getter_cr->() );
+}
+
+sub _get_jwk_curve_name {
+    my ($self) = @_;
+
+    my $name = $self->get_curve_name();
+
+    my $getter_cr = __PACKAGE__->can("JWK_CURVE_$name") or do {
+        die sprintf( "“%s” knows of no JWK “crv” for the curve “%s”!", ref($self), $name);
+    };
+
+    return $getter_cr->();
+}
 
 sub _verify {
     my ($self, $msg, $r, $s) = @_;

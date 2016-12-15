@@ -25,6 +25,7 @@ use Crypt::Format ();
 use Digest::SHA ();
 use File::Slurp ();
 use File::Temp ();
+use MIME::Base64 ();
 
 use lib "$FindBin::Bin/lib";
 use parent qw(
@@ -36,6 +37,7 @@ use lib "$FindBin::Bin/../lib";
 
 use Crypt::Perl::ECDSA::Generate ();
 use Crypt::Perl::ECDSA::Parse ();
+use Crypt::Perl::ECDSA::PublicKey ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -199,7 +201,13 @@ sub test_sign : Tests() {
 sub test_jwa : Tests(6) {
     my ($self) = @_;
 
-    for my $curve ( qw( prime256v1 secp384r1 secp521r1 ) ) {
+    my %curve_dgst = (
+        prime256v1 => 'sha256',
+        secp384r1 => 'sha384',
+        secp521r1 => 'sha512',
+    );
+
+    for my $curve ( sort keys %curve_dgst ) {
         my $msg = rand;
         note "Message: [$msg]";
 
@@ -209,11 +217,11 @@ sub test_jwa : Tests(6) {
         my $key = Crypt::Perl::ECDSA::Generate::by_name($curve);
         note $key->to_pem_with_curve_name();
 
-        my $sig = $key->sign_jwa($dgst);
+        my $sig = $key->sign_jwa($msg);
         note( "Signature: " . unpack 'H*', $sig );
 
         is(
-            $key->verify_jwa($dgst, $sig),
+            $key->verify_jwa($msg, $sig),
             1,
             "$curve: self-verify",
         );
@@ -223,11 +231,53 @@ sub test_jwa : Tests(6) {
 
             my $pk = Crypt::PK::ECC->new( \($key->to_pem_with_curve_name()) );
             ok(
-                $pk->verify_message_rfc7518($sig, $msg, 'sha256'),
+                $pk->verify_message_rfc7518($sig, $msg, $curve_dgst{$curve}),
                 "$curve: Crypt::PK::ECC verifies what we produced",
             );
         }
     }
+}
+
+#cf. RFC 7517, page 25
+sub test_jwk : Tests(2) {
+    my %params = (
+        version => 1,
+        public => Crypt::Perl::BigInt->from_bytes( "\x04" . MIME::Base64::decode_base64url('MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4') . MIME::Base64::decode_base64url('4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM') ),
+        private => Crypt::Perl::BigInt->from_bytes( MIME::Base64::decode_base64url('870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE') ),
+    );
+
+    my $prkey = Crypt::Perl::ECDSA::PrivateKey->new_by_curve_name(
+        \%params,
+        'prime256v1',
+    );
+
+    my $pub_jwk = $prkey->get_struct_for_public_jwk();
+
+    my $expected_pub = {
+        kty => "EC",
+        crv => "P-256",
+        x => "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+        y => "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+    };
+
+    is_deeply(
+        $pub_jwk,
+        $expected_pub,
+        'get_struct_for_public_jwk()',
+    ) or diag explain $pub_jwk;
+
+    my $prv_jwk = $prkey->get_struct_for_private_jwk();
+
+    is_deeply(
+        $prv_jwk,
+        {
+            %$expected_pub,
+            d => "870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE",
+        },
+        'get_struct_for_private_jwk()',
+    );
+
+    return;
 }
 
 sub test_verify : Tests(2) {

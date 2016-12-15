@@ -142,6 +142,30 @@ sub get_public_key {
     } );
 }
 
+sub get_struct_for_private_jwk {
+    my ($self) = @_;
+
+    Module::Load::load('MIME::Base64');
+
+    my $jwk = $self->get_struct_for_public_jwk();
+
+    my %augment = qw(
+        d   D
+        p   P
+        q   Q
+        dp  DP
+        dq  DQ
+        qi  QINV
+    );
+
+    for my $k (keys %augment) {
+        my $accessor = $augment{$k};
+        $jwk->{$k} = MIME::Base64::encode_base64url( $self->$accessor()->as_bytes() );
+    }
+
+    return $jwk;
+}
+
 #----------------------------------------------------------------------
 #This function, in tandem with encrypt_raw(), represents the fundamental
 #mathematical truth on which RSA rests.

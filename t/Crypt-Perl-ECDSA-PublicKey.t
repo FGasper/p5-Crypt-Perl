@@ -21,6 +21,7 @@ use Crypt::Format ();
 use Digest::SHA ();
 use File::Slurp ();
 use File::Temp ();
+use MIME::Base64 ();
 
 use lib "$FindBin::Bin/lib";
 
@@ -30,6 +31,7 @@ use parent qw(
 );
 
 use Crypt::Perl::ECDSA::Parse ();
+use Crypt::Perl::ECDSA::PublicKey ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
@@ -38,6 +40,31 @@ if ( !caller ) {
 }
 
 #----------------------------------------------------------------------
+
+#cf. RFC 7517, page 25
+sub test_jwk : Tests(1) {
+    my $prkey = Crypt::Perl::ECDSA::PublicKey->new_by_curve_name(
+        Crypt::Perl::BigInt->from_bytes( "\x04" . MIME::Base64::decode_base64url('MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4') . MIME::Base64::decode_base64url('4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM') ),
+        'prime256v1',
+    );
+
+    my $pub_jwk = $prkey->get_struct_for_public_jwk();
+
+    my $expected_pub = {
+        kty => "EC",
+        crv => "P-256",
+        x => "MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4",
+        y => "4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM",
+    };
+
+    is_deeply(
+        $pub_jwk,
+        $expected_pub,
+        'get_struct_for_public_jwk()',
+    ) or diag explain $pub_jwk;
+
+    return;
+}
 
 sub test_subject_public_key : Tests(1) {
     my ($self) = @_;

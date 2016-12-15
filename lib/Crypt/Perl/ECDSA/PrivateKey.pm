@@ -23,6 +23,7 @@ Crypt::Perl::ECDSA::PrivateKey - object representation of ECDSA private key
     my $sig = $prkey->sign($payload);
 
     #For JSON Web Algorithms (JWT et al.), cf. RFC 7518 page 8
+    #This will also apply the appropriate SHA algorithm before signing.
     my $sig_jwa = $prkey->sign_jwa($payload);
 
     $prkey->verify($payload, $sig) or die "Invalid signature!";
@@ -32,7 +33,23 @@ Crypt::Perl::ECDSA::PrivateKey - object representation of ECDSA private key
     my $cn_pem = $prkey->to_pem_with_curve_name();
     my $expc_pem = $prkey->to_pem_with_explicit_curve();
 
+    #----------------------------------------------------------------------
+
     my $pbkey = $prkey->get_public_key();
+
+    #----------------------------------------------------------------------
+
+    #Includes “kty”, “crv”, “x”, “y”, and (for private) “d”.
+    #Add in whatever else your application needs afterward.
+    #
+    #These will die() if you try to run it with a curve that
+    #doesn’t have a known JWK “crv” value.
+    #
+    my $prv_jwk = $prkey->get_struct_for_private_jwk();
+    my $pub_jwk = $prkey->get_struct_for_public_jwk();
+
+    #Useful for JWTs
+    my $jwt_alg = $pbkey->get_jwa_alg();
 
 =head1 DISCUSSION
 
@@ -89,35 +106,16 @@ use constant ASN1_PRIVATE => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
 
 use constant _PEM_HEADER => 'EC PRIVATE KEY';
 
-#Expects $key_parts to be a hash ref:
-#
-#   version - AFAICT unused
-#   private - BigInt or its byte-string representation
-#   public  - ^^
-#
-sub new_by_curve_name {
-    my ($class, $key_parts, $curve_name) = @_;
-
-    #We could store the curve name on here if looking it up
-    #in to_der_with_curve_name() proves prohibitive.
-    return $class->new(
-        $key_parts,
-
-        #“Fake out” the $curve_parts attribute by recreating
-        #the structure that ASN.1 would give from a named curve.
-        {
-            namedCurve => Crypt::Perl::ECDSA::EC::DB::get_oid_for_curve_name($curve_name),
-        },
-    );
-}
-
-
 #$curve_parts is also a hash ref, defined as whatever the ASN.1
 #parse of the main key’s “parameters” returned, whether that be
 #explicit key parameters or a named curve.
 #
 sub new {
     my ($class, $key_parts, $curve_parts) = @_;
+
+    if (!length $key_parts->{'version'}) {
+        die 'Need a “version”! (Try 1)';
+    }
 
     my $self = {
         version => $key_parts->{'version'},
@@ -148,7 +146,9 @@ sub sign {
 sub sign_jwa {
     my ($self, $whatsit) = @_;
 
-    my ($r, $s) = map { $_->as_bytes() } $self->_sign($whatsit);
+    my $dgst_cr = $self->_get_jwk_digest_cr();
+
+    my ($r, $s) = map { $_->as_bytes() } $self->_sign($dgst_cr->($whatsit));
 
     my $octet_length = Crypt::Perl::Math::ceil($self->max_sign_bits() / 8);
 
@@ -166,6 +166,18 @@ sub get_public_key {
         $self->{'public'},
         $self->_explicit_curve_parameters(),
     );
+}
+
+sub get_struct_for_private_jwk {
+    my ($self) = @_;
+
+    my $hr = $self->get_struct_for_public_jwk();
+
+    Module::Load::load('MIME::Base64');
+
+    $hr->{'d'} = MIME::Base64::encode_base64url( $self->{'private'}->as_bytes() );
+
+    return $hr;
 }
 
 #----------------------------------------------------------------------
