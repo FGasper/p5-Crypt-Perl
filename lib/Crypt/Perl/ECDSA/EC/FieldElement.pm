@@ -70,7 +70,7 @@ sub square {
 
     return $self->new(
         $self->{'q'},
-        ($self->{'x'} ** 2) % $self->{'q'},
+        $self->{'x'}->copy()->bmodpow(2, $self->{'q'}),
     );
 }
 

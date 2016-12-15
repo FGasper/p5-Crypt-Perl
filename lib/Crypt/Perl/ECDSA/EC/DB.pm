@@ -117,7 +117,7 @@ sub get_curve_name_by_data {
         return $name;
     }
 
-    die Crypt::Perl::X::create('NoCurveForParameters', %hex_data);
+    die Crypt::Perl::X::create('ECDSA::NoCurveForParameters', %hex_data);
 }
 
 sub get_curve_data_by_name {

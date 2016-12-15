@@ -85,16 +85,19 @@ sub twice {
     my $x1 = $self->{'x'}->to_bigint();
     my $y1 = $self->{'y'}->to_bigint();
 
-    my $y1z1 = $y1 * $self->{'z'};
-    my $y1sqz1 = ($y1z1 * $y1) % $self->{'curve'}{'q'};
+    my $y1z1 = $y1->copy()->bmul($self->{'z'});
+
+    my $y1sqz1 = $y1z1->copy()->bmul($y1)->bmod($self->{'curve'}{'q'});
+
     my $a = $self->{'curve'}{'a'};
 
     # w = 3 * x1^2 + a * z1^2
     #var w = x1.square().multiply(THREE);
-    my $w = ($x1 ** 2) * 3;
+    my $w = $x1->copy()->bpow(2)->bmul(3);
 
     if ($a != 0) {
-        $w += ($self->{'z'} ** 2) * $a;
+        #$w += ($self->{'z'} ** 2) * $a;
+        $w->badd( $a->copy()->bmul( $self->{'z'}->copy()->bpow(2) ) );
     }
 
     $w %= $self->{'curve'}{'q'};
@@ -102,21 +105,27 @@ sub twice {
     # x3 = 2 * y1 * z1 * (w^2 - 8 * x1 * y1^2 * z1)
     #var x3 = w.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
 
-    my $x3 = 2 * $y1z1 * (($w ** 2) - ($x1 << 3) * $y1sqz1);
+    my $x3 = $w->copy()->bmuladd( $w, $y1sqz1->copy()->bmul( $x1->copy()->blsft(3)->bneg() ) )->bmul( $y1z1->copy()->badd($y1z1) );
+    #my $x3 = 2 * $y1z1 * (($w ** 2) - ($x1 << 3) * $y1sqz1);
     #my $x3 = ($w ** 2) - (($x1 << 3) * $y1sqz1);
     #$x3 = $x3 << 1;
     #$x3 *= $y1z1;
 
     # y3 = 4 * y1^2 * z1 * (3 * w * x1 - 2 * y1^2 * z1) - w^3
     #var y3 = w.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w.square().multiply(w)).mod(this.curve.q);
-    my $y3 = 4 * $y1sqz1 * (3 * $w * $x1 - 2 * $y1sqz1) - ($w ** 3);
+    #my $y3 = 4 * $y1sqz1 * (3 * $w * $x1 - 2 * $y1sqz1) - ($w ** 3);
+    my $y3 = $y1sqz1->copy()->bmul(4)->bmuladd(
+        $w->copy()->bmul(3)->bmuladd($x1, $y1sqz1->copy()->bmul(-2)),
+        $w->copy()->bpow(3)->bneg(),
+    );
 
     #// z3 = 8 * (y1 * z1)^3
     #var z3 = y1z1.square().multiply(y1z1).shiftLeft(3).mod(this.curve.q);
-    my $z3 = ($y1z1 ** 3) << 3;
+    #my $z3 = ($y1z1 ** 3) << 3;
+    my $z3 = $y1z1->bpow(3)->blsft(3);  #don’t need y1z1 anymore
 
     #In original JS logic
-    $_ %= $self->{'curve'}{'q'} for ($x3, $y3, $z3);
+    $_->bmod($self->{'curve'}{'q'}) for ($x3, $y3, $z3);
 
     #return new ECPointFp(this.curve, this.curve.fromBigInteger(x3), this.curve.fromBigInteger(y3), z3);
     return (ref $self)->new(
@@ -153,7 +162,7 @@ sub multiply {
 
 #print "here2\n";
     my $e = $k;
-    my $h = $e * 3;
+    my $h = $e->copy()->bmul(3);
 #print "h: " . $h->as_hex() . $/;
 
     my $neg = $self->negate();
@@ -191,14 +200,21 @@ sub add {
 
     #// u = Y2 * Z1 - Y1 * Z2
     #var u = b.y.toBigInteger().multiply(this.z).subtract(this.y.toBigInteger().multiply(b.z)).mod(this.curve.q);
-    my $u = $b->{'y'}->to_bigint() * $self->{'z'} - $self->{'y'}->to_bigint() * $b->{'z'};
-
+    my $u = $b->{'y'}->to_bigint()->copy()->bmuladd(
+        $self->{'z'},
+        $self->{'y'}->to_bigint()->copy()->bneg()->bmul($b->{'z'}),
+    );
+# $b->{'z'};
 
     #// v = X2 * Z1 - X1 * Z2
     #var v = b.x.toBigInteger().multiply(this.z).subtract(this.x.toBigInteger().multiply(b.z)).mod(this.curve.q);
-    my $v = $b->{'x'}->to_bigint() * $self->{'z'} - $self->{'x'}->to_bigint() * $b->{'z'};
+    my $v = $b->{'x'}->to_bigint()->copy()->bmuladd(
+        $self->{'z'},
+        $self->{'x'}->to_bigint()->copy()->bneg()->bmul($b->{'z'}),
+    );
 
-    $_ %= $self->{'curve'}{'q'} for ($u, $v);
+
+    $_->bmod($self->{'curve'}{'q'}) for ($u, $v);
 #print "u: " . $u->as_hex() . $/;
 #print "v: " . $v->as_hex() . $/;
     #if(BigInteger.ZERO.equals(v)) {
@@ -229,26 +245,36 @@ sub add {
     #var v3 = v2.multiply(v);
     #var x1v2 = x1.multiply(v2);
     #var zu2 = u.square().multiply(this.z);
-    my $v2 = $v ** 2;
-    my $v3 = $v ** 3;
-    my $x1v2 = $x1 * $v2;
-    my $zu2 = ($u ** 2) * $self->{'z'};
+
+    my $v2 = $v->copy()->bpow(2);
+    my $v3 = $v->copy()->bpow(3);
+
+    my $x1v2 = $x1->copy()->bmul($v2);
+    my $zu2 = $u->copy()->bmul($u)->bmul($self->{'z'});
 #use Data::Dumper;
 #print Dumper( map { $_->as_hex() } $u, $v, $x1, $y1, $z1, $x2, $y2, $z2, $v2, $v3, $x1v2, $zu2 );
 
     #// x3 = v * (z2 * (z1 * u^2 - 2 * x1 * v^2) - v^3)
     #var x3 = zu2.subtract(x1v2.shiftLeft(1)).multiply(b.z).subtract(v3).multiply(v).mod(this.curve.q);
-    my $x3 = $v * ($z2 * ($z1 * ($u ** 2) - 2 * $x1 * ($v ** 2)) - ($v ** 3));
+    #my $x3 = $v * ($z2 * ($z1 * ($u ** 2) - 2 * $x1 * ($v ** 2)) - ($v ** 3));
+    my $x3 = $u->copy()->bmul($u);
+    $x3->bmuladd( $z1, $x1->copy()->bmul(-2)->bmul($v)->bmul($v) );
+    $x3->bmuladd( $z2, $v->copy()->bpow(3)->bneg() );
+    $x3->bmul($v);
 
     #// y3 = z2 * (3 * x1 * u * v^2 - y1 * v^3 - z1 * u^3) + u * v^3
     #var y3 = x1v2.multiply(THREE).multiply(u).subtract(y1.multiply(v3)).subtract(zu2.multiply(u)).multiply(b.z).add(u.multiply(v3)).mod(this.curve.q);
-    my $y3 = $z2 * (3 * $x1 * $u * $v2 - $y1 * $v3 - $z1 * ($u ** 3)) + $u * $v3;
+    #my $y3 = $z2 * (3 * $x1 * $u * $v2 - $y1 * $v3 - $z1 * ($u ** 3)) + $u * $v3;
+    my $y3 = $u->copy()->bmul(3)->bmul($x1);
+    $y3->bmuladd($v2, $y1->copy()->bmul($v3)->bneg());
+    $y3->bsub( $u->copy()->bpow(3)->bmul($z1) );
+    $y3->bmuladd( $z2, $u->copy()->bmul($v3) );
 
     #// z3 = v^3 * z1 * z2
     #var z3 = v3.multiply(this.z).multiply(b.z).mod(this.curve.q);
-    my $z3 = $v3 * $z1 * $z2;
+    my $z3 = $v3->bmul($z1)->bmul($z2);
 
-    $_ %= $self->{'curve'}{'q'} for ($x3, $y3, $z3);
+    $_->bmod($self->{'curve'}{'q'}) for ($x3, $y3, $z3);
 
     return (ref $self)->new(
         $self->{'curve'},

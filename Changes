@@ -7,3 +7,4 @@ Revision history for Perl module Crypt::Perl
 - Add public_x_and_y() for ECDSA keys
 - Add sign_jwa() and verify_jwa() ECDSA methods
 - Fix generation of secp521r1 keys
+- use bmuladd() when possible in the ECDSA logic
