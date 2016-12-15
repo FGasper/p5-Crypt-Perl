@@ -1,4 +1,4 @@
-package t::Crypt::Perm::RSA::PrivateKey;
+package t::Crypt::Perl::RSA::PrivateKey;
 
 use strict;
 use warnings;
@@ -66,6 +66,28 @@ sub _display_raw {
 }
 
 sub test_get_jwk_thumbprint : Tests(1) {
+    my $PEM = <<END;
+-----BEGIN RSA PRIVATE KEY-----
+MIIByQIBAAJhAKN4HLaYKxh5Z5In+3Yq3E1c7mAZZdsJlsrKU8pGt5GbmqKqADMX
+DnMStnFFYQyI5QTUhT64vwL4HCokb+tE2Fxo8jpGXYwamHjx9/6EJQ8UIZ44Xa3X
+335IVSB1sYAICwIDAQABAmAfsU/Pzty8F/2OhpXoKRMhJJ1KoGHw/4DuvB9WnjNE
+1ag7VT5IqXWxtbUNbOgN6BQ/cjcMbyDjLoqSnflLWI1UnzEFF29OidgEqHO9n1dn
+jjAxjFcXFtLwtxY9MGJ4iXECMQDOQvMLMI5ynR9mMpf8Yq6dS8ryllj0ucc3FMAl
+rYcJCGbb1qKXCMuuEk5Dw33xts8CMQDK43uVC2gqf7OvgO+kDpiJY47BFwvs+91q
+olZ4bb8g+MFVNZgLC1G3lvWmcfn+qgUCMEyyBk+l2YHyvMcyjuMxCn7AvREhKKiv
+H81ycNRRxwFr11ttXv3MLnhmpCV8XqtvbwIwRcakeubYZT1UA7jZMdffN+jocJnH
+fTJFvOWlzXcY83L5sp9i8fFrojMlup+aNa4tAjBSn1SfMwbITbFze0K0Ca0kVmsx
+dfxraCy2A+tQkCpCYGo5NcFbEgc2MD3YzATmPg8=
+-----END RSA PRIVATE KEY-----
+END
+
+    is(
+        Crypt::Perl::RSA::Parse::private($PEM)->get_jwk_thumbprint('sha256'),
+        '8F9kce8-q3vfjOlDSBapPBVbzJVsKIdy6sD-hE-E83Y',
+        'expected JWK thumbprint',
+    );
+
+    return;
 }
 
 sub test_jwk_methods : Tests(2) {
