@@ -240,8 +240,10 @@ sub _transform {
     my $y = $xp - $xq;
     $y *= $self->QINV();
     $y %= $self->P();
-    $y *= $self->Q();
-    $y += $xq;
+
+    #$y *= $self->Q();
+    #$y += $xq;
+    $y->bmuladd( $self->Q(), $xq );
 
     #remove effect of random for cryptographic blinding
     $y *= $r->bmodinv($self->N());

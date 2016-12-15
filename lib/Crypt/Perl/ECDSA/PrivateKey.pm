@@ -214,7 +214,10 @@ sub _sign {
 #printf "r: %s\n", $r->as_hex();
 
     my $s = $k->bmodinv($n);
-    $s *= ( $dgst + ( $priv_num * $r ) );
+
+    #$s *= ( $dgst + ( $priv_num * $r ) );
+    $s *= $priv_num->copy()->bmuladd( $r, $dgst );
+
     $s %= $n;
 
     return ($r, $s);
