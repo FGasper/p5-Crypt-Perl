@@ -4,7 +4,7 @@ package Crypt::Perl::X;
 
 =head1 NAME
 
-Net::ACME::X - Exception objects for Crypt::Perl
+Crypt::Perl::X - Exception objects for Crypt::Perl
 
 =cut
 
