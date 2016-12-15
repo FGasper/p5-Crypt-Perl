@@ -204,7 +204,7 @@ sub _sign {
 #printf "Q.x: %s\n", $Q->{'x'}->to_bigint()->as_hex();
 #printf "Q.y: %s\n", $Q->{'y'}->to_bigint()->as_hex();
 #printf "Q.z: %s\n", $Q->{'z'}->as_hex();
-        $r = $Q->get_x()->to_bigint()->bmod($n);
+        $r = $Q->get_x()->to_bigint()->copy()->bmod($n);
     } while ($r <= 0);
 
 #printf "k: %s\n", $k->as_hex();
@@ -237,75 +237,6 @@ sub _get_asn1_parts {
             parameters => $curve_parts,
         },
     );
-}
-
-#Accepts der
-#sub new {
-#    my ($class, $der) = @_;
-#
-#    Crypt::Perl::ToDER::ensure_der($der);
-#
-#    my $asn1 = $class->_asn1();
-#    my $asn1_ec = $asn1->find('ECPrivateKey');
-#
-#    my $struct;
-#    try {
-#        $struct = $asn1_ec->decode($der);
-#    }
-#    catch {
-#        my $ec_err = $_;
-#
-#        my $asn1_pkcs8 = $asn1->find('PrivateKeyInfo');
-#
-#        try {
-#            my $pk8_struct = $asn1_pkcs8->decode($der);
-#
-#            #It still might succeed, even if this is wrong, so don’t die().
-#            if ( $pk8_struct->{'privateKeyAlgorithm'}{'algorithm'} ne $class->OID_ecPublicKey() ) {
-#                warn "Unknown private key algorithm OID: “$pk8_struct->{'privateKeyAlgorithm'}{'algorithm'}”";
-#            }
-#
-#            my $asn1_params = $asn1->find('EcpkParameters');
-#            my $params = $asn1_params->decode($pk8_struct->{'privateKeyAlgorithm'}{'parameters'});
-#
-#            $struct = $asn1_ec->decode($pk8_struct->{'privateKey'});
-#            $struct->{'parameters'} = $params;
-#        }
-#        catch {
-#            die "Failed to decode private key as either ECDSA native ($ec_err) or PKCS8 ($_)";
-#        };
-#    };
-#
-#    my $self = {
-#        version => $struct->{'version'},
-#        private => Crypt::Perl::BigInt->from_bytes($struct->{'privateKey'}),
-#        public => Crypt::Perl::BigInt->from_bytes($struct->{'publicKey'}[0]),
-#
-#        #for parsing
-#        public_bytes_r => \$struct->{'publicKey'}[0],
-#    };
-##print "fieldType [$struct->{'parameters'}{'primeData'}{'fieldType'}]\n";
-#
-#    bless $self, $class;
-#
-#    $self->_add_params( $struct->{'parameters'} );
-#
-#    return $self;
-#}
-
-#could be faster; see JS implementation?
-sub _getBigRandom {
-    my ($limit) = @_;
-
-    my $lim_bytes = length($limit->as_hex()) - 2;
-    $lim_bytes /= 2;
-
-    my $r;
-    do {
-        $r = Crypt::Perl::BigInt->from_hex( Crypt::Perl::RNG::bytes_hex($lim_bytes) );
-    } while $r > $limit;
-
-    return $r;
 }
 
 sub _serialize_sig {
