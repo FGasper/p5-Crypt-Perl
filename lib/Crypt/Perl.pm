@@ -62,7 +62,7 @@ key generation) are pretty slow. Depending on your use case, this may or may
 not be workable for you. It will always, of course, be slower than C-based
 implementations like OpenSSL or L<LibTomCrypt|http://www.libtom.org/LibTomCrypt/>.
 This code does take advantage of XS-based backends for modules like
-C<Math::BigInt> and C<Bytes::Random::Secure::Tiny> where available.
+L<Math::BigInt> and L<Bytes::Random::Secure::Tiny> where available.
 
 =head1 TODO
 
