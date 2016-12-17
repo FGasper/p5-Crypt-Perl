@@ -53,17 +53,6 @@ See the documentation for L<Crypt::Perl::ECDSA::PublicKey> and
 L<Crypt::Perl::ECDSA::PrivateKey> for discussions of what these interfaces
 can do.
 
-NOTE: The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://kjur.github.io/jsrsasign/>.
-
-=head1 TODO
-
-=over 4
-
-=item * Support characteristic-two curves. L<OpenSSL|http://openssl.org>
-seems to be the only library to support such curves presently.
-
-=back
-
 =head1 SECURITY
 
 The security advantages of elliptic-curve cryptography (ECC) are a matter of
@@ -89,6 +78,13 @@ In particular, it would be great to support characteristic-two curves, though
 almost everything seems to expect the prime-field variety.
 (OpenSSL is the only implementation I know of that
 supports characteristic-two.)
+
+=head1 ACKNOWLEDGEMENTS
+
+The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://kjur.github.io/jsrsasign/>.
+
+Curve data is copied from OpenSSL. (See the script included in the
+distribution.)
 
 =cut
 
