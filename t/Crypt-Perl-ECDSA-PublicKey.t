@@ -42,7 +42,7 @@ if ( !caller ) {
 #----------------------------------------------------------------------
 
 #cf. RFC 7517, page 25
-sub test_jwk : Tests(1) {
+sub test_jwk : Tests(2) {
     my $prkey = Crypt::Perl::ECDSA::PublicKey->new_by_curve_name(
         Crypt::Perl::BigInt->from_bytes( "\x04" . MIME::Base64::decode_base64url('MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4') . MIME::Base64::decode_base64url('4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM') ),
         'prime256v1',
@@ -62,6 +62,15 @@ sub test_jwk : Tests(1) {
         $expected_pub,
         'get_struct_for_public_jwk()',
     ) or diag explain $pub_jwk;
+
+    #from Crypt::PK::ECC
+    my $sha384_thumbprint = 'bLeg0iV0lOxemYi1inZct_fpBVGT0PjmOJfkLKNQzwiVJph-qr70kbtxqtdk9pVx';
+
+    is(
+        $prkey->get_jwk_thumbprint('sha384'),
+        $sha384_thumbprint,
+        'to_jwk_thumbprint(sha384)',
+    );
 
     return;
 }

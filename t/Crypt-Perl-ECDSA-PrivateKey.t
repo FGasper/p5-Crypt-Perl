@@ -239,7 +239,7 @@ sub test_jwa : Tests(6) {
 }
 
 #cf. RFC 7517, page 25
-sub test_jwk : Tests(2) {
+sub test_jwk : Tests(3) {
     my %params = (
         version => 1,
         public => Crypt::Perl::BigInt->from_bytes( "\x04" . MIME::Base64::decode_base64url('MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4') . MIME::Base64::decode_base64url('4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM') ),
@@ -275,6 +275,15 @@ sub test_jwk : Tests(2) {
             d => "870MB6gfuTJ4HtUnUvYMyJpr5eUZNP4Bk43bVdj3eAE",
         },
         'get_struct_for_private_jwk()',
+    );
+
+    #from Crypt::PK::ECC
+    my $sha512_thumbprint = '87wrLaz3s_FhzVDc1S8PBGMBK7SlogjruZ8x3hrvMMS28Zq4-1ugZG2qoqUcBatvWxzlCLGqHCRv4eVefHCsyg';
+
+    is(
+        $prkey->get_jwk_thumbprint('sha512'),
+        $sha512_thumbprint,
+        'to_jwk_thumbprint(sha512)',
     );
 
     return;
