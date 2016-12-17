@@ -37,9 +37,9 @@ See submodules for usage examples of:
 
 =over 4
 
-=item * RSA
+=item * L<RSA|Crypt::Perl::RSA>
 
-=item * ECDSA
+=item * L<ECDSA|Crypt::Perl::ECDSA>
 
 =back
 
