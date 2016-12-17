@@ -54,8 +54,7 @@ sub private {
         my $rsa_err = $_;
 
         try {
-            my $pkcs8 = _decode_pkcs8($pem_or_der);
-            $key_obj = _decode_rsa_within_pkcs8_or_die($pkcs8);
+            $key_obj = private_pkcs8($pem_or_der);
         }
         catch {
             die "Failed to parse as either RSA ($rsa_err) or PKCS8 ($_)";
@@ -94,8 +93,7 @@ sub public {
         my $rsa_err = $_;
 
         try {
-            my $pkcs8 = _decode_pkcs8_public($pem_or_der);
-            $key_obj = _decode_rsa_public_within_pkcs8_or_die($pkcs8);
+            $key_obj = public_pkcs8($pem_or_der);
         }
         catch {
             die "Failed to parse as either RSA ($rsa_err) or PKCS8 ($_)";

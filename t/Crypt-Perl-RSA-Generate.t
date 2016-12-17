@@ -55,7 +55,7 @@ sub test_generate : Tests(1) {
                 my $exp = ( 3, 65537 )[int( 0.5 + rand )];
 
                 my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
-                my $pem = Crypt::Format::der2pem( $key_obj->to_der(), 'RSA PRIVATE KEY' );
+                my $pem = $key_obj->to_pem();
 
                 my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
                 print {$fh} $pem or die $!;

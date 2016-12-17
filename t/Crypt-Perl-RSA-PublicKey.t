@@ -22,6 +22,7 @@ use parent qw( Test::Class );
 use MIME::Base64 ();
 
 use Crypt::Perl::BigInt ();
+use Crypt::Perl::RSA::Parse ();
 use Crypt::Perl::RSA::PublicKey ();
 
 if ( !caller ) {
@@ -31,6 +32,35 @@ if ( !caller ) {
 }
 
 #----------------------------------------------------------------------
+
+sub test_pem_der_export : Tests(2) {
+    my ($self) = @_;
+
+    my $pem = <<END;
+-----BEGIN RSA PUBLIC KEY-----
+MGYCYQCfMGcQpapQgxepWmP0idxLSysHZsF5iBIil5PX9k0YETbxMCBA3Y9mv2wK
+8+aMsheOS/6PCSJNozFcD3ec6YPknqkuUMsNgzcqmZu5h2wiKM71W4ctLiL7xY/A
+OCncb2kCAQM=
+-----END RSA PUBLIC KEY-----
+END
+    my $der = Crypt::Format::pem2der($pem);
+
+    my $pbkey = Crypt::Perl::RSA::Parse::public($pem);
+
+    is(
+        sprintf("%v.02x", $pbkey->to_der()),
+        sprintf("%v.02x", $der),
+        'to_der()',
+    );
+
+    is(
+        sprintf("%v.02x", Crypt::Format::pem2der( $pbkey->to_pem() )),
+        sprintf("%v.02x", $der),
+        'to_pem()',
+    );
+
+    return;
+}
 
 sub test_get_jwk_thumbprint : Tests(1) {
 

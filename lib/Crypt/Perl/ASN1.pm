@@ -8,6 +8,7 @@ use warnings;
 use parent 'Convert::ASN1';
 
 use Crypt::Perl::BigInt ();
+use Crypt::Perl::X ();
 
 sub new {
     my ($class, @opts) = @_;
@@ -25,7 +26,7 @@ sub prepare {
     my $ret = $self->SUPER::prepare($$asn1_r);
 
     if ( !defined $ret ) {
-        die sprintf( "Failed to prepare ASN.1 description: %s", $self->error() );
+        die Crypt::Perl::X::create('ASN1::Prepare', $$asn1_r, $self->error());
     }
 
     return $ret;
@@ -35,7 +36,7 @@ sub find {
     my ( $self, $macro ) = @_;
 
     return $self->SUPER::find($macro) || do {
-        die sprintf( "Failed to find ASN.1 macro “$macro”: %s", $self->error() );
+        die Crypt::Perl::X::create('ASN1::Find', $macro, $self->error());
     };
 }
 
@@ -43,15 +44,15 @@ sub encode {
     my ($self) = shift;
 
     return $self->SUPER::encode(@_) || do {
-        die sprintf( "Failed to encode ASN.1 (args: @_): %s", $self->error() );
+        die Crypt::Perl::X::create('ASN1::Encode', \@_, $self->error());
     };
 }
 
 sub decode {
     my ($self) = shift;
 
-    return $self->SUPER::decode(@_) || do {
-        die sprintf( "Failed to decode ASN.1 (@_): %s", $self->error() );
+    return $self->SUPER::decode($_[0]) || do {
+        die Crypt::Perl::X::create('ASN1::Decode', $_[0], $self->error());
     };
 }
 

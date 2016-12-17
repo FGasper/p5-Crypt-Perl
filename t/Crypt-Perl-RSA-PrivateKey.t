@@ -206,6 +206,33 @@ sub check_RS384_and_RS512 : Tests(6) {
     return;
 }
 
+sub test_pem_der_export : Tests(2) {
+    my ($self) = @_;
+
+    SKIP: {
+        skip 'No Crypt::OpenSSL::RSA; skipping', $self->num_tests() if !$self->{'_has_ossl'};
+
+        my $pem = $self->{'_tests'}[-1][1];
+        my $der = Crypt::Format::pem2der($pem);
+
+        my $prkey = Crypt::Perl::RSA::Parse::private($pem);
+
+        is(
+            sprintf("%v.02x", $prkey->to_der()),
+            sprintf("%v.02x", $der),
+            'to_der()',
+        );
+
+        is(
+            sprintf("%v.02x", Crypt::Format::pem2der( $prkey->to_pem() )),
+            sprintf("%v.02x", $der),
+            'to_pem()',
+        );
+    }
+
+    return;
+}
+
 sub do_RS256_tests : Tests() {
     my ($self) = @_;
 
