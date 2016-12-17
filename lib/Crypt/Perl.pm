@@ -13,8 +13,8 @@ Crypt::Perl - Cryptography in Pure Perl
 
 =head1 DESCRIPTION
 
-Just as it sounds: cryptography with no XS dependences! This is useful in
-environments where you want to encrypt things but may not have access to
+Just as it sounds: cryptography with no non-core XS dependencies!
+This is useful if you don’t have access to
 other tools that do this work like L<OpenSSL|http://openssl.org>, L<CryptX>,
 etc. Of course, if you do have access to one of those tools, they may suit
 your purpose better.
@@ -72,9 +72,10 @@ to the entire distribution.
 =over 4
 
 =item * Security audit. A check against OpenSSL or LibTomCrypt
-would be awesome. I found
-OpenSSL overly confusing to read, and I didn’t think to check LibTomCrypt
-until I had solved the major problems.
+would be awesome. I find OpenSSL overly confusing to read, and
+I didn’t think to check LibTomCrypt until I had solved the major problems.
+
+=item * Document the exception system so that applications can use it.
 
 =item * Add more tests.
 
@@ -92,7 +93,11 @@ what we know!
 
 =head1 LICENSE
 
-C<Crypt::Perl> is licensed under the same license as Perl.
+This library is licensed under the same license as Perl.
+
+=head1 AUTHOR
+
+Felipe Gasper (FELIPE)
 
 =cut
 

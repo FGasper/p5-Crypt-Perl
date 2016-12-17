@@ -3,11 +3,12 @@ Revision history for Perl module Crypt::Perl
 0.01 Tue Dec 13 2016
 - original release
 
-0.02 Thu Dec 15 2016
-- Add public_x_and_y() for ECDSA keys
+0.02 Sat Dec 17 2016
 - Add sign_jwa() and verify_jwa() ECDSA methods
-- Add JWK and JWK thumbprint methods
+- Add JWK-getter and JWK thumbprint methods
 - Fix generation of secp521r1 keys
 - Replace overload-dependent math for BigInt with explicit function calls
 - Fix parsing of RSA PKCS8 keys
 - Fix ASN.1 template error messages
+- Add typed exceptions for ASN.1 errors
+- Update a bit of documentation
