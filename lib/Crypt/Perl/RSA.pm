@@ -33,8 +33,8 @@ Crypt::Perl::RSA - RSA in pure Perl (really!)
 
 =head1 DISCUSSION
 
-See the documentation for C<Crypt::Perl::RSA::PublicKey> and
-C<Crypt::Perl::RSA::PrivateKey> for more on what these interfaces
+See the documentation for L<Crypt::Perl::RSA::PublicKey> and
+L<Crypt::Perl::RSA::PrivateKey> for more on what these interfaces
 can do.
 
 NOTE: The RSA logic here is ported from Kenji Urushima’s

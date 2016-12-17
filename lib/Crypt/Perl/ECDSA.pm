@@ -49,8 +49,8 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
 
 =head1 DISCUSSION
 
-See the documentation for C<Crypt::Perl::ECDSA::PublicKey> and
-C<Crypt::Perl::ECDSA::PrivateKey> for discussions of what these interfaces
+See the documentation for L<Crypt::Perl::ECDSA::PublicKey> and
+L<Crypt::Perl::ECDSA::PrivateKey> for discussions of what these interfaces
 can do.
 
 NOTE: The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://kjur.github.io/jsrsasign/>.
@@ -59,7 +59,8 @@ NOTE: The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://
 
 =over 4
 
-=item * I
+=item * Support characteristic-two curves. L<OpenSSL|http://openssl.org>
+seems to be the only library to support such curves presently.
 
 =back
 
@@ -75,18 +76,18 @@ look at L<http://safecurves.cr.yp.to>.
 That said, RSA will eventually no longer be viable: as RSA keys get bigger, the
 security advantage of increasing their size diminishes.
 
-This framework “has no opinion” regarding which curves you use; it ships all
+C<Crypt::Perl> “has no opinion” regarding which curves you use; it ships all
 of the prime-field curves that (L<OpenSSL|http://openssl.org>) includes and
 works with any of them. You can try out custom curves as well.
 
 =head1 TODO
 
-This minimal set of functionality can be augmented as feature requests come in.
+Functionality can be augmented as feature requests come in.
 Patches are welcome—particularly with tests!
 
 In particular, it would be great to support characteristic-two curves, though
 almost everything seems to expect the prime-field variety.
-OpenSSL is the only implementation I know of that
+(OpenSSL is the only implementation I know of that
 supports characteristic-two.)
 
 =cut
