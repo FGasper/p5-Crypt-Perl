@@ -65,7 +65,7 @@ sub _display_raw {
     return sprintf( '%v02x', $_[0] );
 }
 
-sub test_get_jwk_thumbprint : Tests(1) {
+sub test_get_jwk_thumbprint : Tests(2) {
     my $PEM = <<END;
 -----BEGIN RSA PRIVATE KEY-----
 MIIByQIBAAJhAKN4HLaYKxh5Z5In+3Yq3E1c7mAZZdsJlsrKU8pGt5GbmqKqADMX
@@ -81,8 +81,16 @@ dfxraCy2A+tQkCpCYGo5NcFbEgc2MD3YzATmPg8=
 -----END RSA PRIVATE KEY-----
 END
 
+    my $key = Crypt::Perl::RSA::Parse::private($PEM);
+
+    throws_ok(
+        sub { $key->get_jwk_thumbprint('isa') },
+        'Crypt::Perl::X::UnknownHash',
+        'reject faux hash names that are UNIVERSAL methods',
+    );
+
     is(
-        Crypt::Perl::RSA::Parse::private($PEM)->get_jwk_thumbprint('sha256'),
+        $key->get_jwk_thumbprint('sha256'),
         '8F9kce8-q3vfjOlDSBapPBVbzJVsKIdy6sD-hE-E83Y',
         'expected JWK thumbprint',
     );
