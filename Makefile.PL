@@ -9,7 +9,7 @@ WriteMakefile(
     AUTHOR       => 'Felipe Gasper, with contributions from Mohammad S Anwar',
     ABSTRACT     => 'Cryptography in pure Perl',
     LICENSE      => 'perl',
-    MIN_PERL_VERSION => '5.8',
+    MIN_PERL_VERSION => '5.8.0',
     PREREQ_PM    => {
         'autodie'                  => 0,
         'constant'                 => 1.23,
