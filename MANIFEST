@@ -19,6 +19,7 @@ lib/Crypt/Perl/ECDSA/Parse.pm
 lib/Crypt/Perl/ECDSA/PrivateKey.pm
 lib/Crypt/Perl/ECDSA/PublicKey.pm
 lib/Crypt/Perl/ECDSA/Utils.pm
+lib/Crypt/Perl/KeyBase.pm
 lib/Crypt/Perl/Math.pm
 lib/Crypt/Perl/PKCS8.pm
 lib/Crypt/Perl/RNG.pm
@@ -32,12 +33,17 @@ lib/Crypt/Perl/RSA/PublicKey.pm
 lib/Crypt/Perl/RSA/Template.pm
 lib/Crypt/Perl/ToDER.pm
 lib/Crypt/Perl/X.pm
+lib/Crypt/Perl/X/ASN1/Decode.pm
+lib/Crypt/Perl/X/ASN1/Encode.pm
+lib/Crypt/Perl/X/ASN1/Find.pm
+lib/Crypt/Perl/X/ASN1/Prepare.pm
 lib/Crypt/Perl/X/Base.pm
 lib/Crypt/Perl/X/ECDSA/CharacteristicTwoUnsupported.pm
 lib/Crypt/Perl/X/ECDSA/NoCurveForName.pm
 lib/Crypt/Perl/X/ECDSA/NoCurveForOID.pm
 lib/Crypt/Perl/X/ECDSA/NoCurveForParameters.pm
 lib/Crypt/Perl/X/TooLongToSign.pm
+lib/Crypt/Perl/X/UnknownHash.pm
 t/Crypt-Perl-BigInt.t
 t/Crypt-Perl-ECDSA-Generate.t
 t/Crypt-Perl-ECDSA-Parse.t
@@ -45,7 +51,9 @@ t/Crypt-Perl-ECDSA-PrivateKey.t
 t/Crypt-Perl-ECDSA-PublicKey.t
 t/Crypt-Perl-Math.t
 t/Crypt-Perl-RSA-Generate.t
+t/Crypt-Perl-RSA-Parse.t
 t/Crypt-Perl-RSA-PrivateKey.t
+t/Crypt-Perl-RSA-PublicKey.t
 t/assets/RS256.json
 t/assets/c2pnb163v1.key
 t/assets/generate_rs256_tests.pl
