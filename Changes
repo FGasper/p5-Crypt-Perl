@@ -12,3 +12,6 @@ Revision history for Perl module Crypt::Perl
 - Fix ASN.1 template error messages
 - Add typed exceptions for ASN.1 errors
 - Update a bit of documentation
+
+0.021 Mon Dec 19 2016
+- Fix minimum version in Makefile.PL so that CPAN will run tests
