@@ -20,4 +20,5 @@ Revision history for Perl module Crypt::Perl
 - Fix MANIFEST to include all of the intended files
 
 0.03 Tue Dec 20 2016
-- Add in JWK parsing
+- Add JWK parsing
+- Add a generic parse_key() method
