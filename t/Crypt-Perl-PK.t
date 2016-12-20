@@ -35,6 +35,70 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
+sub test__parse_key : Tests(4) {
+    my $rsa_priv = <<END;
+-----BEGIN RSA PRIVATE KEY-----
+MIIBPAIBAAJBAMUG9V5cTXHM0gAaPp4cmxiUL9oVD/JBWtVXapjVWLpCiQSR+IqK
+RmrKHqmJ7+L9t18I8ZytRFoa+7atY1T9bFECAwEAAQJASEprUPnw+GY8TwlSHFVG
+mtgUTqIXvb05BLoURItTCNOnNJfcMJ9grCSsGqmtsL68JRYEzAKeQVrHYpa/H7xk
+IQIhAPe8JzMutX8oNX8SYxBBS4HrKSTG8hrWzMUKysCOi/ilAiEAy5m4zLiFqbCb
+IuMgOf4Z5NdO/a3789WyUrhs2UHx6T0CIQCNn9jhH8DOktQScxaDAnECMsfwqHNb
++JRTyRmj/1nxqQIhAJ+4343S8CDYCExNK9ny6rNo6XH/jJmUOonEXrftkO7tAiEA
+9vs9RwGKBwiy+jki+b2ozBW+bCUCLR3uBtpTop0I/HE=
+-----END RSA PRIVATE KEY-----
+END
+
+    isa_ok(
+        Crypt::Perl::PK::parse_key($rsa_priv),
+        'Crypt::Perl::RSA::PrivateKey',
+        'parse_key($rsa_priv)',
+    );
+
+    my $rsa_pub = <<END;
+-----BEGIN PUBLIC KEY-----
+MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMUG9V5cTXHM0gAaPp4cmxiUL9oVD/JB
+WtVXapjVWLpCiQSR+IqKRmrKHqmJ7+L9t18I8ZytRFoa+7atY1T9bFECAwEAAQ==
+-----END PUBLIC KEY-----
+END
+    isa_ok(
+        Crypt::Perl::PK::parse_key($rsa_pub),
+        'Crypt::Perl::RSA::PublicKey',
+        'parse_key($rsa_pub)',
+    );
+
+    my $ecc_priv = <<END;
+-----BEGIN EC PRIVATE KEY-----
+MIHcAgEBBEIBxEqlPSymlwNlkRjPY4Gyr5H+/XpVKNkM26n9YxKMpFeFNTQvf2+9
+Ruj5J6JLN0vsh2OBjgY/ZqHSnU6NRVv8IGKgBwYFK4EEACOhgYkDgYYABABlYnQ5
+Kt8a+fCMUtsb30PvndLCxiYl+I2NlaxJyPoVJUgBibU/UlcFAzOczE0pLPmWUw0j
+5eAC/nn1FK+9ihVCDAE9mMjzp3rVAmk+JVUw/7D3EziM9pGJ/uHsLMSrlqt2AajS
+Ip4aHXvm6x7K4KA3yHp0STHw8ZB/cO7rJpDkwoNQng==
+-----END EC PRIVATE KEY-----
+END
+
+    isa_ok(
+        Crypt::Perl::PK::parse_key($ecc_priv),
+        'Crypt::Perl::ECDSA::PrivateKey',
+        'parse_key($ecc_priv)',
+    );
+
+    my $ecdsa_pub = <<END;
+-----BEGIN PUBLIC KEY-----
+MIGbMBAGByqGSM49AgEGBSuBBAAjA4GGAAQAZWJ0OSrfGvnwjFLbG99D753SwsYm
+JfiNjZWsScj6FSVIAYm1P1JXBQMznMxNKSz5llMNI+XgAv559RSvvYoVQgwBPZjI
+86d61QJpPiVVMP+w9xM4jPaRif7h7CzEq5ardgGo0iKeGh175useyuCgN8h6dEkx
+8PGQf3Du6yaQ5MKDUJ4=
+-----END PUBLIC KEY-----
+END
+    isa_ok(
+        Crypt::Perl::PK::parse_key($ecdsa_pub),
+        'Crypt::Perl::ECDSA::PublicKey',
+        'parse_key($ecdsa_pub)',
+    );
+
+    return;
+}
+
 sub test__parse_jwk__rsa : Tests(2) {
 
     my ($pr_jwk) = {
