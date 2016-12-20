@@ -15,3 +15,6 @@ Revision history for Perl module Crypt::Perl
 
 0.021 Mon Dec 19 2016
 - Fix minimum version in Makefile.PL so that CPAN will run tests
+
+0.022 Mon Dec 19 2016
+- Fix MANIFEST to include all of the intended files
