@@ -22,3 +22,6 @@ Revision history for Perl module Crypt::Perl
 0.03 Tue Dec 20 2016
 - Add JWK parsing
 - Add a generic parse_key() method
+
+0.031 Tue Dec 20 2016
+- Remove use of Math::BigInt::FastCalc, pending bug fixes

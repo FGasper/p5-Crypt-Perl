@@ -5,7 +5,11 @@ use warnings;
 
 #Even though Crypt::Perl intends to be pure Perl, there’s no reason
 #not to use faster computation methods when they’re available.
-use Math::BigInt try => 'GMP,Pari,FastCalc';
+use Math::BigInt try => 'GMP,Pari';
+
+#No FastCalc because of bugs shown in the following test runs:
+#http://www.cpantesters.org/cpan/report/a03dce70-c698-11e6-a1ce-1a99c671d6e6
+#http://www.cpantesters.org/cpan/report/0a3e797e-c693-11e6-8c46-2488c671d6e6
 
 #To test pure Perl speed, comment out the above and enable:
 #use Math::BigInt;
