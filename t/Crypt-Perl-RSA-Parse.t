@@ -37,6 +37,65 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
+sub test_jwk_private : Tests(1) {
+
+    my ($pr_jwk) = {
+        kty => 'RSA',
+        n => "0ZnvJBJiEp9hO1BOwKyA6dvVoS8ij0IlMOAp2oj2ZkiEdyaGO4aL5Lq2LIQKvFpLzRmQlmApFlnOlLbhxZCuF53iGC0IU0Z02jBfEdWiewL4L2dSCvw14-Z-oVWBJfwN",
+        e => "AQAB",
+        d => "NILvUcc1QNsjPfvxrv3I0k4cKGSpsOBudt9CPRjhOmDipwNEz_b2Z1iLuX1fPy8TqHpTv4ECDOIs2ArAvZabrrPmjjPo8rzbzlyTLoAaqBNVGpzQuFnOKONkil9gY7A1",
+        p => "63Omrbj0-jqnCFYA4He0Tn6OzZyFPL-tmcWcCD9U4fSAZXsEFZhcJWPrtJPXFpdn",
+        q => "4-S-pP0u32ty6kshqFDSKYxCrzuY6_7Pbw-6pd-w1hElmxY9sZ7PdVxeGpTveSxr",
+        dp => "exO_Yzw1wr_6JF9gofWw6P87Arv44eKIisNDZwRECMFYhLOjVO6J7Hmo8oH9gy-t",
+        dq => "3pOiv3GoPf2rlrkaflGxcXLUDmGe0Z9k6YvrN-ZpyCmnGPl39-qrpGw6XKvp1-dR",
+        qi => "w0uFy3hHFZL94Xk0JK6VApoNY6czBmIBhCbHSIKKfpKoDVQzfqMYN8Q6jBTPH-ln",
+    };
+
+    my $pr_pem = <<END;
+-----BEGIN RSA PRIVATE KEY-----
+MIIBywIBAAJhANGZ7yQSYhKfYTtQTsCsgOnb1aEvIo9CJTDgKdqI9mZIhHcmhjuG
+i+S6tiyECrxaS80ZkJZgKRZZzpS24cWQrhed4hgtCFNGdNowXxHVonsC+C9nUgr8
+NePmfqFVgSX8DQIDAQABAmA0gu9RxzVA2yM9+/Gu/cjSThwoZKmw4G5230I9GOE6
+YOKnA0TP9vZnWIu5fV8/LxOoelO/gQIM4izYCsC9lpuus+aOM+jyvNvOXJMugBqo
+E1UanNC4Wc4o42SKX2BjsDUCMQDrc6atuPT6OqcIVgDgd7ROfo7NnIU8v62ZxZwI
+P1Th9IBlewQVmFwlY+u0k9cWl2cCMQDj5L6k/S7fa3LqSyGoUNIpjEKvO5jr/s9v
+D7ql37DWESWbFj2xns91XF4alO95LGsCMHsTv2M8NcK/+iRfYKH1sOj/OwK7+OHi
+iIrDQ2cERAjBWISzo1Tuiex5qPKB/YMvrQIxAN6Tor9xqD39q5a5Gn5RsXFy1A5h
+ntGfZOmL6zfmacgppxj5d/fqq6RsOlyr6dfnUQIxAMNLhct4RxWS/eF5NCSulQKa
+DWOnMwZiAYQmx0iCin6SqA1UM36jGDfEOowUzx/pZw==
+-----END RSA PRIVATE KEY-----
+END
+
+    my $from_jwk = Crypt::Perl::RSA::Parse::jwk($pr_jwk);
+    my $from_pem = Crypt::Perl::RSA::Parse::private($pr_pem);
+
+    is_deeply( $from_jwk, $from_pem, 'from JWK is identical to from PEM' );
+    return;
+}
+
+sub test_jwk_public : Tests(1) {
+
+    my ($jwk) = {
+        kty => 'RSA',
+        n => "0ZnvJBJiEp9hO1BOwKyA6dvVoS8ij0IlMOAp2oj2ZkiEdyaGO4aL5Lq2LIQKvFpLzRmQlmApFlnOlLbhxZCuF53iGC0IU0Z02jBfEdWiewL4L2dSCvw14-Z-oVWBJfwN",
+        e => "AQAB",
+    };
+
+    my $pb_pem = <<END;
+-----BEGIN RSA PUBLIC KEY-----
+MGgCYQDRme8kEmISn2E7UE7ArIDp29WhLyKPQiUw4CnaiPZmSIR3JoY7hovkurYs
+hAq8WkvNGZCWYCkWWc6UtuHFkK4XneIYLQhTRnTaMF8R1aJ7AvgvZ1IK/DXj5n6h
+VYEl/A0CAwEAAQ==
+-----END RSA PUBLIC KEY-----
+END
+
+    my $from_jwk = Crypt::Perl::RSA::Parse::jwk($jwk);
+    my $from_pem = Crypt::Perl::RSA::Parse::public($pb_pem);
+
+    is_deeply( $from_jwk, $from_pem, 'from JWK is identical to from PEM' );
+    return;
+}
+
 sub test_pkcs8_private : Tests(4) {
     my $pkey_pem = <<END;
 -----BEGIN PRIVATE KEY-----

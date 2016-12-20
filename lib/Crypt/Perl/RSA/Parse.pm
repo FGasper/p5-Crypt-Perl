@@ -116,6 +116,41 @@ sub public_pkcs8 {
     return _new_public($parsed);
 }
 
+my %JTK_TO_NEW = qw(
+    n   modulus
+    e   publicExponent
+    d   privateExponent
+    p   prime1
+    q   prime2
+    dp  exponent1
+    dq  exponent2
+    qi  coefficient
+);
+
+sub jwk {
+    my ($hr) = @_;
+
+    my %constr_args;
+
+    Module::Load::load('Crypt::Perl::JWK');
+
+    for my $k (keys %$hr) {
+        next if !$JTK_TO_NEW{$k};
+        $constr_args{ $JTK_TO_NEW{$k} } = Crypt::Perl::JWK::jwk_num_to_bigint($hr->{$k});
+    }
+
+    if ($hr->{'d'}) {
+        $constr_args{'version'} = 0;
+        Module::Load::load('Crypt::Perl::RSA::PrivateKey');
+        return Crypt::Perl::RSA::PrivateKey->new( \%constr_args );
+    }
+
+    Module::Load::load('Crypt::Perl::RSA::PublicKey');
+    return Crypt::Perl::RSA::PublicKey->new( \%constr_args );
+}
+
+#----------------------------------------------------------------------
+
 sub _decode_macro {
     my ( $der_r, $macro ) = ( \$_[0], $_[1] );
 

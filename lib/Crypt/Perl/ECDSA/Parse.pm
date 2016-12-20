@@ -125,6 +125,49 @@ sub public {
     );
 }
 
+sub jwk {
+    my ($hr) = @_;
+
+    Module::Load::load($_) for qw(
+        Crypt::Perl::ECDSA::NIST
+        Crypt::Perl::ECDSA::EC::DB
+        Crypt::Perl::Math
+        MIME::Base64
+    );
+
+    my $curve_name = Crypt::Perl::ECDSA::NIST::get_curve_name_for_nist($hr->{'crv'});
+    my $curve_hr = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_name($curve_name);
+
+    my $keylen = $curve_hr->{'p'}->bit_length();
+    my $pub_half_byte_length = Crypt::Perl::Math::ceil( $keylen / 8 );
+
+    my $x = MIME::Base64::decode_base64url($hr->{'x'});
+    my $y = MIME::Base64::decode_base64url($hr->{'y'});
+
+    #Make sure both halves are the proper length.
+    substr($_, 0, 0) = ("\0" x ($pub_half_byte_length - length)) for ($x, $y);
+
+    my $public = Crypt::Perl::BigInt->from_bytes("\x{04}$x$y");
+
+    if ($hr->{'d'}) {
+        Module::Load::load('Crypt::Perl::ECDSA::PrivateKey');
+        Module::Load::load('Crypt::Perl::JWK');
+
+        my %args = (
+            version => 1,
+            public => $public,
+            private => Crypt::Perl::JWK::jwk_num_to_bigint($hr->{'d'}),
+        );
+
+        return Crypt::Perl::ECDSA::PrivateKey->new_by_curve_name(\%args, $curve_name);
+    }
+
+    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
+    return Crypt::Perl::ECDSA::PublicKey->new_by_curve_name( $public, $curve_name);
+}
+
+#----------------------------------------------------------------------
+
 sub _private_asn1 {
     my $template = join("\n", Crypt::Perl::ECDSA::PrivateKey->ASN1_PRIVATE(), Crypt::Perl::PKCS8::ASN1());
 

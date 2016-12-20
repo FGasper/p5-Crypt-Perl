@@ -88,4 +88,54 @@ sub test_pkcs8_public : Tests(1) {
     return;
 }
 
+sub test_jwk_private : Tests(1) {
+
+    my ($pr_jwk) = {
+        kty => 'EC',
+        crv => 'P-384',
+        x => '7r2u_ZkCnSjowORDMgnqWvI1A9HQ6CH06LIAaftFO2iYYazSICi-HoH_M2tBn4fR',
+        y => 'ouVhCnZ-g4E8aVqgJcqmIdiGZIN8qlqWG9K8wvFKWvUbSI561j_WXuKH3cBp0ewq',
+        d => '5ITbOa5Bw3lhq5doenNkZ-JcJVT0e4sWQpdtfo-5et9-Bqx8qQv8T9T1wS-jCZB2',
+    };
+
+    my $pr_pem = <<END;
+-----BEGIN EC PRIVATE KEY-----
+MIGkAgEBBDDkhNs5rkHDeWGrl2h6c2Rn4lwlVPR7ixZCl21+j7l6334GrHypC/xP
+1PXBL6MJkHagBwYFK4EEACKhZANiAATuva79mQKdKOjA5EMyCepa8jUD0dDoIfTo
+sgBp+0U7aJhhrNIgKL4egf8za0Gfh9Gi5WEKdn6DgTxpWqAlyqYh2IZkg3yqWpYb
+0rzC8Upa9RtIjnrWP9Ze4ofdwGnR7Co=
+-----END EC PRIVATE KEY-----
+END
+
+    my $from_jwk = Crypt::Perl::ECDSA::Parse::jwk($pr_jwk);
+    my $from_pem = Crypt::Perl::ECDSA::Parse::private($pr_pem);
+
+    is_deeply( $from_jwk, $from_pem, 'from JWK is identical to from PEM' );
+    return;
+}
+
+sub test_jwk_public : Tests(1) {
+
+    my ($jwk) = {
+        kty => 'EC',
+        crv => 'P-384',
+        x => '7r2u_ZkCnSjowORDMgnqWvI1A9HQ6CH06LIAaftFO2iYYazSICi-HoH_M2tBn4fR',
+        y => 'ouVhCnZ-g4E8aVqgJcqmIdiGZIN8qlqWG9K8wvFKWvUbSI561j_WXuKH3cBp0ewq',
+    };
+
+    my $pb_pem = <<END;
+-----BEGIN PUBLIC KEY-----
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAE7r2u/ZkCnSjowORDMgnqWvI1A9HQ6CH0
+6LIAaftFO2iYYazSICi+HoH/M2tBn4fRouVhCnZ+g4E8aVqgJcqmIdiGZIN8qlqW
+G9K8wvFKWvUbSI561j/WXuKH3cBp0ewq
+-----END PUBLIC KEY-----
+END
+
+    my $from_jwk = Crypt::Perl::ECDSA::Parse::jwk($jwk);
+    my $from_pem = Crypt::Perl::ECDSA::Parse::public($pb_pem);
+
+    is_deeply( $from_jwk, $from_pem, 'from JWK is identical to from PEM' );
+    return;
+}
+
 1;

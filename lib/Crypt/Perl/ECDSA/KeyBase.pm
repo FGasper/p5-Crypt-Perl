@@ -17,6 +17,7 @@ use Crypt::Perl::ECDSA::EC::Curve ();
 use Crypt::Perl::ECDSA::EC::DB ();
 use Crypt::Perl::ECDSA::EC::Point ();
 use Crypt::Perl::ECDSA::ECParameters ();
+use Crypt::Perl::ECDSA::NIST ();
 use Crypt::Perl::ECDSA::Utils ();
 use Crypt::Perl::X ();
 
@@ -45,10 +46,6 @@ use constant JWA_DIGEST_secp521r1 => 'sha512';
 use constant JWA_CURVE_ALG_prime256v1 => 'ES256';
 use constant JWA_CURVE_ALG_secp384r1 => 'ES384';
 use constant JWA_CURVE_ALG_secp521r1 => 'ES512';
-
-use constant JWK_CURVE_prime256v1 => 'P-256';
-use constant JWK_CURVE_secp384r1 => 'P-384';
-use constant JWK_CURVE_secp521r1 => 'P-512';
 
 #Expects $key_parts to be a hash ref:
 #
@@ -186,11 +183,7 @@ sub _get_jwk_curve_name {
 
     my $name = $self->get_curve_name();
 
-    my $getter_cr = __PACKAGE__->can("JWK_CURVE_$name") or do {
-        die sprintf( "“%s” knows of no JWK “crv” for the curve “%s”!", ref($self), $name);
-    };
-
-    return $getter_cr->();
+    return Crypt::Perl::ECDSA::NIST::get_nist_for_curve_name($name);
 }
 
 sub _verify {

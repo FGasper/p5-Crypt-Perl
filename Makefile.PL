@@ -22,6 +22,7 @@ WriteMakefile(
         'Math::BigInt' => 1.999805,     #min version, yes
         'Math::ProvablePrime'   => 0,
         'MIME::Base64' => 3.11,
+        'Symbol::Get' => 0,
         'Try::Tiny'        => 0,
     },
     META_MERGE => {

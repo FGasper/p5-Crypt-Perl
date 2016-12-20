@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 #Splits the combined (uncompressed) generator or the public key
-#into its two component halves.
+#into its two component halves (octet strings).
 sub split_G_or_public {
     my ($bytes_str) = @_;
 
