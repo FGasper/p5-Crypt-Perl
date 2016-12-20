@@ -24,6 +24,10 @@ See submodules for usage examples of:
 
 =item * Encryption & decryption
 
+=item * Import (L<Crypt::Perl::PK>) & export from L<JWK|https://tools.ietf.org/html/rfc7517> format
+
+=item * L<JWK thumbprints|https://tools.ietf.org/html/rfc7638>
+
 =back
 
 =head1 SUPPORTED ALGORITHMS
