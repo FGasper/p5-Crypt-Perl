@@ -5,8 +5,6 @@ use warnings;
 
 use Try::Tiny;
 
-use JSON ();
-
 use FindBin;
 
 use lib "$FindBin::Bin/../lib";
@@ -39,13 +37,6 @@ END
 run() if !caller;
 
 sub run {
-    my $json = JSON->new()->indent()->convert_blessed();
-
-    no warnings 'once';
-    local *Crypt::Perl::BigInt::TO_JSON = sub {
-        return $_[0]->as_hex();
-    };
-
     my $perl = '';
 
     my %oid_seen;

@@ -7,8 +7,8 @@ use autodie;
 use FindBin ();
 
 use Crypt::OpenSSL::RSA ();
+use Data::Dumper ();
 use MIME::Base64 ();
-use JSON ();
 
 my @rs256_tests = map {
     my $msg = rand;
@@ -20,6 +20,11 @@ my @rs256_tests = map {
     [ "$_-bit key" . ($use_exp_3 ? ', exp = 3' : q<>), $orsa->get_private_key_string(), $msg, MIME::Base64::encode($orsa->sign($msg)) ];
 } (510 .. 768);
 
-open my $rs256_wfh, '>', "$FindBin::Bin/RS256.json";
-print {$rs256_wfh} JSON::encode_json(\@rs256_tests) or die $!;
+open my $rs256_wfh, '>', "$FindBin::Bin/RS256.dump";
+
+{
+    local $Data::Dumper::Terse = 1;
+    print {$rs256_wfh} Data::Dumper::Dumper(\@rs256_tests) or die $!;
+}
+
 close $rs256_wfh;

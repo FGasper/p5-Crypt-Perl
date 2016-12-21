@@ -19,7 +19,7 @@ use Test::Exception;
 
 use parent qw( Test::Class );
 
-use JSON ();
+use Data::Dumper ();
 use MIME::Base64 ();
 
 use Crypt::Perl::BigInt ();
@@ -52,11 +52,11 @@ sub new {
 sub _load_tests {
     my ($self) = @_;
 
-    open my $rfh, '<', "$FindBin::Bin/assets/RS256.json";
+    open my $rfh, '<', "$FindBin::Bin/assets/RS256.dump";
     $self->{'_tests'} = do { local $/; <$rfh> };
     close $rfh;
 
-    $self->{'_tests'} = JSON::decode_json( $self->{'_tests'} );
+    $self->{'_tests'} = eval $self->{'_tests'};
 
     return;
 }
