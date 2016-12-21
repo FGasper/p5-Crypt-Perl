@@ -26,6 +26,7 @@ Revision history for Perl module Crypt::Perl
 0.031 Tue Dec 20 2016
 - Remove use of Math::BigInt::FastCalc, pending bug fixes
 
-0.032 Tue Dec 20 2016
+0.032 Wed Dec 21 2016
 - Put correct Symbol::Get version in Makefile.PL
 - Remove test dependency on JSON.pm
+- Use File::Which instead of “which” binary (Win32 compatibility)
