@@ -61,7 +61,7 @@ t/Crypt-Perl-RSA-Generate.t
 t/Crypt-Perl-RSA-Parse.t
 t/Crypt-Perl-RSA-PrivateKey.t
 t/Crypt-Perl-RSA-PublicKey.t
-t/assets/RS256.json
+t/assets/RS256.dump
 t/assets/c2pnb163v1.key
 t/assets/generate_rs256_tests.pl
 t/assets/prime256v1.key
