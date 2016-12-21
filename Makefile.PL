@@ -38,6 +38,7 @@ WriteMakefile(
     TEST_REQUIRES => {
         'Call::Context' => 0,
         'File::Slurp'     => 0,
+        'File::Which' => 0,
         'Test::Class'     => 0.4,
         'Test::More'      => 1.0,
         'Test::Deep'      => 0,
