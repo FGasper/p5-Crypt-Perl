@@ -25,7 +25,7 @@ sub get {
 sub to_string {
     my ($self) = @_;
 
-    return $self->[0];
+    return sprintf '%s: %s', ref($self), $self->[0];
 }
 
 #----------------------------------------------------------------------

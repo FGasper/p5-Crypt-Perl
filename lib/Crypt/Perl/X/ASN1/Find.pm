@@ -11,7 +11,16 @@ use parent 'Crypt::Perl::X::Base';
 sub new {
     my ($class, $macro, $error) = @_;
 
-    return $class->SUPER::new( "Failed to find ASN.1 macro “$macro”: $error", { macro => $macro, error => $error } );
+    my %attrs = (
+        macro => $macro,
+        error => $error,
+    );
+
+    if ($error) {
+        return $class->SUPER::new( "Failed to find ASN.1 macro “$macro”: $error", \%attrs );
+    }
+
+    return $class->SUPER::new( "Failed to find ASN.1 macro “$macro”!", \%attrs );
 }
 
 1;

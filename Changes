@@ -30,3 +30,8 @@ Revision history for Perl module Crypt::Perl
 - Put correct Symbol::Get version in Makefile.PL
 - Remove test dependency on JSON.pm
 - Use File::Which instead of “which” binary (Win32 compatibility)
+
+0.033 Fri Dec 23 2016
+- Accommodate missing from_bytes()/as_bytes() in GMP/Pari
+- Make exception class print with object’s stringification
+- Accept ASN1 find() errors that don’t have an error message.
