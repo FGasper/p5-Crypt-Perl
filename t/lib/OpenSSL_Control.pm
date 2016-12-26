@@ -3,6 +3,8 @@ package OpenSSL_Control;
 use strict;
 use warnings;
 
+use Test::More;
+
 use Call::Context ();
 use File::Temp ();
 use File::Which ();

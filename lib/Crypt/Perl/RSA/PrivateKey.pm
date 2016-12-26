@@ -32,6 +32,9 @@ Crypt::Perl::RSA::PrivateKey - object representation of an RSA private key
     my $der = $prkey->to_der();
     my $pem = $prkey->to_pem();
 
+    #For use in creating PKCS #10 CSRs and X.509 certificates
+    my $pub_der = $prkey->to_subject_public_der();
+
     my $pbkey = $prkey->get_public_key();
 
     #----------------------------------------------------------------------
@@ -111,6 +114,8 @@ BEGIN {
     *DQ = \&exponent2;
 
     *QINV = \&coefficient;
+
+    *to_subject_public_der = __PACKAGE__->can('_to_subject_public_der');
 }
 
 sub sign_RS256 {
@@ -138,7 +143,7 @@ sub get_public_key {
 
     return Crypt::Perl::RSA::PublicKey->new( {
         modulus => $self->{'modulus'},
-        exponent => $self->{'publicExponent'},
+        publicExponent => $self->{'publicExponent'},
     } );
 }
 

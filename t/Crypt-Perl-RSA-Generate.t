@@ -28,6 +28,8 @@ use parent qw(
 
 use Crypt::Format ();
 
+use Crypt::Perl::BigInt ();
+
 use Crypt::Perl::RSA::Generate ();
 
 if ( !caller ) {
@@ -37,6 +39,29 @@ if ( !caller ) {
 }
 
 #----------------------------------------------------------------------
+
+sub _ACCEPT_BIGINT_LIBS {
+    return qw( Math::BigInt::GMP  Math::BigInt::Pari );
+}
+
+sub SKIP_CLASS {
+    my ($self) = @_;
+
+    my $bigint_lib = Crypt::Perl::BigInt->config()->{'lib'};
+
+    if (!$self->{'_checked_lib'}) {
+        $self->{'_checked_lib'} = 1;
+
+        diag "Your Crypt::Perl::BigInt backend is “$bigint_lib”.";
+    }
+
+
+    if ( !grep { $_ eq $bigint_lib } _ACCEPT_BIGINT_LIBS() ) {
+        return "“$bigint_lib” isn’t recognized as a C-based Math::BigInt backend. RSA key generation in pure Perl is probably too slow for now. Skipping …";
+    }
+
+    return;
+}
 
 sub test_generate : Tests(1) {
     my ($self) = @_;

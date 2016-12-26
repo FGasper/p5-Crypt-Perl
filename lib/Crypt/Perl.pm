@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = 0.033;
+our $VERSION = 0.1;
 
 =encoding utf-8
 
@@ -96,9 +96,6 @@ Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.
 Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
-
-Dana Jacobsen, maintainer of L<Math::Prime::Util>, provided helpful pointers
-on finding large prime numbers for RSA key generation.
 
 =head1 LICENSE
 

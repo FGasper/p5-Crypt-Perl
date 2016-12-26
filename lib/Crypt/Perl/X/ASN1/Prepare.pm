@@ -11,7 +11,10 @@ use parent 'Crypt::Perl::X::Base';
 sub new {
     my ($class, $template, $error) = @_;
 
-    return $class->SUPER::new( "Failed to prepare ASN.1 template: $error", { asn => $template, error => $error } );
+    my $tfrag = substr( $template, 0, 32 );
+    $tfrag =~ tr<\r\n>< >s;
+
+    return $class->SUPER::new( "Failed to prepare ASN.1 template ($tfrag): $error", { asn => $template, error => $error } );
 }
 
 1;

@@ -26,6 +26,9 @@ Crypt::Perl::RSA::PublicKey - object representation of an RSA public key
     my $der = $pbkey->to_der();
     my $pem = $pbkey->to_pem();
 
+    #For use in creating PKCS #10 CSRs and X.509 certificates
+    my $pub_der = $pbkey->to_subject_der();
+
     #----------------------------------------------------------------------
 
     $pbkey->size();                 #modulus length, in bits
@@ -58,6 +61,7 @@ use constant _ASN1_MACRO => 'RSAPublicKey';
 
 BEGIN {
     *exponent = __PACKAGE__->can('publicExponent');
+    *to_subject_der = __PACKAGE__->can('_to_subject_public_der');
 }
 
 1;

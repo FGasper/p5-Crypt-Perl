@@ -84,6 +84,22 @@ sub to_der {
     return $self->_to_der($self->_ASN1_MACRO());
 }
 
+use constant OID_rsaEncryption => '1.2.840.113549.1.1.1';
+
+sub _to_subject_public_der {
+    my ($self) = @_;
+
+    my $asn1 = $self->_asn1_find('SubjectPublicKeyInfo');
+
+    return $asn1->encode( {
+        algorithm => {
+            algorithm => OID_rsaEncryption(),
+            parameters => Crypt::Perl::ASN1::NULL(),
+        },
+        subjectPublicKey => $self->_to_der('RSAPublicKey'),
+    } );
+}
+
 sub get_struct_for_public_jwk {
     my ($self) = @_;
 
@@ -98,7 +114,7 @@ sub get_struct_for_public_jwk {
 
 #----------------------------------------------------------------------
 
-sub _to_der {
+sub _asn1_find {
     my ($self, $macro) = @_;
 
     Module::Load::load('Crypt::Perl::ASN1');
@@ -107,7 +123,13 @@ sub _to_der {
         Crypt::Perl::RSA::Template::get_template('INTEGER'),
     );
 
-    return $asn1->find($macro)->encode( { %$self } );
+    $asn1->find($macro);
+}
+
+sub _to_der {
+    my ($self, $macro) = @_;
+
+    return $self->_asn1_find($macro)->encode( { %$self } );
 }
 
 sub _verify {

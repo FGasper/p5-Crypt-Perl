@@ -56,4 +56,10 @@ sub decode {
     };
 }
 
+my $_asn1_null;
+
+sub NULL {
+    return $_asn1_null ||= Crypt::Perl::ASN1->new()->prepare('n NULL')->encode( { n => 0 } );
+}
+
 1;

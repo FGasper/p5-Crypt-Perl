@@ -20,7 +20,7 @@ WriteMakefile(
         'Crypt::Format'            => 0.06,
         'Digest::SHA'              => 0,
         'Math::BigInt' => 1.999805,     #min version, yes
-        'Math::ProvablePrime'   => 0,
+        'Math::ProvablePrime'   => 0.042,
         'MIME::Base64' => 3.11,
         'Symbol::Get' => 0.02,
         'Try::Tiny'        => 0,

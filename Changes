@@ -39,4 +39,4 @@ Revision history for Perl module Crypt::Perl
 0.1
 - PKCS #10 CSR generation (RSA or ECDSA)
 - Small optimizations to RSA generation and associated POD
-
+- ASN1 prepare() errors now include the template’s first 32 bytes

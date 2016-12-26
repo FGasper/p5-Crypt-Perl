@@ -206,6 +206,34 @@ sub check_RS384_and_RS512 : Tests(6) {
     return;
 }
 
+sub test_get_public_key : Tests(3) {
+    my ($self) = @_;
+
+    my $pem = $self->{'_tests'}[-1][1];
+    my $prkey = Crypt::Perl::RSA::Parse::private($pem);
+
+    my $pbkey = $prkey->get_public_key();
+    isa_ok(
+        $pbkey,
+        'Crypt::Perl::RSA::PublicKey',
+        'get_public_key() return',
+    );
+
+    is(
+        $pbkey->modulus()->as_hex(),
+        $prkey->modulus()->as_hex(),
+        'modulus matches',
+    );
+
+    is(
+        $pbkey->exponent()->as_hex(),
+        $prkey->publicExponent()->as_hex(),
+        '(public) exponent matches',
+    );
+
+    return;
+}
+
 sub test_pem_der_export : Tests(2) {
     my ($self) = @_;
 
