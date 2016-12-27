@@ -31,13 +31,15 @@ See submodules for usage examples of:
 
 =item * Encryption & decryption
 
-=item * Import (L<Crypt::Perl::PK>) & export from L<JWK|https://tools.ietf.org/html/rfc7517> format
+=item * Import (L<Crypt::Perl::PK>) from & export to L<JSON Web Key|https://tools.ietf.org/html/rfc7517> format
 
 =item * L<JWK thumbprints|https://tools.ietf.org/html/rfc7638>
 
+=item * Certificate Signing Request (CSR) generation (PKCS #10), using RSA or ECDSA (L<Crypt::Perl::PKCS10>)
+
 =back
 
-=head1 SUPPORTED ALGORITHMS
+=head1 SUPPORTED PUBLIC KEY ENCRYPTION ALGORITHMS
 
 =over 4
 
@@ -94,6 +96,9 @@ Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.
 Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
+
+Dana Jacobsen, maintainer of L<Math::Prime::Util>, provided helpful pointers
+on finding large prime numbers for RSA key generation.
 
 =head1 LICENSE
 

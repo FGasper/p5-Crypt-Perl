@@ -50,11 +50,10 @@ security advantage of increasing their size diminishes.
 
 =head1 SPEED
 
-Key generation is pretty slow—potentially unacceptably so for general use.
-It can be made faster by having an XS-based backend available for
-L<Math::BigInt> and L<Bytes::Random::Secure::Tiny>, but it’ll still be pretty
-pokey. The difficulty rests in prime number generation, which is handled by
-L<Math::ProvablePrime>.
+Key generation is probably generally useful only with an XS-based backend to
+L<Math::BigInt>. Once L<Math::Prime::Util> is installable without a compiler
+I’ll replace L<Math::ProvablePrime> here with Math::Prime::Util, which should
+speed things up significantly.
 
 =head1 TODO
 

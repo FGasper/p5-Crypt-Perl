@@ -40,7 +40,7 @@ sub verify_private {
     my $ver = qx<$openssl_bin dgst -$digest_alg -prverify $dir/key -signature $dir/sig $dir/msg>;
     my $ok = $ver =~ m<OK>;
 
-    diag $ver if !$ok;
+    warn $ver if !$ok;
 
     return $ok;
 }

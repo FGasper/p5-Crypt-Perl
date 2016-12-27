@@ -17,6 +17,8 @@ Crypt::Perl::RSA::Generate - RSA key generation
 
 Unfortunately, this is quite slow in Perl—too slow, in fact, if you
 don’t have either L<Math::BigInt::GMP> or L<Math::BigInt::Pari>.
+The logic here will still run under pure Perl, but it’ll take too long
+to be practical.
 
 The current L<Math::ProvablePrime> backend is slated to be replaced
 with L<Math::Prime::Util>; once that happens, pure-Perl operation should
@@ -26,11 +28,16 @@ be much more feasible.
 
 =over 4
 
-=item L<Crypt::OpenSSL::RSA>
+=item L<Crypt::OpenSSL::RSA> - probably the fastest way to generate RSA
+keys in perl. (It relies on XS, so this project can’t use it.)
 
-=item Use the C<openssl> binary L<OpenSSL|http://openssl.org> directly.
+=item Use the C<openssl> binary L<OpenSSL|http://openssl.org> directly,
+e.g., C<my $rsa_pem = qx/openssl genrsa/>. Most *NIX systems can do this.
 
 =back
+
+NOTE: As of December 2016, L<Crypt::PK::RSA> is NOT suitable for key
+generation because it can only generate keys with up to a 512-bit modulus.
 
 =cut
 

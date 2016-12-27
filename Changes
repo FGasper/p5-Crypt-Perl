@@ -30,3 +30,7 @@ Revision history for Perl module Crypt::Perl
 - Put correct Symbol::Get version in Makefile.PL
 - Remove test dependency on JSON.pm
 - Use File::Which instead of “which” binary (Win32 compatibility)
+
+0.1
+- PKCS #10 CSR generation (RSA or ECDSA)
+- Small optimizations to RSA generation and associated POD
