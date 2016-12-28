@@ -67,56 +67,56 @@ sub create {
     (ref $exp) or $exp = Crypt::Perl::BigInt->new($exp);
 
     while (1) {
-        my ($p, $q);
+        my ($p, $q, $p1, $q1);
 
         #Create a random number, ($mod_bits - $qs) bits long.
-        while (1) {
+        {
             $p = _get_random_prime($mod_bits - $qs);
-            last;
+            $p1 = $p->copy()->bdec();
+
+            #($p - 1) needs not to be a multiple of $exp
+            redo if $p1->copy()->bmod($exp)->is_zero();
         }
 
-        while (1) {
+        {
             $q = _get_random_prime($qs);
-            last;
+            $q1 = $q->copy()->bdec();
+
+            #Same restriction as on $p applies to $q.
+            #Let’s also make sure these are two different numbers!
+            redo if $q1->copy()->bmod($exp)->is_zero() || $q->beq($p);
         }
 
-        #$p should be at least as much as $q
-        if ($p < $q) {
+        #$p should be > $q
+        if ($p->blt($q)) {
             my $t = $p;
             $p = $q;
             $q = $t;
+
+            $t = $p1;
+            $p1 = $q1;
+            $q1 = $t;
         }
 
-        my $qinv = $q->copy()->bmodinv($p);
-
-        #This isn’t in the original algorithm. It may only have been needed
-        #here with the old incomplete is_probable_prime() implementation.
-        #It’s probably not necessary anymore, but it doesn’t hurt anything.
-        next if $qinv->is_nan();
-
-        my $p1 = $p->copy()->bdec();
-        my $q1 = $q->copy()->bdec();
         my $phi = $p1->copy()->bmul($q1);
 
-        if ($phi->bgcd($exp)->is_one()) {
-            my $d = $exp->copy()->bmodinv($phi);
+        my $d = $exp->copy()->bmodinv($phi);
 
-            my $obj = Crypt::Perl::RSA::PrivateKey->new(
-                {
-                    version => 0,
-                    modulus => $p->copy()->bmul($q),
-                    publicExponent => $exp,
-                    privateExponent => $d,
-                    prime1 => $p,
-                    prime2 => $q,
-                    exponent1 => $d->copy()->bmod($p1),
-                    exponent2 => $d->copy()->bmod($q1),
-                    coefficient => $qinv,
-                },
-            );
+        my $obj = Crypt::Perl::RSA::PrivateKey->new(
+            {
+                version => 0,
+                modulus => $p->copy()->bmul($q),
+                publicExponent => $exp,
+                privateExponent => $d,
+                prime1 => $p,
+                prime2 => $q,
+                exponent1 => $d->copy()->bmod($p1),
+                exponent2 => $d->copy()->bmod($q1),
+                coefficient => $q->copy()->bmodinv($p),
+            },
+        );
 
-            return $obj;
-        }
+        return $obj;
     }
 }
 
