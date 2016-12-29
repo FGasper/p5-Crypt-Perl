@@ -7,7 +7,7 @@ WriteMakefile(
     NAME         => 'Crypt::Perl',
     VERSION_FROM => 'lib/Crypt/Perl.pm',            # finds \$VERSION
     AUTHOR       => 'Felipe Gasper, with contributions from Mohammad S Anwar',
-    ABSTRACT     => 'Cryptography in pure Perl',
+    ABSTRACT_FROM => 'lib/Crypt/Perl.pm',
     LICENSE      => 'perl',
     MIN_PERL_VERSION => '5.8.0',
     PREREQ_PM    => {
