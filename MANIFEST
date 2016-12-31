@@ -5,6 +5,7 @@ Makefile.PL
 README.pod
 lib/Crypt/Perl.pm
 lib/Crypt/Perl/ASN1.pm
+lib/Crypt/Perl/ASN1/Encodee.pm
 lib/Crypt/Perl/BigInt.pm
 lib/Crypt/Perl/ECDSA.pm
 lib/Crypt/Perl/ECDSA/EC/Curve.pm
@@ -24,6 +25,12 @@ lib/Crypt/Perl/JWK.pm
 lib/Crypt/Perl/KeyBase.pm
 lib/Crypt/Perl/Math.pm
 lib/Crypt/Perl/PK.pm
+lib/Crypt/Perl/PKCS10.pm
+lib/Crypt/Perl/PKCS10/ASN1.pm
+lib/Crypt/Perl/PKCS10/Attribute.pm
+lib/Crypt/Perl/PKCS10/Attribute/challengePassword.pm
+lib/Crypt/Perl/PKCS10/Attribute/extensionRequest.pm
+lib/Crypt/Perl/PKCS10/Attributes.pm
 lib/Crypt/Perl/PKCS8.pm
 lib/Crypt/Perl/RNG.pm
 lib/Crypt/Perl/RSA.pm
@@ -50,6 +57,9 @@ lib/Crypt/Perl/X/InvalidJWK.pm
 lib/Crypt/Perl/X/TooLongToSign.pm
 lib/Crypt/Perl/X/UnknownHash.pm
 lib/Crypt/Perl/X/UnknownJWKkty.pm
+lib/Crypt/Perl/X509/Extension.pm
+lib/Crypt/Perl/X509/Extension/subjectAltName.pm
+lib/Crypt/Perl/X509/Name.pm
 t/Crypt-Perl-BigInt.t
 t/Crypt-Perl-ECDSA-Generate.t
 t/Crypt-Perl-ECDSA-Parse.t
@@ -57,10 +67,13 @@ t/Crypt-Perl-ECDSA-PrivateKey.t
 t/Crypt-Perl-ECDSA-PublicKey.t
 t/Crypt-Perl-Math.t
 t/Crypt-Perl-PK.t
+t/Crypt-Perl-PKCS10-Attribute-extensionRequest.t
+t/Crypt-Perl-PKCS10.t
 t/Crypt-Perl-RSA-Generate.t
 t/Crypt-Perl-RSA-Parse.t
 t/Crypt-Perl-RSA-PrivateKey.t
 t/Crypt-Perl-RSA-PublicKey.t
+t/Crypt-Perl-X509-Extension-subjectAltName.t
 t/assets/RS256.dump
 t/assets/c2pnb163v1.key
 t/assets/generate_rs256_tests.pl
