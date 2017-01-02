@@ -245,7 +245,7 @@ sub _get_asn1_parts {
         ASN1_PRIVATE(),
         {
             version => 1,
-            privateKey => $self->_pad_bytes_for_asn1($private_str),
+            privateKey => $private_str,
             parameters => $curve_parts,
         },
     );

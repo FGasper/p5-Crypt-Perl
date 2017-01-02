@@ -47,7 +47,7 @@ sub new {
 
     $self->num_method_tests(
         'test_new__ecdsa',
-        (3 + @{ [ keys %Crypt::Perl::X509::Name::_OID ] }) * @{ [ $self->_KEY_TYPES_TO_TEST() ] },
+        (4 + @{ [ keys %Crypt::Perl::X509::Name::_OID ] }) * @{ [ $self->_KEY_TYPES_TO_TEST() ] },
     );
 
     return $self;
@@ -108,8 +108,10 @@ sub test_new__ecdsa : Tests() {
 
         my $text = qx<$ossl_bin req -text -noout -in $fpath>;
 
+        unlike( $text, qr<Unable to load>, "$print_type: key parsed correctly" );
+
         for my $subj_part (sort keys %Crypt::Perl::X509::Name::_OID) {
-            like( $text, qr/=the_\Q$subj_part\E/, "$print_type: $subj_part" );
+            like( $text, qr/\s*=\s*the_\Q$subj_part\E/, "$print_type: $subj_part" );
         }
 
         like( $text, qr/challengePassword.*iNsEcUrE/, "$print_type: challengePassword" );

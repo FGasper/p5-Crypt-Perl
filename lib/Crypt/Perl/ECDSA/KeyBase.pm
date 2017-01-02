@@ -291,15 +291,7 @@ sub __to_der {
 
     my ($pub_x, $pub_y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
 
-    for my $str ( $pub_x, $pub_y ) {
-        $str = $self->_pad_bytes_for_asn1($str);
-    }
-
     local $data_hr->{'publicKey'} = "\x04$pub_x$pub_y";
-
-#use Data::Dumper;
-#print Dumper($data_hr);
-#print $template;
 
     Module::Load::load('Crypt::Perl::ASN1');
     my $asn1 = Crypt::Perl::ASN1->new()->prepare($template);
