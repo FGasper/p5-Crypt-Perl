@@ -20,6 +20,7 @@ Crypt::Perl::ECDSA::EC::DB - Interface to this module’s CurvesDB datastore
         h => ...,   #isa Crypt::Perl::BigInt
         gx => ...,   #isa Crypt::Perl::BigInt
         gy => ...,   #isa Crypt::Perl::BigInt
+        seed => ..., #isa Crypt::Perl::BigInt, optional
     );
 
     #The opposite query from the preceding.
@@ -36,8 +37,9 @@ use warnings;
 
 use Try::Tiny;
 
+use Module::Load ();
+
 use Crypt::Perl::BigInt ();
-use Crypt::Perl::ECDSA::EC::CurvesDB ();
 use Crypt::Perl::X ();
 
 #----------------------------------------------------------------------
@@ -52,12 +54,15 @@ use Crypt::Perl::X ();
 #----------------------------------------------------------------------
 
 use constant CURVE_ORDER => qw( p a b n h gx gy );
+use constant GETTER_CURVE_ORDER => ( CURVE_ORDER(), 'seed' );
 
 sub get_oid_for_curve_name {
     my ($name) = @_;
 
     my $name_alt = $name;
     $name_alt =~ tr<-><_>;
+
+    Module::Load::load('Crypt::Perl::ECDSA::EC::CurvesDB');
 
     my $translator_cr = Crypt::Perl::ECDSA::EC::CurvesDB->can("OID_$name_alt");
     die Crypt::Perl::X::create('ECDSA::NoCurveForName', $name) if !$translator_cr;
@@ -69,6 +74,8 @@ sub get_curve_name_by_data {
     my ($data_hr) = @_;
 
     my %hex_data = map { $_ => substr( $data_hr->{$_}->as_hex(), 2 ) } keys %$data_hr;
+
+    Module::Load::load('Crypt::Perl::ECDSA::EC::CurvesDB');
 
     my $ns = \%Crypt::Perl::ECDSA::EC::CurvesDB::;
 
@@ -86,7 +93,6 @@ sub get_curve_name_by_data {
         else {
             next;
         }
-#next if $key !~ 'prime';
 
         #Avoid creating extra BigInt objects.
         my $db_hex_data_hr;
@@ -108,7 +114,7 @@ sub get_curve_name_by_data {
         }
 
         #We got a match!
-        my $name = substr($key, 4);
+        my $name = substr($key, 4);  # strip leading “OID_”
 
         #We store dashes as underscores so we can use the namespace.
         #Hopefully no curve OID name will ever contain an underscore!!
@@ -135,7 +141,7 @@ sub get_curve_data_by_oid {
 
     my $data_hr = _get_curve_hex_data_by_oid($oid);
 
-    $_ = Crypt::Perl::BigInt->from_hex($_) for @{$data_hr}{ CURVE_ORDER() };
+    $_ = Crypt::Perl::BigInt->from_hex($_) for values %$data_hr;
 
     return $data_hr;
 }
@@ -146,11 +152,15 @@ sub _get_curve_hex_data_by_oid {
     my $const = "CURVE_$oid";
     $const =~ tr<.><_>;
 
+    Module::Load::load('Crypt::Perl::ECDSA::EC::CurvesDB');
+
     my $getter_cr = Crypt::Perl::ECDSA::EC::CurvesDB->can($const);
     die Crypt::Perl::X::create('ECDSA::NoCurveForOID', $oid) if !$getter_cr;
 
     my %data;
-    @data{ CURVE_ORDER() } = $getter_cr->();
+    @data{ GETTER_CURVE_ORDER() } = $getter_cr->();
+
+    delete $data{'seed'} if !$data{'seed'};
 
     return \%data;
 }
@@ -158,7 +168,7 @@ sub _get_curve_hex_data_by_oid {
 sub _upgrade_hex_to_bigint {
     my ($data_hr) = @_;
 
-    $_ = Crypt::Perl::BigInt->from_hex($_) for @{$data_hr}{ CURVE_ORDER() };
+    $_ = Crypt::Perl::BigInt->from_hex($_) for @{$data_hr}{ GETTER_CURVE_ORDER() };
 
     return;
 }

@@ -23,6 +23,7 @@ use constant CURVE_<oid> => (
     '<h>', # h / cofactor
     '<gx>', # gx / generator-x
     '<gy>', # gy / generator-y
+    '<seed>', # seed
 );
 END
 
@@ -60,6 +61,7 @@ sub run {
             $_ = substr($_->as_hex(), 2) for values %$template_data;
 
             $template_data->{'oid'} = $oid_;
+            $template_data->{'seed'} ||= q<>;
 
             $perl .= ($CURVE_TEMPLATE =~ s[<(.+?)>][$template_data->{$1}]gr);
             $perl .= $/;

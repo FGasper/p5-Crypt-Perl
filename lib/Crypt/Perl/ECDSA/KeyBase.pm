@@ -261,6 +261,15 @@ sub _explicit_curve_parameters {
         $str = $self->_pad_bytes_for_asn1($str);
     }
 
+    my %curve = (
+        a => $curve_hr->{'a'}->as_bytes(),
+        b => $curve_hr->{'b'}->as_bytes(),
+    );
+
+    if ($curve_hr->{'seed'}) {
+        $curve{'seed'} = $curve_hr->{'seed'}->as_bytes();
+    }
+
     return {
         ecParameters => {
             version => 1,
@@ -270,10 +279,7 @@ sub _explicit_curve_parameters {
                     'prime-field' => $curve_hr->{'p'},
                 },
             },
-            curve => {
-                a => $curve_hr->{'a'}->as_bytes(),
-                b => $curve_hr->{'b'}->as_bytes(),
-            },
+            curve => \%curve,
             base => "\x{04}$gx$gy",
             order => $curve_hr->{'n'},
             cofactor => $curve_hr->{'h'},

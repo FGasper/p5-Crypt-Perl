@@ -53,5 +53,6 @@ Revision history for Perl module Crypt::Perl
 - Make CSRs with explicit curve parameters rather than named curves
 - Proper fix for ECDSA key generation (224-bit and 521-bit)
 - Reduce tests’ dependency on OpenSSL
+- Include seed in explicit ECDSA parameters
 - Fix CSRs challengePassword test to accommodate OpenSSL versions
   that hide the challengePassword

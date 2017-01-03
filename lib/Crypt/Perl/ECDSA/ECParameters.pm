@@ -102,22 +102,26 @@ sub normalize {
         die "Unknown field type OID: “$field_type”";
     }
 
-    my $curve = {
+    my %curve = (
         p => $params->{'fieldID'}{'parameters'}{'prime-field'},
         a => $params->{'curve'}{'a'},
         b => $params->{'curve'}{'b'},
         n => $params->{'order'},
         h => $params->{'cofactor'},
-    };
+    );
 
-    @{$curve}{'gx', 'gy'} = Crypt::Perl::ECDSA::Utils::split_G_or_public( $params->{'base'} );
+    @curve{'gx', 'gy'} = Crypt::Perl::ECDSA::Utils::split_G_or_public( $params->{'base'} );
 
-    $_ = Crypt::Perl::BigInt->from_bytes($_) for @{$curve}{qw( a b gx gy )};
+    $_ = Crypt::Perl::BigInt->from_bytes($_) for @curve{qw( a b gx gy )};
+
+    if ( $params->{'curve'}{'seed'} ) {
+        $curve{'seed'} = Crypt::Perl::BigInt->from_bytes($params->{'curve'}{'seed'});
+    }
 
     #Ensure that numbers like 0 and 1 are represented as BigInt, too.
-    ref || ($_ = Crypt::Perl::BigInt->new($_)) for @{$curve}{qw( p n h )};
+    ref || ($_ = Crypt::Perl::BigInt->new($_)) for @curve{qw( p n h )};
 
-    return $curve;
+    return \%curve;
 }
 
 #----------------------------------------------------------------------

@@ -18,6 +18,7 @@ use constant CURVE_1_3_132_0_6 => (
     '1', # h / cofactor
     '9487239995a5ee76b55f9c2f098', # gx / generator-x
     'a89ce5af8724c0a23e0e0ff77500', # gy / generator-y
+    '415252415928307837663930383231303230643029', # seed
 );
 
 #----------------------------------------------------------------------
@@ -31,6 +32,7 @@ use constant CURVE_1_3_132_0_7 => (
     '4', # h / cofactor
     '4ba30ab5e892b4e1649dd0928643', # gx / generator-x
     'adcd46f5882e3747def36e956e97', # gy / generator-y
+    '415252415928307837663930383230666561383829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -44,6 +46,7 @@ use constant CURVE_1_3_132_0_28 => (
     '1', # h / cofactor
     '161ff7528b899b2d0c28607ca52c5b86', # gx / generator-x
     'cf5ac8395bafeb13c02da292dded7a83', # gy / generator-y
+    '415252415928307837663930383231303166333829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -57,6 +60,7 @@ use constant CURVE_1_3_132_0_29 => (
     '4', # h / cofactor
     '7b6aa5d85e572983e6fb32a7cdebc140', # gx / generator-x
     '27b6916a894d3aee7106fe805fc34b44', # gy / generator-y
+    '415252415928307837663930383230666561653829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -70,6 +74,7 @@ use constant CURVE_1_3_132_0_9 => (
     '1', # h / cofactor
     '3b4c382ce37aa192a4019e763036f4f5dd4d7ebb', # gx / generator-x
     '938cf935318fdced6bc28286531733c3f03c4fee', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -83,6 +88,7 @@ use constant CURVE_1_3_132_0_8 => (
     '1', # h / cofactor
     '4a96b5688ef573284664698968c38bb913cbfc82', # gx / generator-x
     '23a628553168947d59dcc912042351377ac5fb32', # gy / generator-y
+    '415252415928307837663930383231303165343829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -96,6 +102,7 @@ use constant CURVE_1_3_132_0_30 => (
     '1', # h / cofactor
     '52dcb034293a117e1f4ff11b30f7199d3144ce6d', # gx / generator-x
     'feaffef2e331f296e071fa0df9982cfea7d43f2e', # gy / generator-y
+    '415252415928307837663930383230666566393829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -109,6 +116,7 @@ use constant CURVE_1_3_132_0_31 => (
     '1', # h / cofactor
     'db4ff10ec057e9ae26b07d0280b7f4341da5d1b1eae06c7d', # gx / generator-x
     '9b2f2f6d9c5628a7844163d015be86344082aa88d95e2f9d', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -122,6 +130,7 @@ use constant CURVE_1_3_132_0_32 => (
     '1', # h / cofactor
     'a1455b334df099df30fc28a169a467e9e47075a90f7e650eb6b7a45c', # gx / generator-x
     '7e089fed7fba344282cafbd6f7e319f7c0b0bd59e2ca4bdb556d61a5', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -135,6 +144,7 @@ use constant CURVE_1_3_132_0_33 => (
     '1', # h / cofactor
     'b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21', # gx / generator-x
     'bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34', # gy / generator-y
+    '415252415928307837663930383261613063643029', # seed
 );
 
 #----------------------------------------------------------------------
@@ -148,6 +158,7 @@ use constant CURVE_1_3_132_0_10 => (
     '1', # h / cofactor
     '79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798', # gx / generator-x
     '483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -161,6 +172,7 @@ use constant CURVE_1_3_132_0_34 => (
     '1', # h / cofactor
     'aa87ca22be8b05378eb1c71ef320ad746e1d3b628ba79b9859f741e082542a385502f25dbf55296c3a545e3872760ab7', # gx / generator-x
     '3617de4a96262c6f5d9e98bf9292dc29f8f41dbd289a147ce9da3113b5f0b8c00a60b1ce1d7e819d7a431d7c90ea0e5f', # gy / generator-y
+    '415252415928307837663930383261613062663829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -174,6 +186,7 @@ use constant CURVE_1_3_132_0_35 => (
     '1', # h / cofactor
     'c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66', # gx / generator-x
     '11839296a789a3bc0045c8a5fb42c7d1bd998f54449579b446817afbd17273e662c97ee72995ef42640c550b9013fad0761353c7086a272c24088be94769fd16650', # gy / generator-y
+    '415252415928307837663930383261613062333829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -187,6 +200,7 @@ use constant CURVE_1_2_840_10045_3_1_1 => (
     '1', # h / cofactor
     '188da80eb03090f67cbf20eb43a18800f4ff0afd82ff1012', # gx / generator-x
     '7192b95ffc8da78631011ed6b24cdd573f977a11e794811', # gy / generator-y
+    '415252415928307837663930383230666565343829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -200,6 +214,7 @@ use constant CURVE_1_2_840_10045_3_1_2 => (
     '1', # h / cofactor
     'eea2bae7e1497842f2de7769cfe9c989c072ad696f48034a', # gx / generator-x
     '6574d11d69b6ec7a672bb82a083df2f2b0847de970b2de15', # gy / generator-y
+    '415252415928307837663930383530303134643829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -213,6 +228,7 @@ use constant CURVE_1_2_840_10045_3_1_3 => (
     '1', # h / cofactor
     '7d29778100c65a1da1783716588dce2b8b4aee8e228f1896', # gx / generator-x
     '38a90f22637337334b49dcb66a6dc8f9978aca7648a943b0', # gy / generator-y
+    '415252415928307837663930383339653765663029', # seed
 );
 
 #----------------------------------------------------------------------
@@ -226,6 +242,7 @@ use constant CURVE_1_2_840_10045_3_1_4 => (
     '1', # h / cofactor
     'ffa963cdca8816ccc33b8642bedf905c3d358573d3f27fbbd3b3cb9aaaf', # gx / generator-x
     '7debe8e4e90a5dae6e4054ca530ba04654b36818ce226b39fccb7b02f1ae', # gy / generator-y
+    '415252415928307837663930383530303135383029', # seed
 );
 
 #----------------------------------------------------------------------
@@ -239,6 +256,7 @@ use constant CURVE_1_2_840_10045_3_1_5 => (
     '1', # h / cofactor
     '38af09d98727705120c921bb5e9e26296a3cdcf2f35757a0eafd87b830e7', # gx / generator-x
     '5b0125e4dbea0ec7206da0fc01d9b081329fb555de6ef460237dff8be4ba', # gy / generator-y
+    '415252415928307837663930383530303162633829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -252,6 +270,7 @@ use constant CURVE_1_2_840_10045_3_1_6 => (
     '1', # h / cofactor
     '6768ae8e18bb92cfcf005c949aa2c6d94853d0e660bbf854b1c9505fe95a', # gx / generator-x
     '1607e6898f390c06bc1d552bad226f3b6fcfe48b6e818499af18e3ed6cf3', # gy / generator-y
+    '415252415928307837663930383530303163653829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -265,198 +284,199 @@ use constant CURVE_1_2_840_10045_3_1_7 => (
     '1', # h / cofactor
     '6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296', # gx / generator-x
     '4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5', # gy / generator-y
+    '415252415928307837663930383530303164663029', # seed
 );
 
 #----------------------------------------------------------------------
 use constant OID_sect113r1 => '1.3.132.0.4';
 
 # Skipping data for sect113r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect113r2 => '1.3.132.0.5';
 
 # Skipping data for sect113r2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect131r1 => '1.3.132.0.22';
 
 # Skipping data for sect131r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect131r2 => '1.3.132.0.23';
 
 # Skipping data for sect131r2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect163k1 => '1.3.132.0.1';
 
 # Skipping data for sect163k1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect163r1 => '1.3.132.0.2';
 
 # Skipping data for sect163r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect163r2 => '1.3.132.0.15';
 
 # Skipping data for sect163r2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect193r1 => '1.3.132.0.24';
 
 # Skipping data for sect193r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect193r2 => '1.3.132.0.25';
 
 # Skipping data for sect193r2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect233k1 => '1.3.132.0.26';
 
 # Skipping data for sect233k1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect233r1 => '1.3.132.0.27';
 
 # Skipping data for sect233r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect239k1 => '1.3.132.0.3';
 
 # Skipping data for sect239k1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect283k1 => '1.3.132.0.16';
 
 # Skipping data for sect283k1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect283r1 => '1.3.132.0.17';
 
 # Skipping data for sect283r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect409k1 => '1.3.132.0.36';
 
 # Skipping data for sect409k1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect409r1 => '1.3.132.0.37';
 
 # Skipping data for sect409r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect571k1 => '1.3.132.0.38';
 
 # Skipping data for sect571k1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_sect571r1 => '1.3.132.0.39';
 
 # Skipping data for sect571r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb163v1 => '1.2.840.10045.3.0.1';
 
 # Skipping data for c2pnb163v1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb163v2 => '1.2.840.10045.3.0.2';
 
 # Skipping data for c2pnb163v2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb163v3 => '1.2.840.10045.3.0.3';
 
 # Skipping data for c2pnb163v3:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb176v1 => '1.2.840.10045.3.0.4';
 
 # Skipping data for c2pnb176v1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb191v1 => '1.2.840.10045.3.0.5';
 
 # Skipping data for c2tnb191v1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb191v2 => '1.2.840.10045.3.0.6';
 
 # Skipping data for c2tnb191v2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb191v3 => '1.2.840.10045.3.0.7';
 
 # Skipping data for c2tnb191v3:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb208w1 => '1.2.840.10045.3.0.10';
 
 # Skipping data for c2pnb208w1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb239v1 => '1.2.840.10045.3.0.11';
 
 # Skipping data for c2tnb239v1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb239v2 => '1.2.840.10045.3.0.12';
 
 # Skipping data for c2tnb239v2:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb239v3 => '1.2.840.10045.3.0.13';
 
 # Skipping data for c2tnb239v3:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb272w1 => '1.2.840.10045.3.0.16';
 
 # Skipping data for c2pnb272w1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb304w1 => '1.2.840.10045.3.0.17';
 
 # Skipping data for c2pnb304w1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb359v1 => '1.2.840.10045.3.0.18';
 
 # Skipping data for c2tnb359v1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2pnb368w1 => '1.2.840.10045.3.0.19';
 
 # Skipping data for c2pnb368w1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_c2tnb431r1 => '1.2.840.10045.3.0.20';
 
 # Skipping data for c2tnb431r1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls1 => '2.23.43.1.4.1';
 
 # Skipping data for wap-wsg-idm-ecid-wtls1:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls3 => '2.23.43.1.4.3';
 
 # Skipping data for wap-wsg-idm-ecid-wtls3:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls4 => '2.23.43.1.4.4';
 
 # Skipping data for wap-wsg-idm-ecid-wtls4:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls5 => '2.23.43.1.4.5';
 
 # Skipping data for wap-wsg-idm-ecid-wtls5:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls6 => '2.23.43.1.4.6';
 
@@ -468,6 +488,7 @@ use constant CURVE_2_23_43_1_4_6 => (
     '1', # h / cofactor
     '9487239995a5ee76b55f9c2f098', # gx / generator-x
     'a89ce5af8724c0a23e0e0ff77500', # gy / generator-y
+    '415252415928307837663930383230666539353029', # seed
 );
 
 #----------------------------------------------------------------------
@@ -481,6 +502,7 @@ use constant CURVE_2_23_43_1_4_7 => (
     '1', # h / cofactor
     '52dcb034293a117e1f4ff11b30f7199d3144ce6d', # gx / generator-x
     'feaffef2e331f296e071fa0df9982cfea7d43f2e', # gy / generator-y
+    '415252415928307837663930383231303233333829', # seed
 );
 
 #----------------------------------------------------------------------
@@ -494,6 +516,7 @@ use constant CURVE_2_23_43_1_4_8 => (
     '1', # h / cofactor
     '1', # gx / generator-x
     '2', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -507,18 +530,19 @@ use constant CURVE_2_23_43_1_4_9 => (
     '1', # h / cofactor
     '1', # gx / generator-x
     '2', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls10 => '2.23.43.1.4.10';
 
 # Skipping data for wap-wsg-idm-ecid-wtls10:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls11 => '2.23.43.1.4.11';
 
 # Skipping data for wap-wsg-idm-ecid-wtls11:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_wap_wsg_idm_ecid_wtls12 => '2.23.43.1.4.12';
 
@@ -530,13 +554,14 @@ use constant CURVE_2_23_43_1_4_12 => (
     '1', # h / cofactor
     'b70e0cbd6bb4bf7f321390b94a03c1d356c21122343280d6115c1d21', # gx / generator-x
     'bd376388b5f723fb4c22dfe6cd4375a05a07476444d5819985007e34', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
 use constant OID_Oakley_EC2N_3 => '';
 
 # Skipping data for Oakley-EC2N-3:
-# This library does not support ECDSA curves that use Characteristic-2 fields.
+# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
 #----------------------------------------------------------------------
 use constant OID_Oakley_EC2N_4 => '';
 
@@ -551,6 +576,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_1 => (
     '1', # h / cofactor
     'bed5af16ea3f6a4f62938c4631eb5af7bdbcdbc3', # gx / generator-x
     '1667cb477a1a8ec338f94741669c976316da6321', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -564,6 +590,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_2 => (
     '1', # h / cofactor
     'b199b13b9b34efc1397e64baeb05acc265ff2378', # gx / generator-x
     'add6718b7c7c1961f0991b842443772152c9e0ad', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -577,6 +604,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_3 => (
     '1', # h / cofactor
     'c0a0647eaab6a48753b033c56cb0f0900a2f5c4853375fd6', # gx / generator-x
     '14b690866abd5bb88b5f4828c1490002e6773fa2fa299b8f', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -590,6 +618,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_4 => (
     '1', # h / cofactor
     '3ae9e58c82f63c30282e1fe7bbf43fa72c446af6f4618129', # gx / generator-x
     '97e2c5667c2223a902ab5ca449d0084b7e5b3de7ccc01c9', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -603,6 +632,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_5 => (
     '1', # h / cofactor
     'd9029ad2c7e5cf4340823b2a87dc68c9e4ce3174c1e6efdee12c07d', # gx / generator-x
     '58aa56f772c0726f24c6b89e4ecdac24354b9e99caa3f6d3761402cd', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -616,6 +646,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_6 => (
     '1', # h / cofactor
     '6ab1e344ce25ff3896424e7ffe14762ecb49f8928ac0c76029b4d580', # gx / generator-x
     '374e9f5143e568cd23f3f4d7c0d4b1e41c8cc0d1c6abd5f1a46db4c', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -629,6 +660,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_7 => (
     '1', # h / cofactor
     '8bd2aeb9cb7e57cb2c4b482ffc81b7afb9de27e1e3bd23c23a4453bd9ace3262', # gx / generator-x
     '547ef835c3dac4fd97f8461a14611dc9c27745132ded8e545c1d54c72f046997', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -642,6 +674,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_8 => (
     '1', # h / cofactor
     'a3e8eb3cc1cfe7b7732213b23a656149afa142c47aafbc2b79a191562e1305f4', # gx / generator-x
     '2d996c823439c56d7f7b22e14644417e69bcb6de39d027001dabe8f35b25c9be', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -655,6 +688,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_9 => (
     '1', # h / cofactor
     '43bd7e9afb53d8b85289bcc48ee5bfe6f20137d10a087eb6e7871e2a10a599c710af8d0d39e20611', # gx / generator-x
     '14fdd05545ec1cc8ab4093247f77275e0743ffed117182eaa9c77877aaac6ac7d35245d1692e8ee1', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -668,6 +702,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_10 => (
     '1', # h / cofactor
     '925be9fb01afc6fb4d3e7d4990010f813408ab106c4f09cb7ee07868cc136fff3357f624a21bed52', # gx / generator-x
     '63ba3a7a27483ebf6671dbef7abb30ebee084e58a0b077ad42a5a0989d1ee71b1b9bc0455fb0d2c3', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -681,6 +716,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_11 => (
     '1', # h / cofactor
     '1d1c64f068cf45ffa2a63a81b7c13f6b8847a3e77ef14fe3db7fcafe0cbd10e8e826e03436d646aaef87b2e247d4af1e', # gx / generator-x
     '8abe1d7520f9c2a45cb1eb8e95cfd55262b70b29feec5864e19c054ff99129280e4646217791811142820341263c5315', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -694,6 +730,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_12 => (
     '1', # h / cofactor
     '18de98b02db9a306f2afcd7235f72a819b80ab12ebd653172476fecd462aabffc4ff191b946a5f54d8d0aa2f418808cc', # gx / generator-x
     '25ab056962d30651a114afd2755ad336747f93475b7a1fca3b88f2b6a208ccfe469408584dc2b2912675bf5b9e582928', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -707,6 +744,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_13 => (
     '1', # h / cofactor
     '81aee4bdd82ed9645a21322e9c4c6a9385ed9f70b5d916c1b43b62eef4d0098eff3b1f78e2d0d48d50d1687b93b97d5f7c6d5047406a5e688b352209bcb9f822', # gx / generator-x
     '7dde385d566332ecc0eabfa9cf7822fdf209f70024a57b1aa000c55b881f8111b2dcde494a5f485e5bca4bd88a2763aed1ca2b2fa8f0540678cd1e0f3ad80892', # gy / generator-y
+    '', # seed
 );
 
 #----------------------------------------------------------------------
@@ -720,6 +758,7 @@ use constant CURVE_1_3_36_3_3_2_8_1_1_14 => (
     '1', # h / cofactor
     '640ece5c12788717b9c1ba06cbc2a6feba85842458c56dde9db1758d39c0313d82ba51735cdb3ea499aa77a7d6943a64f7a3f25fe26f06b51baa2696fa9035da', # gx / generator-x
     '5b534bd595f5af0fa2c892376c84ace1bb4e3019b71634c01131159cae03cee9d9932184beef216bd71df2dadf86a627306ecff96dbb8bace198b61e00f8b332', # gy / generator-y
+    '', # seed
 );
 
 1;
