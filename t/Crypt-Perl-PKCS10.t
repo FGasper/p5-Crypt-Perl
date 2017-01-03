@@ -119,9 +119,13 @@ sub test_new : Tests() {
 
         my $text = qx<$ossl_bin req -text -noout -in $fpath>;
 
-        unlike( $text, qr<Unable to load>, "$print_type: key parsed correctly" ) or do {
-            print $key->to_pem_with_explicit_curve() . $/;
-        };
+        SKIP: {
+            skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($key->to_pem_with_explicit_curve());
+
+            unlike( $text, qr<Unable to load>, "$print_type: key parsed correctly" ) or do {
+                print $key->to_pem_with_explicit_curve() . $/;
+            };
+        }
 
         for my $subj_part (sort keys %Crypt::Perl::X509::Name::_OID) {
             like( $text, qr/\s*=\s*the_\Q$subj_part\E/, "$print_type: $subj_part" );

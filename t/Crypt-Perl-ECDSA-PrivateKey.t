@@ -174,7 +174,9 @@ sub test_sign : Tests() {
                     );
 
                   SKIP: {
-                        skip 'OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
+                        skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
+
+                        skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
 
                         my $ok = OpenSSL_Control::verify_private(
                             $ecdsa->to_pem_with_explicit_curve(),

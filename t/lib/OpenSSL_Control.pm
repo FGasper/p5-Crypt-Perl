@@ -18,6 +18,23 @@ sub openssl_version {
     return scalar qx<$bin version -v -o -f>;
 }
 
+sub can_load_private_pem {
+    my ($pem) = @_;
+
+    my $bin = openssl_bin() or die "No OpenSSL!";
+
+    my $pid = IPC::Open3::open3( my $wtr, my $rdr, undef, "$bin ec -text" );
+    print {$wtr} $pem;
+    close $wtr;
+
+    my $out = do { local $/; <$rdr> };
+    close $rdr;
+
+    waitpid $pid, 0;
+
+    return !$? && ($out =~ m<private>i);
+}
+
 my $_ecdsa_test_err;
 sub can_ecdsa {
     my ($self) = @_;
