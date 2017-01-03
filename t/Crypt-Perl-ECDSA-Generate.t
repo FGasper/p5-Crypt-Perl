@@ -28,6 +28,7 @@ use File::Temp ();
 use IPC::Open3 ();
 use Symbol::Get ();
 
+use Crypt::Perl::ECDSA::EC::CurvesDB ();
 use Crypt::Perl::ECDSA::EC::DB ();
 
 use parent qw(
