@@ -24,14 +24,13 @@ sub can_load_private_pem {
 
     my $bin = openssl_bin() or die "No OpenSSL!";
 
-    my $pid = IPC::Open3::open3( my $wtr, my $rdr, undef, "$bin ec -text" );
-    print {$wtr} $pem;
-    close $wtr;
+    #For some reason IPC::Open3 stalled on read with Strawberry 5.24 …
 
-    my $out = do { local $/; <$rdr> };
-    close $rdr;
+    my ($fh, $fpath) = File::Temp::tempfile( CLEANUP => 1 );
+    print {$fh} $pem;
+    close $fh;
 
-    waitpid $pid, 0;
+    my $out = qx<$bin ec -text -in $fpath>;
 
     return !$? && ($out =~ m<private>i);
 }
@@ -79,11 +78,13 @@ sub verify_private {
     print {$kfh} $key_pem or die $!;
     close $kfh;
 
-    open my $sfh, '>', $sig_path;
+    #Need :raw for Win32 compatibility here
+
+    open my $sfh, '>:raw', $sig_path;
     print {$sfh} $signature or die $!;
     close $sfh;
 
-    open my $mfh, '>', $msg_path;
+    open my $mfh, '>:raw', $msg_path;
     print {$mfh} $message or die $!;
     close $mfh;
 
