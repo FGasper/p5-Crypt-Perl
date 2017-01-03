@@ -121,11 +121,11 @@ sub test_new : Tests() {
 
         SKIP: {
             if ( $key->isa('Crypt::Perl::ECDSA::PrivateKey') ) {
-                skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($key->to_pem_with_explicit_curve());
+                skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($key->to_pem_with_curve_name());
             }
 
             unlike( $text, qr<Unable to load>, "$print_type: key parsed correctly" ) or do {
-                print $key->to_pem_with_explicit_curve() . $/;
+                print $key->to_pem_with_curve_name() . $/;
             };
         }
 
