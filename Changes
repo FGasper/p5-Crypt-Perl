@@ -56,3 +56,6 @@ Revision history for Perl module Crypt::Perl
 - Include seed in explicit ECDSA parameters
 - Fix CSRs challengePassword test to accommodate OpenSSL versions
   that hide the challengePassword
+
+0.14 Tue Jan 03 2017
+- Make CSRs with named curves again (CAs don’t like explicit parameters.)
