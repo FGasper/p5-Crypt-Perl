@@ -31,6 +31,7 @@ use parent qw(
     Test::Class
 );
 
+use Crypt::Perl::ECDSA::EC::DB ();
 use Crypt::Perl::ECDSA::Parse ();
 use Crypt::Perl::ECDSA::PublicKey ();
 
@@ -41,6 +42,20 @@ if ( !caller ) {
 }
 
 #----------------------------------------------------------------------
+
+sub test_seed : Tests(1) {
+    my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve/secp112r1.key");
+    my $key = Crypt::Perl::ECDSA::Parse::private($pem)->get_public_key();
+
+    my $curve_data = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_name('secp112r1');
+    my $seed_hex = substr( $curve_data->{'seed'}->as_hex(), 2 );
+
+    my $der_hex = unpack 'H*', $key->to_der_with_explicit_curve();
+
+    like( $der_hex, qr<\Q$seed_hex\E>, 'seed is in explicit parameters' );
+
+    return;
+}
 
 #cf. RFC 7517, page 25
 sub test_jwk : Tests(2) {
