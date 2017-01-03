@@ -28,11 +28,15 @@ sub can_ecdsa {
         if ($bin) {
             my $pid = IPC::Open3::open3( my $wtr, my $rdr, undef, "$bin ecparam -list_curves" );
             close $wtr;
-            1 while <$rdr>;
+            my $out = do { local $/; <$rdr> };
             close $rdr;
             waitpid $pid, 0;
 
             $_ecdsa_test_err = $?;
+
+            #At least 0.9.8e doesn’t actually indicate error status on
+            #an unrecognized command … grr.
+            $_ecdsa_test_err ||= ($out !~ m<prime256v1>);
         }
         else {
             $_ecdsa_test_err = 'no openssl';
