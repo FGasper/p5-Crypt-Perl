@@ -177,7 +177,7 @@ sub test_sign : Tests() {
                         skip 'OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
 
                         my $ok = OpenSSL_Control::verify_private(
-                            $pkey_pem,
+                            $ecdsa->to_pem_with_explicit_curve(),
                             $msg,
                             $digest_alg,
                             $signature,
@@ -232,7 +232,7 @@ sub test_jwa : Tests(6) {
         SKIP: {
             eval 'require Crypt::PK::ECC' or skip 'No Crypt::PK::ECC', 1;
 
-            my $pk = Crypt::PK::ECC->new( \($key->to_pem_with_curve_name()) );
+            my $pk = Crypt::PK::ECC->new( \($key->to_pem_with_explicit_curve()) );
             ok(
                 $pk->verify_message_rfc7518($sig, $msg, $curve_dgst{$curve}),
                 "$curve: Crypt::PK::ECC verifies what we produced",
