@@ -6,6 +6,7 @@ use warnings;
 use Test::More;
 
 use Call::Context ();
+use File::Spec ();
 use File::Temp ();
 use File::Which ();
 use IPC::Open3 ();
@@ -70,19 +71,23 @@ sub verify_private {
 
     my $dir = File::Temp::tempdir(CLEANUP => 1);
 
-    open my $kfh, '>', "$dir/key";
+    my $key_path = File::Spec->catfile( $dir, 'key' );
+    my $sig_path = File::Spec->catfile( $dir, 'sig' );
+    my $msg_path = File::Spec->catfile( $dir, 'msg' );
+
+    open my $kfh, '>', $key_path;
     print {$kfh} $key_pem or die $!;
     close $kfh;
 
-    open my $sfh, '>', "$dir/sig";
+    open my $sfh, '>', $sig_path;
     print {$sfh} $signature or die $!;
     close $sfh;
 
-    open my $mfh, '>', "$dir/msg";
+    open my $mfh, '>', $msg_path;
     print {$mfh} $message or die $!;
     close $mfh;
 
-    my $ver = qx<$openssl_bin dgst -$digest_alg -prverify $dir/key -signature $dir/sig $dir/msg>;
+    my $ver = qx<$openssl_bin dgst -$digest_alg -prverify $key_path -signature $sig_path $msg_path>;
     my $ok = $ver =~ m<OK>;
 
     diag $ver if !$ok && $ver;
