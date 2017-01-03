@@ -234,9 +234,8 @@ sub _pad_bytes_for_asn1 {
     my ($self, $bytes) = @_;
 
     my $curve_hr = $self->_curve();
-    my $nbytes = length $curve_hr->{'n'}->as_bytes();
+    my $nbytes = length $curve_hr->{'p'}->as_bytes();
 
-#print "pad: $nbytes / " . length($bytes) . $/;
     substr( $bytes, 0, 0 ) = ("\0" x ($nbytes - length $bytes));
 
     return $bytes;
@@ -290,6 +289,10 @@ sub __to_der {
     my $nbytes = Crypt::Perl::Math::ceil( $curve_hr->{'n'} / 8 );
 
     my ($pub_x, $pub_y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+
+    for my $str ( $pub_x, $pub_y ) {
+        $str = $self->_pad_bytes_for_asn1($str);
+    }
 
     local $data_hr->{'publicKey'} = "\x04$pub_x$pub_y";
 

@@ -29,7 +29,6 @@ use MIME::Base64 ();
 
 use lib "$FindBin::Bin/lib";
 use parent qw(
-    NeedsOpenSSL
     Test::Class
 );
 
@@ -47,18 +46,22 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
-BEGIN {
-    *_CURVE_NAMES = \&OpenSSL_Control::curve_names;
-}
-
 sub new {
     my ($class, @args) = @_;
 
     my $self = $class->SUPER::new(@args);
 
-    $self->num_method_tests( 'test_sign', 2 * @{ [ $class->_CURVE_NAMES() ] } );
+    $self->num_method_tests( 'test_sign', 4 * @{ [ $class->_CURVE_NAMES() ] } );
 
     return $self;
+}
+
+sub _CURVE_NAMES {
+    my $dir = "$FindBin::Bin/assets/ecdsa_explicit";
+
+    opendir( my $dh, $dir );
+
+    return map { m<(.+)\.key\z> ? $1 : () } readdir $dh;
 }
 
 sub test_get_public_key : Tests(1) {
@@ -118,35 +121,26 @@ sub test_to_der : Tests(2) {
 sub test_sign : Tests() {
     my ($self) = @_;
 
-    my $openssl_bin = $self->_get_openssl();
-
     my $msg = 'Hello';
 
     #Use SHA1 since it’s the smallest digest that the latest OpenSSL accepts.
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
 
-    for my $curve ( _CURVE_NAMES() ) {
-        for my $param_enc ( qw( named_curve explicit ) ) {
+    for my $param_enc ( qw( named_curve explicit ) ) {
+        my $dir = "$FindBin::Bin/assets/ecdsa_$param_enc";
+
+        opendir( my $dh, $dir );
+
+        for my $node ( readdir $dh ) {
+            next if $node !~ m<(.+)\.key\z>;
+
+            my $curve = $1;
 
             SKIP: {
                 note "$curve ($param_enc)";
 
-                my $dir = File::Temp::tempdir(CLEANUP => 1);
-
-                my $key_path = "$dir/key";
-
-                system(
-                    $openssl_bin, 'ecparam',
-                    '-genkey',
-                    '-noout',
-                    -name => $curve,
-                    -out => $key_path,
-                    -param_enc => $param_enc,
-                );
-                die if $?;
-
-                my $pkey_pem = File::Slurp::read_file($key_path);
+                my $pkey_pem = File::Slurp::read_file("$dir/$node");
 
                 my $ecdsa;
                 try {
@@ -156,7 +150,7 @@ sub test_sign : Tests() {
                     my $ok = try { $_->isa('Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported') };
                     $ok ||= try { $_->isa('Crypt::Perl::X::ECDSA::NoCurveForOID') };
 
-                    skip $_->to_string(), 1 if $ok;
+                    skip $_->to_string(), 2 if $ok;
 
                     local $@ = $_;
                     die;
@@ -174,18 +168,27 @@ sub test_sign : Tests() {
 
                     note "Sig: " . unpack('H*', $signature);
 
-                    my $ok = OpenSSL_Control::verify_private(
-                        $pkey_pem,
-                        $msg,
-                        $digest_alg,
-                        $signature,
+                    ok(
+                        $ecdsa->verify( $dgst, $signature ),
+                        "$curve, $param_enc parameters: self-verify",
                     );
 
-                    ok( $ok, "$curve, $param_enc parameters: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
+                  SKIP: {
+                        skip 'OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
+
+                        my $ok = OpenSSL_Control::verify_private(
+                            $pkey_pem,
+                            $msg,
+                            $digest_alg,
+                            $signature,
+                        );
+
+                        ok( $ok, "$curve, $param_enc parameters: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
+                    }
                 }
                 catch {
                     if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {
-                        skip $_->to_string(), 1;
+                        skip $_->to_string(), 2;
                     }
 
                     local $@ = $_;
@@ -292,35 +295,30 @@ sub test_jwk : Tests(3) {
 sub test_verify : Tests(2) {
     my ($self) = @_;
 
-    SKIP: {
-        my $openssl_bin = $self->_get_openssl();
-        skip 'No OpenSSL binary!', 1 if !$openssl_bin;
+    my $key_path = "$FindBin::Bin/assets/prime256v1.key";
 
-        my $key_path = "$FindBin::Bin/assets/prime256v1.key";
+    my $pkey_pem = File::Slurp::read_file($key_path);
 
-        my $pkey_pem = File::Slurp::read_file($key_path);
+    my $ecdsa = Crypt::Perl::ECDSA::Parse::private($pkey_pem);
 
-        my $ecdsa = Crypt::Perl::ECDSA::Parse::private($pkey_pem);
+    my $msg = 'Hello';
 
-        my $msg = 'Hello';
+    my $sig = pack 'H*', '3046022100e3d248766709081d22f1c2762a79ac1b5e99edc2fe147420e1131cb207859300022100ad218584c31c55b2a15d1598b00f425bfad41b3f3d6a4eec620cc64dfc931848';
 
-        my $sig = pack 'H*', '3046022100e3d248766709081d22f1c2762a79ac1b5e99edc2fe147420e1131cb207859300022100ad218584c31c55b2a15d1598b00f425bfad41b3f3d6a4eec620cc64dfc931848';
+    is(
+        $ecdsa->verify( $msg, $sig ),
+        1,
+        'verify() - positive',
+    );
 
-        is(
-            $ecdsa->verify( $msg, $sig ),
-            1,
-            'verify() - positive',
-        );
+    my $bad_sig = $sig;
+    $bad_sig =~ s<.\z><9>;
 
-        my $bad_sig = $sig;
-        $bad_sig =~ s<.\z><9>;
-
-        is(
-            $ecdsa->verify( $msg, $bad_sig ),
-            0,
-            'verify() - negative',
-        );
-    }
+    is(
+        $ecdsa->verify( $msg, $bad_sig ),
+        0,
+        'verify() - negative',
+    );
 
     return;
 }

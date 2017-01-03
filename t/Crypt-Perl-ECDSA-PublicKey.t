@@ -25,8 +25,9 @@ use MIME::Base64 ();
 
 use lib "$FindBin::Bin/lib";
 
+use OpenSSL_Control ();
+
 use parent qw(
-    NeedsOpenSSL
     Test::Class
 );
 
@@ -78,22 +79,16 @@ sub test_jwk : Tests(2) {
 sub test_subject_public_key : Tests(1) {
     my ($self) = @_;
 
-    my $openssl_bin = $self->_get_openssl();
-
     my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
 
-    my $plain = File::Slurp::read_file($key_path);
-    my $pkcs8 = `$openssl_bin pkey -in $key_path -pubin -pubout`;
-    die if $?;
+    my $pem = File::Slurp::read_file($key_path);
 
-    $_ = Crypt::Format::pem2der($_) for ($pkcs8, $plain);
+    $pem = Crypt::Format::pem2der($pem);
 
-    $_ = Crypt::Perl::ECDSA::Parse::public($_) for ($pkcs8, $plain);
-
-    is_deeply(
-        $pkcs8,
-        $plain,
-        'PKCS8 key parsed the same as a regular one',
+    isa_ok(
+        Crypt::Perl::ECDSA::Parse::public($pem),
+        'Crypt::Perl::ECDSA::PublicKey',
+        'public key parse',
     );
 
     return;
@@ -144,35 +139,30 @@ sub test_to_der_with_curve_name : Tests(1) {
 sub test_verify : Tests(2) {
     my ($self) = @_;
 
-    SKIP: {
-        my $openssl_bin = $self->_get_openssl();
-        skip 'No OpenSSL binary!', 1 if !$openssl_bin;
+    my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
 
-        my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
+    my $pkey_pem = File::Slurp::read_file($key_path);
 
-        my $pkey_pem = File::Slurp::read_file($key_path);
+    my $ecdsa = Crypt::Perl::ECDSA::Parse::public($pkey_pem);
 
-        my $ecdsa = Crypt::Perl::ECDSA::Parse::public($pkey_pem);
+    my $msg = 'Hello';
 
-        my $msg = 'Hello';
+    my $sig = pack 'H*', '3046022100e3d248766709081d22f1c2762a79ac1b5e99edc2fe147420e1131cb207859300022100ad218584c31c55b2a15d1598b00f425bfad41b3f3d6a4eec620cc64dfc931848';
 
-        my $sig = pack 'H*', '3046022100e3d248766709081d22f1c2762a79ac1b5e99edc2fe147420e1131cb207859300022100ad218584c31c55b2a15d1598b00f425bfad41b3f3d6a4eec620cc64dfc931848';
+    is(
+        $ecdsa->verify( $msg, $sig ),
+        1,
+        'verify() - positive',
+    );
 
-        is(
-            $ecdsa->verify( $msg, $sig ),
-            1,
-            'verify() - positive',
-        );
+    my $bad_sig = $sig;
+    $bad_sig =~ s<.\z><9>;
 
-        my $bad_sig = $sig;
-        $bad_sig =~ s<.\z><9>;
-
-        is(
-            $ecdsa->verify( $msg, $bad_sig ),
-            0,
-            'verify() - negative',
-        );
-    }
+    is(
+        $ecdsa->verify( $msg, $bad_sig ),
+        0,
+        'verify() - negative',
+    );
 
     return;
 }

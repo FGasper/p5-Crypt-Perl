@@ -48,6 +48,17 @@ I believe this is the only L<CPAN|http://search.cpan.org> module that
 can create CSRs for either RSA or ECDSA keys. Other encryption schemes would
 not be difficult to integrate—but do any CAs accept them?
 
+=head1 ECDSA KEY FORMAT
+
+As of version 0.13, this module produces CSRs with explicit ECDSA curve
+parameters rather than
+merely indicating the curve parameters by the name of the curve. This makes
+the resulting CSR bigger, but it also prevents compatibility issues with ECDSA
+implementations (e.g., old OpenSSL versions) that don’t know about newer
+curves.
+
+If you need to produce CSRs with a named curve, let me know.
+
 =head1 SIGNATURE DIGEST ALGORITHMS
 
 The signature digest algorithm is
@@ -192,7 +203,7 @@ sub _encode_params {
             return $key->sign( Digest::SHA->can("sha$bits")->($msg) );
         };
 
-        $pk_der = $key->get_public_key()->to_der_with_curve_name();
+        $pk_der = $key->get_public_key()->to_der_with_explicit_curve();
     }
     elsif ($key->isa('Crypt::Perl::RSA::PrivateKey')) {
         $sig_alg = 'sha512WithRSAEncryption';

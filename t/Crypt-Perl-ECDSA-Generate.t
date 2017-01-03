@@ -30,9 +30,7 @@ use Symbol::Get ();
 
 use Crypt::Perl::ECDSA::EC::DB ();
 
-use lib "$FindBin::Bin/lib";
 use parent qw(
-    NeedsOpenSSL
     Test::Class
 );
 
@@ -91,6 +89,9 @@ sub test_generate : Tests(9) {
 
     my $msg = rand;
 
+    my $ossl_bin = OpenSSL_Control::openssl_bin();
+    my $ossl_has_ecdsa = $ossl_bin && OpenSSL_Control::can_ecdsa();
+
     #Use SHA1 since it’s the smallest digest that the latest OpenSSL accepts.
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
@@ -104,29 +105,39 @@ sub test_generate : Tests(9) {
             "$curve: return of by_name()",
         );
 
-        IPC::Open3::open3( my $wfh, my $rfh, undef, "$self->{'_ossl_bin'} ec -text" );
-        print {$wfh} $key_obj->to_pem_with_curve_name() or die $!;
-        close $wfh;
-        my $parsed = do { local $/; <$rfh> };
-        close $rfh;
+      SKIP: {
+            skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
 
-        ok( !$?, "$curve: OpenSSL parses OK" ) or diag $parsed;
+            my $pid = IPC::Open3::open3( my $wfh, my $rfh, undef, "$ossl_bin ec -text" );
+            print {$wfh} $key_obj->to_pem_with_explicit_curve() or die $!;
+            close $wfh;
+            my $parsed = do { local $/; <$rfh> };
+            close $rfh;
+
+            waitpid $pid, 0;
+
+            ok( !$?, "$curve: OpenSSL parses OK" ) or diag $parsed;
+        }
 
       SKIP: {
             try {
                 my $sig = $key_obj->sign($dgst);
 
-                ok( $key_obj->verify( $dgst, $sig ), 'verify() on self' );
+                ok( $key_obj->verify( $dgst, $sig ), 'verify() on own signature' );
 
-                ok(
-                    OpenSSL_Control::verify_private(
-                        Crypt::Format::der2pem($key_obj->to_der_with_curve_name(), 'EC PRIVATE KEY'),
-                        $msg,
-                        $digest_alg,
-                        $sig,
-                    ),
-                    "$curve: OpenSSL verifies",
-                ) or print $key_obj->to_pem_with_curve_name() . "\n";
+              SKIP: {
+                    skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
+
+                    ok(
+                        OpenSSL_Control::verify_private(
+                            Crypt::Format::der2pem($key_obj->to_der_with_curve_name(), 'EC PRIVATE KEY'),
+                            $msg,
+                            $digest_alg,
+                            $sig,
+                        ),
+                        "$curve: OpenSSL verifies signature",
+                    ) or print $key_obj->to_pem_with_curve_name() . "\n";
+                }
             }
             catch {
                 if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {

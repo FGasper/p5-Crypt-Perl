@@ -41,10 +41,17 @@ Revision history for Perl module Crypt::Perl
 - Small optimizations to RSA generation and associated POD
 - ASN1 prepare() errors now include the template’s first 32 bytes
 
-0.11
+0.11 Sat Dec 31 2017
 - Fix MANIFEST to include new files meant for 0.1 release … grr, CPAN
 
-0.12
+0.12 Mon Jan 02 2017
 - Fix generation of 224-bit ECDSA keys
 - Fix PKCS10 tests to permit spaces around “=” in OpenSSL parse
 - Add tests for generation of all ECDSA curves
+
+0.13 Tue Jan 03 2017
+- Make CSRs with explicit curve parameters rather than named curves
+- Proper fix for ECDSA key generation (224-bit and 521-bit)
+- Reduce tests’ dependency on OpenSSL
+- Fix CSRs challengePassword test to accommodate OpenSSL versions
+  that hide the challengePassword

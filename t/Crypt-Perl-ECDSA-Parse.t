@@ -28,7 +28,6 @@ use File::Temp ();
 
 use lib "$FindBin::Bin/lib";
 use parent qw(
-    NeedsOpenSSL
     Test::Class
 );
 
@@ -47,13 +46,8 @@ if ( !caller ) {
 sub test_pkcs8_private : Tests(1) {
     my ($self) = @_;
 
-    my $openssl_bin = $self->_get_openssl();
-
-    my $key_path = "$FindBin::Bin/assets/prime256v1.key";
-
-    my $plain = File::Slurp::read_file($key_path);
-    my $pkcs8 = `$openssl_bin pkey -in $key_path`;
-    die if $?;
+    my $plain = File::Slurp::read_file("$FindBin::Bin/assets/prime256v1.key");
+    my $pkcs8 = File::Slurp::read_file("$FindBin::Bin/assets/prime256v1.prkey");
 
     $_ = Crypt::Perl::ECDSA::Parse::private($_) for ($pkcs8, $plain);
 
@@ -66,24 +60,20 @@ sub test_pkcs8_private : Tests(1) {
     return;
 }
 
-sub test_pkcs8_public : Tests(1) {
+sub test_public : Tests(1) {
     my ($self) = @_;
-
-    my $openssl_bin = $self->_get_openssl();
 
     my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
 
-    my $plain = File::Slurp::read_file($key_path);
-    my $pkcs8 = `$openssl_bin pkey -pubin -in $key_path`;
-    die if $?;
+    my $pem = File::Slurp::read_file($key_path);
 
-    $_ = Crypt::Perl::ECDSA::Parse::public($_) for ($pkcs8, $plain);
+    my $obj = Crypt::Perl::ECDSA::Parse::public($pem);
 
-    is_deeply(
-        $pkcs8,
-        $plain,
-        'PKCS8 key parsed the same as a regular one',
-    );
+    isa_ok(
+        $obj,
+        'Crypt::Perl::ECDSA::PublicKey',
+        'public() return',
+    ) or diag explain $obj;
 
     return;
 }

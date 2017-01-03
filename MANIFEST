@@ -76,9 +76,11 @@ t/Crypt-Perl-RSA-PublicKey.t
 t/Crypt-Perl-X509-Extension-subjectAltName.t
 t/assets/RS256.dump
 t/assets/c2pnb163v1.key
+t/assets/generate_ecdsa_keys.pl
 t/assets/generate_rs256_tests.pl
 t/assets/prime256v1.key
 t/assets/prime256v1.key.public
+t/assets/prime256v1.prkey
 t/assets/prime256v1_explicit.key
 t/assets/prime256v1_explicit.key.public
 t/lib/NeedsOpenSSL.pm

@@ -8,22 +8,44 @@ use Test::More;
 use Call::Context ();
 use File::Temp ();
 use File::Which ();
+use IPC::Open3 ();
+use Module::Load ();
 
 use lib '../lib';
 
-use Crypt::Perl::ASN1 ();
-use Crypt::Perl::BigInt ();
-use Crypt::Perl::ECDSA::ECParameters ();
-
 sub openssl_version {
-    my $bin = _openssl_bin();
+    my $bin = openssl_bin();
     return scalar qx<$bin version -v -o -f>;
+}
+
+my $_ecdsa_test_err;
+sub can_ecdsa {
+    my ($self) = @_;
+
+    if ( !defined $_ecdsa_test_err ) {
+        my $bin = openssl_bin();
+
+        if ($bin) {
+            my $pid = IPC::Open3::open3( my $wtr, my $rdr, undef, "$bin ecparam -list_curves" );
+            close $wtr;
+            1 while <$rdr>;
+            close $rdr;
+            waitpid $pid, 0;
+
+            $_ecdsa_test_err = $?;
+        }
+        else {
+            $_ecdsa_test_err = 'no openssl';
+        }
+    }
+
+    return !$_ecdsa_test_err;
 }
 
 sub verify_private {
     my ($key_pem, $message, $digest_alg, $signature) = @_;
 
-    my $openssl_bin = _openssl_bin();
+    my $openssl_bin = openssl_bin();
 
     my $dir = File::Temp::tempdir(CLEANUP => 1);
 
@@ -50,7 +72,7 @@ sub verify_private {
 sub curve_names {
     Call::Context::must_be_list();
 
-    my $bin = _openssl_bin();
+    my $bin = openssl_bin();
     my @lines = qx<$bin ecparam -list_curves>;
 
     return map { m<(\S+)\s*:> ? $1 : () } @lines;
@@ -66,6 +88,8 @@ sub curve_oid {
 sub curve_data {
     my ($name) = @_;
 
+    Module::Load::load('Crypt::Perl::ECDSA::ECParameters');
+
     my ($asn1, $out) = __ecparam( $name, 'explicit', Crypt::Perl::ECDSA::ECParameters::ASN1_ECParameters() );
 
     return $asn1->find('ECParameters')->decode($out);
@@ -74,7 +98,9 @@ sub curve_data {
 sub __ecparam {
     my ($name, $param_enc, $asn1_template) = @_;
 
-    my $bin = _openssl_bin();
+    Module::Load::load('Crypt::Perl::ASN1');
+
+    my $bin = openssl_bin();
     my $out = qx<$bin ecparam -name $name -param_enc $param_enc -outform DER>;
 
     my $asn1 = Crypt::Perl::ASN1->new()->prepare($asn1_template);
@@ -84,7 +110,7 @@ sub __ecparam {
 #----------------------------------------------------------------------
 
 my $ossl_bin;
-sub _openssl_bin {
+sub openssl_bin {
     return $ossl_bin ||= File::Which::which('openssl');
 }
 

@@ -21,6 +21,8 @@ use File::Temp;
 
 use lib "$FindBin::Bin/lib";
 
+use OpenSSL_Control ();
+
 use parent qw(
     Test::Class
     NeedsOpenSSL
@@ -46,7 +48,7 @@ sub new {
     my $self = $class->SUPER::new();
 
     $self->num_method_tests(
-        'test_new__ecdsa',
+        'test_new',
         (4 + @{ [ keys %Crypt::Perl::X509::Name::_OID ] }) * @{ [ $self->_KEY_TYPES_TO_TEST() ] },
     );
 
@@ -54,23 +56,32 @@ sub new {
 }
 
 sub _KEY_TYPES_TO_TEST {
-    return (
-        1024,
-        2048,
-        'secp224k1',
-        'brainpoolP256r1',
-        'secp384r1',
-        'secp521r1',
-        'prime239v1',
-        'brainpoolP320r1',
-        'brainpoolP512r1',
-    );
-}
-
-sub test_new__ecdsa : Tests() {
     my ($self) = @_;
 
-    my $ossl_bin = $self->_get_openssl();
+    my @types = (
+        1024,
+        2048,
+    );
+
+    if ( OpenSSL_Control::can_ecdsa() ) {
+        push @types, (
+            'secp224k1',
+            'brainpoolP256r1',
+            'secp384r1',
+            'secp521r1',
+            'prime239v1',
+            'brainpoolP320r1',
+            'brainpoolP512r1',
+        );
+    }
+
+    return @types;
+}
+
+sub test_new : Tests() {
+    my ($self) = @_;
+
+    my $ossl_bin = OpenSSL_Control::openssl_bin ();
 
     for my $type ( $self->_KEY_TYPES_TO_TEST() ) {
         my $key;
@@ -108,15 +119,21 @@ sub test_new__ecdsa : Tests() {
 
         my $text = qx<$ossl_bin req -text -noout -in $fpath>;
 
-        unlike( $text, qr<Unable to load>, "$print_type: key parsed correctly" );
+        unlike( $text, qr<Unable to load>, "$print_type: key parsed correctly" ) or do {
+            print $key->to_pem_with_explicit_curve() . $/;
+        };
 
         for my $subj_part (sort keys %Crypt::Perl::X509::Name::_OID) {
             like( $text, qr/\s*=\s*the_\Q$subj_part\E/, "$print_type: $subj_part" );
         }
 
-        like( $text, qr/challengePassword.*iNsEcUrE/, "$print_type: challengePassword" );
         like( $text, qr<DNS:felipegasper\.com>, "$print_type: SAN 1" );
         like( $text, qr<DNS:gasperfelipe\.com>, "$print_type: SAN 2" );
+
+        #Some OpenSSL versions hide the challengePassword on CSR parse,
+        #so pass it through a generic ASN.1 parse instead.
+        $text = qx<$ossl_bin asn1parse -dump -in $fpath>;
+        like( $text, qr/challengePassword.*iNsEcUrE/s, "$print_type: challengePassword" );
     }
 
     return;
