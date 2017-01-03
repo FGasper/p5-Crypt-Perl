@@ -130,13 +130,13 @@ sub test_generate : Tests(9) {
 
                     ok(
                         OpenSSL_Control::verify_private(
-                            Crypt::Format::der2pem($key_obj->to_der_with_curve_name(), 'EC PRIVATE KEY'),
+                            $key_obj->to_pem_with_explicit_curve(),
                             $msg,
                             $digest_alg,
                             $sig,
                         ),
                         "$curve: OpenSSL verifies signature",
-                    ) or print $key_obj->to_pem_with_curve_name() . "\n";
+                    ) or print $key_obj->to_pem_with_explicit_curve() . "\n";
                 }
             }
             catch {
