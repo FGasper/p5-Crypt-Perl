@@ -189,12 +189,19 @@ sub decrypt_raw {
     my $p = $self->P();
     my $q = $self->Q();
 
-    my $xp = ($x % $p)->bmodpow( $self->D() % ($p - 1), $p );
-    my $xq = ($x % $q)->bmodpow( $self->D() % ($q - 1), $q );
+    my $p1 = $p->copy()->bdec();
+    my $q1 = $q->copy()->bdec();
 
-    $xp += $p while $xp < $xq;
+    my $xp = $x->copy()->bmod($p)->bmodpow( $self->D()->copy()->bmod($p1), $p );
+    my $xq = $x->copy()->bmod($q)->bmodpow( $self->D()->copy()->bmod($q1), $q );
 
-    return ($xq + ((($xp - $xq) * $self->QINV()) % $p) * $q)->as_bytes();
+    #$xp->binc($p) while $xp->blt($xq);
+
+    #return ($xq + ((($xp - $xq) * $self->QINV()) % $p) * $q)->as_bytes();
+
+    my $diff = $xp->bsub($xq)->babs()->bmod($p)->bsub($p)->babs();
+
+    $diff->bmul($self->QINV())->bmod($p)->bmuladd($q, $xq)->as_bytes();
 }
 
 #----------------------------------------------------------------------

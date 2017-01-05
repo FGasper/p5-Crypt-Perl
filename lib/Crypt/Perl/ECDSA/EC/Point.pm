@@ -33,7 +33,7 @@ sub is_infinity {
 
     return 1 if !defined $self->{'x'} && !defined $self->{'y'};
 
-    return( ($self->{'z'} == 0 && $self->{'y'}->to_bigint() != 0) || 0 );
+    return( ($self->{'z'}->is_zero() && !$self->{'y'}->to_bigint()->is_zero()) || 0 );
 }
 
 #returns ECFieldElement
@@ -55,11 +55,11 @@ sub _get_x_or_y {
     my ($self, $to_get) = @_;
 
     if (!defined $self->{'zinv'}) {
-        $self->{'zinv'} = $self->{'z'}->bmodinv($self->{'curve'}{'q'});
+        $self->{'zinv'} = $self->{'z'}->copy()->bmodinv($self->{'curve'}{'q'});
     }
 
     return $self->{'curve'}->from_bigint(
-        ( $self->{$to_get}->to_bigint() * $self->{'zinv'} ) % $self->{'curve'}{'q'},
+        $self->{$to_get}->to_bigint()->copy()->bmul($self->{'zinv'})->bmod($self->{'curve'}{'q'})
     );
 }
 
@@ -246,8 +246,8 @@ sub add {
     #var x1v2 = x1.multiply(v2);
     #var zu2 = u.square().multiply(this.z);
 
-    my $v2 = $v->copy()->bpow(2);
-    my $v3 = $v->copy()->bpow(3);
+    my $v2 = $v->copy()->bmul($v);
+    my $v3 = $v->copy()->bmul($v2);
 
     my $x1v2 = $x1->copy()->bmul($v2);
     my $zu2 = $u->copy()->bmul($u)->bmul($self->{'z'});
