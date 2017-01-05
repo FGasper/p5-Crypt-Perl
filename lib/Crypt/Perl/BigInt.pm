@@ -30,6 +30,8 @@ BEGIN {
     $@ = q<>;
 }
 
+use Crypt::Perl::X ();
+
 sub _pp_from_bytes {
     my $class = shift;
 
@@ -39,7 +41,7 @@ sub _pp_from_bytes {
 sub _pp_as_bytes {
     my ($self) = @_;
 
-    die "Negatives ($self) can’t convert to bytes!" if $self < 0;
+    die Crypt::Perl::X::create('Generic', "Negatives ($self) can’t convert to bytes!") if $self < 0;
 
     my $hex = $self->as_hex();
 

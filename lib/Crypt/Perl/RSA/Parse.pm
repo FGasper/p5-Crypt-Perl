@@ -32,6 +32,7 @@ use Module::Load ();
 
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::RSA::Template ();
+use Crypt::Perl::X ();
 
 sub _asn1 {
     return Crypt::Perl::ASN1->new()->prepare(
@@ -57,7 +58,7 @@ sub private {
             $key_obj = private_pkcs8($pem_or_der);
         }
         catch {
-            die "Failed to parse as either RSA ($rsa_err) or PKCS8 ($_)";
+            die Crypt::Perl::X::create('Generic', "Failed to parse as either RSA ($rsa_err) or PKCS8 ($_)");
         };
     };
 
@@ -93,25 +94,25 @@ sub public {
         my $rsa_err = $_;
 
         try {
-            $key_obj = public_pkcs8($pem_or_der);
+            $key_obj = public_SPKI($pem_or_der);
         }
         catch {
-            die "Failed to parse as either RSA ($rsa_err) or PKCS8 ($_)";
+            die Crypt::Perl::X::create('Generic', "Failed to parse as either RSA ($rsa_err) or SubjectPublicKeyInfo ($_)");
         };
     };
 
     return $key_obj;
 }
 
-#Like public(), but only does PKCS8.
-sub public_pkcs8 {
+#Like public(), but only does SubjectPublicKeyInfo.
+sub public_SPKI {
     my ($pem_or_der) = @_;
 
     _ensure_der($pem_or_der);
 
-    my $pkcs8 = _decode_pkcs8_public($pem_or_der);
+    my $spki = _decode_spki($pem_or_der);
 
-    my $parsed = _decode_rsa_public_within_pkcs8_or_die($pkcs8);
+    my $parsed = _decode_rsa_public_within_spki_or_die($spki);
 
     return _new_public($parsed);
 }
@@ -180,21 +181,21 @@ sub _decode_rsa_within_pkcs8_or_die {
         $dec = _decode_rsa( $pkcs8_hr->{'privateKey'} );
     }
     catch {
-        die "Failed to parse RSA within PKCS8: $_";
+        die Crypt::Perl::X::create('Generic', "Failed to parse RSA within PKCS8: $_");
     };
 
     return $dec;
 }
 
-sub _decode_rsa_public_within_pkcs8_or_die {
-    my ($pkcs8_hr) = @_;
+sub _decode_rsa_public_within_spki_or_die {
+    my ($spki_hr) = @_;
 
     my $dec;
     try {
-        $dec = _decode_rsa_public( $pkcs8_hr->{'subjectPublicKey'}[0] );
+        $dec = _decode_rsa_public( $spki_hr->{'subjectPublicKey'}[0] );
     }
     catch {
-        die "Failed to parse RSA within PKCS8: $_";
+        die Crypt::Perl::X::create('Generic', "Failed to parse RSA within SubjectPublicKeyInfo: $_");
     };
 
     return $dec;
@@ -206,7 +207,7 @@ sub _decode_pkcs8 {
     return _decode_macro( $$der_r, 'PrivateKeyInfo' );
 }
 
-sub _decode_pkcs8_public {
+sub _decode_spki {
     my ($der_r) = (\$_[0]);
 
     return _decode_macro( $$der_r, 'SubjectPublicKeyInfo' );

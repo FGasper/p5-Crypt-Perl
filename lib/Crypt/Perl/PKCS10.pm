@@ -112,6 +112,7 @@ use Crypt::Perl::PKCS10::Attributes ();
 use Crypt::Perl::PKCS10::ASN1 ();
 use Crypt::Perl::PKCS10::Attributes ();
 use Crypt::Perl::X509::Name ();
+use Crypt::Perl::X ();
 
 use parent qw( Crypt::Perl::ASN1::Encodee );
 
@@ -176,7 +177,7 @@ sub _encode_params {
         my $bits = $key->max_sign_bits();
 
         if ($bits < 224) {
-            die "This key is too weak ($bits bits) to make a secure PKCS #10 CSR.";
+            die Crypt::Perl::X::create('Generic', "This key is too weak ($bits bits) to make a secure PKCS #10 CSR.");
         }
         elsif ($bits < 256) {
             $bits = 224;
@@ -209,11 +210,11 @@ sub _encode_params {
         $pk_der = $key->to_subject_public_der();
     }
     else {
-        die "Key ($key) is not a recognized private key class instance!";
+        die Crypt::Perl::X::create('Generic', "Key ($key) is not a recognized private key class instance!");
     }
 
     $sig_alg = $Crypt::Perl::PKCS10::ASN1::OID{$sig_alg} || do {
-        die "Unrecognized signature algorithm OID: “$sig_alg”";
+        die Crypt::Perl::X::create('Generic', "Unrecognized signature algorithm OID: “$sig_alg”");
     };
 
     my $asn1_reqinfo = Crypt::Perl::ASN1->new()->prepare( $self->ASN1() );

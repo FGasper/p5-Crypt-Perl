@@ -4,13 +4,14 @@ use strict;
 use warnings;
 
 use Crypt::Perl::ASN1 ();
+use Crypt::Perl::X ();
 
 sub asn1_macro {
     my ($self_or_class) = @_;
 
     my $class = ref($self_or_class) || $self_or_class;
 
-    $class =~ m<.+::(.+)> or die "Invalid class: “$class”";
+    $class =~ m<.+::(.+)> or die Crypt::Perl::X::create('Generic', "Invalid class: “$class”");
 
     return $1;
 }

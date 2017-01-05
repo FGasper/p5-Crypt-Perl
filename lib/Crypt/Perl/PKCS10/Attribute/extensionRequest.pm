@@ -51,6 +51,7 @@ use parent qw( Crypt::Perl::PKCS10::Attribute );
 use Module::Load ();
 
 use Crypt::Perl::ASN1 ();
+use Crypt::Perl::X ();
 
 use constant OID => '1.2.840.113549.1.9.14';
 
@@ -74,12 +75,12 @@ sub new {
             if ( 'HASH' eq ref $ext ) {
                 if ( !try { $ext->{'extension'}->isa($EXT_BASE) }) {
                     if ( 'ARRAY' ne ref $ext ) {
-                        die "“extension” in HASH reference must be ARRAY reference or instance of $EXT_BASE, not “$ext”!";
+                        die Crypt::Perl::X::create('Generic', "“extension” in HASH reference must be ARRAY reference or instance of $EXT_BASE, not “$ext”!");
                     }
                 }
             }
             elsif ( 'ARRAY' ne ref $ext ) {
-                die "Extension must be HASH reference, ARRAY reference, or instance of $EXT_BASE, not “$ext”!";
+                die Crypt::Perl::X::create('Generic', "Extension must be HASH reference, ARRAY reference, or instance of $EXT_BASE, not “$ext”!");
             }
         }
     }

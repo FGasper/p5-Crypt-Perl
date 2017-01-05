@@ -52,6 +52,8 @@ they’re included for historical interest.
 use strict;
 use warnings;
 
+use Crypt::Perl::X ();
+
 #----------------------------------------------------------------------
 #RFC 3447, page 42
 
@@ -75,7 +77,7 @@ sub encode {
     my $encoded = _asn1_DigestInfo( $digest, $digest_oid );
 
     if ( $emLen < length($encoded) + 11 ) {
-        die 'intended encoded message length too short';
+        die Crypt::Perl::X::create('Generic', sprintf "intended encoded message length (%d bytes) is too short--must be at least %d bytes", $emLen, 11 + length $encoded);
     }
 
     #NB: The length of $encoded will be a function solely of $digest_oid.
@@ -94,7 +96,8 @@ sub decode {
     my $hdr = _get_der_header($digest_oid);
 
     $octets =~ m<\A \x00 \x01 \xff+ \x00 \Q$hdr\E >x or do {
-        die( sprintf "Invalid EMSA-PKCS1-v1_5/$digest_oid: %v02x", $octets );
+        my $err = sprintf "Invalid EMSA-PKCS1-v1_5/$digest_oid: %v02x", $octets;
+        die Crypt::Perl::X::create('Generic', $err);
     };
 
     return substr( $octets, $+[0] );

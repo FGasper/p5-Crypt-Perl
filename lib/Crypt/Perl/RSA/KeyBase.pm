@@ -12,6 +12,7 @@ use Crypt::Format ();
 use Module::Load ();
 
 use Crypt::Perl::BigInt ();
+use Crypt::Perl::X ();
 
 BEGIN {
     __PACKAGE__->mk_ro_accessors('modulus');
@@ -153,14 +154,15 @@ sub _verify {
     if ($scheme eq 'PKCS1_v1_5') {
         my $key_bytes_length = $self->modulus_byte_length();
         if (length($octets) != $key_bytes_length) {
-            die sprintf( "Invalid PKCS1_v1_5 length: %d (should be %d)", length($octets), $key_bytes_length );
+            my $err = sprintf( "Invalid PKCS1_v1_5 length: %d (should be %d)", length($octets), $key_bytes_length );
+            die Crypt::Perl::X::create('Generic', $err);
         }
 
         Module::Load::load('Crypt::Perl::RSA::PKCS1_v1_5');
         return $digest eq Crypt::Perl::RSA::PKCS1_v1_5::decode($octets, $hasher);
     }
 
-    die "Unknown scheme: “$scheme”";
+    die Crypt::Perl::X::create('Generic', "Unknown signature scheme: “$scheme”");
 }
 
 1;

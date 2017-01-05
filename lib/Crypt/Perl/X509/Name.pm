@@ -94,7 +94,7 @@ sub new {
 
     while ( my ($type, $val) = splice( @key_values, 0, 2 ) ) {
         my $oid = $_OID{$type} || do {
-            die "Unknown OID: “$type”";
+            die Crypt::Perl::X::create('Generic', "Unknown OID: “$type”");
         };
 
         push @sequence, [ { type => $oid, value => { utf8String => $val } } ];

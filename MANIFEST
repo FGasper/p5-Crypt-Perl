@@ -53,6 +53,7 @@ lib/Crypt/Perl/X/ECDSA/NoCurveForNISTName.pm
 lib/Crypt/Perl/X/ECDSA/NoCurveForName.pm
 lib/Crypt/Perl/X/ECDSA/NoCurveForOID.pm
 lib/Crypt/Perl/X/ECDSA/NoCurveForParameters.pm
+lib/Crypt/Perl/X/Generic.pm
 lib/Crypt/Perl/X/InvalidJWK.pm
 lib/Crypt/Perl/X/TooLongToSign.pm
 lib/Crypt/Perl/X/UnknownHash.pm

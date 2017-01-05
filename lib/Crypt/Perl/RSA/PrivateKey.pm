@@ -86,6 +86,7 @@ use parent qw(
 use Module::Load ();
 
 use Crypt::Perl::RNG ();
+use Crypt::Perl::X ();
 
 use constant _PEM_HEADER => 'RSA PRIVATE KEY';
 use constant _ASN1_MACRO => 'RSAPrivateKey';
@@ -231,7 +232,7 @@ sub _sign {
         substr( $sig, 0, 0 ) = "\0" x ($sig_length - length $sig);
     }
     else {
-        die "Unknown signature scheme: “$scheme”";
+        die Crypt::Perl::X::create('Generic', "Unknown signature scheme: “$scheme”");
     }
 
     return $sig;

@@ -106,6 +106,8 @@ use constant ASN1_PRIVATE => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
 
 use constant _PEM_HEADER => 'EC PRIVATE KEY';
 
+use constant NUMBER_CLASS => 'Crypt::Perl::BigInt';
+
 #$curve_parts is also a hash ref, defined as whatever the ASN.1
 #parse of the main key’s “parameters” returned, whether that be
 #explicit key parameters or a named curve.
@@ -114,7 +116,7 @@ sub new {
     my ($class, $key_parts, $curve_parts) = @_;
 
     if (!length $key_parts->{'version'}) {
-        die 'Need a “version”! (Try 1)';
+        die Crypt::Perl::X::create('Generic', 'Need a “version”! (Try 1)');
     }
 
     my $self = {
@@ -122,11 +124,11 @@ sub new {
     };
 
     for my $k ( qw( private public ) ) {
-        if ( try { $key_parts->{$k}->isa('Crypt::Perl::BigInt') } ) {
+        if ( try { $key_parts->{$k}->isa(NUMBER_CLASS()) } ) {
             $self->{$k} = $key_parts->{$k};
         }
         else {
-            die "“$k” must be “Crypt::Perl::BigInt”, not “$key_parts->{$k}”!";
+            die Crypt::Perl::X::create('Generic', sprintf "“$k” must be “%s”, not “$key_parts->{$k}”!", NUMBER_CLASS());
         }
     }
 

@@ -14,7 +14,7 @@ use constant JWK_CURVE_secp521r1 => 'P-512';
 sub get_nist_for_curve_name {
     my ($curve_name) = @_;
 
-    die 'Need curve name!' if !length $curve_name;
+    die Crypt::Perl::X::create('Generic', 'Need curve name!') if !length $curve_name;
 
     my $cr = __PACKAGE__->can("JWK_CURVE_$curve_name") or do {
         die Crypt::Perl::X::create('ECDSA::NoCurveForName', { name => $curve_name });
@@ -26,7 +26,7 @@ sub get_nist_for_curve_name {
 sub get_curve_name_for_nist {
     my ($nist_name) = @_;
 
-    die 'Need NIST curve name!' if !length $nist_name;
+    die Crypt::Perl::X::create('Generic', 'Need NIST curve name!') if !length $nist_name;
 
     for my $node ( Symbol::Get::get_names() ) {
         next if $node !~ m<\AJWK_CURVE_(.+)>;
