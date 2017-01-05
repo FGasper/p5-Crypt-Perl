@@ -148,7 +148,7 @@ use constant asn1_macro => 'CertificationRequest';
 sub new {
     my ($class, %opts) = @_;
 
-    my ($key, $attrs, $subject, $sigalg) = @opts{'key', 'attributes', 'subject', 'signature_algorithm'};
+    my ($key, $attrs, $subject) = @opts{'key', 'attributes', 'subject'};
 
     $subject = Crypt::Perl::X509::Name->new( @$subject );
     $attrs = Crypt::Perl::PKCS10::Attributes->new( @$attrs );
@@ -157,7 +157,6 @@ sub new {
         _key => $key,
         _subject => $subject,
         _attributes => $attrs,
-        _sigalg => $sigalg,
     };
 
     return bless $self, $class;
@@ -228,6 +227,9 @@ sub _encode_params {
     #This is a detail germane to the PKCS10 structure, not to the
     #Attributes itself (right??), so it makes sense to do the change here
     #rather than to put “[0] SET” into the ASN1 template for Attributes.
+    #
+    #“use bytes” is not necessary because we know the first character is
+    #0x31, which came from Convert::ASN1.
     substr($attr_enc, 0, 1) = chr 0xa0;
 
     my %reqinfo = (
