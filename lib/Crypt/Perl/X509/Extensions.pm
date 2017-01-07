@@ -79,7 +79,7 @@ sub new {
         if (!try { $ext->isa($EXT_BASE) }) {
             if ( 'HASH' eq ref $ext ) {
                 if ( !try { $ext->{'extension'}->isa($EXT_BASE) }) {
-                    if ( 'ARRAY' ne ref $ext ) {
+                    if ( 'ARRAY' ne ref $ext->{'extension'} ) {
                         die "“extension” in HASH reference must be ARRAY reference or instance of $EXT_BASE, not “$ext”!";
                     }
                 }
@@ -111,11 +111,12 @@ sub _encode_params {
         if ('HASH' eq ref $ext) {
             ($critical, $real_ext) = @{$ext}{ qw(critical extension) };
         }
-        elsif ('ARRAY' eq ref $ext) {
-            $real_ext = _new_parse_arrayref($ext);
-        }
         else {
             $real_ext = $ext;
+        }
+
+        if ('ARRAY' eq ref $real_ext) {
+            $real_ext = _new_parse_arrayref($real_ext);
         }
 
         push @exts_asn1, {

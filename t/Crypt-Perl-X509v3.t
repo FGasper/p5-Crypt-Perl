@@ -53,7 +53,27 @@ sub test_creation : Tests(1) {
         not_after => time + 3600,
 
         extensions => [
+            [ 'basicConstraints', 1, 2 ],
+            { critical => 1, extension => [ 'keyUsage', 'encipherOnly', 'digitalSignature', 'keyAgreement' ] },
+            [ 'extKeyUsage', qw( serverAuth clientAuth codeSigning emailProtection timeStamping ocspSigning ) ],
             [ 'subjectAltName', dNSName => 'foo.com' ],
+            [ 'authorityInfoAccess',
+                [ 'ocsp', uniformResourceIdentifier => 'http://some.ocsp.uri' ],
+                [ 'caIssuers', uniformResourceIdentifier => 'http://some.cab.uri' ],
+            ],
+            [ 'certificatePolicies',
+                [ 'organization-validated' ],
+                [ '1.3.6.1.4.1.6449.1.2.2.52',
+                    [ cps => 'https://cps.uri' ],
+                    [ unotice => {
+                        noticeRef => {
+                            organization => 'FooFoo',
+                            noticeNumbers => [ 12, 23, 34 ],
+                        },
+                        explicitText => 'apple',
+                    } ],
+                ],
+            ],
         ],
     );
 
