@@ -65,6 +65,7 @@ our %_OID = (
     emailAddress               => '1.2.840.113549.1.9.1',
     commonName                 => '2.5.4.3',
     surname                    => '2.5.4.4',
+    serialNumber               => '2.5.4.5',
     countryName                => '2.5.4.6',
     localityName               => '2.5.4.7',
     stateOrProvinceName        => '2.5.4.8',

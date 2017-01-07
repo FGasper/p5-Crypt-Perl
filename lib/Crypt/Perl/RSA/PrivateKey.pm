@@ -192,9 +192,13 @@ sub decrypt_raw {
     my $xp = ($x % $p)->bmodpow( $self->D() % ($p - 1), $p );
     my $xq = ($x % $q)->bmodpow( $self->D() % ($q - 1), $q );
 
-    $xp += $p while $xp < $xq;
+    $xp->binc($p) while $xp->blt($xq);
 
-    return ($xq + ((($xp - $xq) * $self->QINV()) % $p) * $q)->as_bytes();
+    #return ($xq + ((($xp - $xq) * $self->QINV()) % $p) * $q)->as_bytes();
+
+    my $diff = $xp->bsub($xq)->babs()->bmod($p)->bsub($p)->babs();
+
+    return $diff->bmul($self->QINV())->bmod($p)->bmuladd($q, $xq)->as_bytes();
 }
 
 #----------------------------------------------------------------------

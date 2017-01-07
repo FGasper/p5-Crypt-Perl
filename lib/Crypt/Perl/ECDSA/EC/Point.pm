@@ -114,8 +114,8 @@ sub twice {
     # y3 = 4 * y1^2 * z1 * (3 * w * x1 - 2 * y1^2 * z1) - w^3
     #var y3 = w.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w.square().multiply(w)).mod(this.curve.q);
     #my $y3 = 4 * $y1sqz1 * (3 * $w * $x1 - 2 * $y1sqz1) - ($w ** 3);
-    my $y3 = $y1sqz1->copy()->bmul(4)->bmuladd(
-        $w->copy()->bmul(3)->bmuladd($x1, $y1sqz1->copy()->bmul(-2)),
+    my $y3 = $y1sqz1->copy()->blsft(2)->bmuladd(
+        $w->copy()->bmul(3)->bmuladd($x1, $y1sqz1->copy()->blsft(1)->bneg()),
         $w->copy()->bpow(3)->bneg(),
     );
 
@@ -223,8 +223,8 @@ sub add {
     #    }
 	#return this.curve.getInfinity(); // this = -b, so infinity
     #}
-    if ($v == 0) {
-        if ( $u == 0) {
+    if ($v->is_zero()) {
+        if ($u->is_zero()) {
             return $self->twice();
         }
 
@@ -258,7 +258,7 @@ sub add {
     #var x3 = zu2.subtract(x1v2.shiftLeft(1)).multiply(b.z).subtract(v3).multiply(v).mod(this.curve.q);
     #my $x3 = $v * ($z2 * ($z1 * ($u ** 2) - 2 * $x1 * ($v ** 2)) - ($v ** 3));
     my $x3 = $u->copy()->bmul($u);
-    $x3->bmuladd( $z1, $x1->copy()->bmul(-2)->bmul($v)->bmul($v) );
+    $x3->bmuladd( $z1, $x1->copy()->blsft(1)->bneg()->bmul($v)->bmul($v) );
     $x3->bmuladd( $z2, $v->copy()->bpow(3)->bneg() );
     $x3->bmul($v);
 

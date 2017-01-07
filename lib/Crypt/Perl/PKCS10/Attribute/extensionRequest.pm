@@ -44,82 +44,13 @@ C<Crypt::Perl::X509::Extension> namespace for supported extensions.
 
 =cut
 
-use Try::Tiny;
-
-use parent qw( Crypt::Perl::PKCS10::Attribute );
-
-use Module::Load ();
-
-use Crypt::Perl::ASN1 ();
+use parent qw(
+    Crypt::Perl::PKCS10::Attribute
+    Crypt::Perl::X509::Extensions
+);
 
 use constant OID => '1.2.840.113549.1.9.14';
 
-use constant ASN1 => <<END;
-    Extension ::= SEQUENCE {
-      extnID    OBJECT IDENTIFIER,
-      critical  BOOLEAN OPTIONAL,
-      extnValue OCTET STRING
-    }
-
-    extensionRequest ::= SEQUENCE OF Extension
-END
-
-my $EXT_BASE = 'Crypt::Perl::X509::Extension';
-
-sub new {
-    my ($class, @extensions) = @_;
-
-    for my $ext (@extensions) {
-        if (!try { $ext->isa($EXT_BASE) }) {
-            if ( 'HASH' eq ref $ext ) {
-                if ( !try { $ext->{'extension'}->isa($EXT_BASE) }) {
-                    if ( 'ARRAY' ne ref $ext ) {
-                        die "“extension” in HASH reference must be ARRAY reference or instance of $EXT_BASE, not “$ext”!";
-                    }
-                }
-            }
-            elsif ( 'ARRAY' ne ref $ext ) {
-                die "Extension must be HASH reference, ARRAY reference, or instance of $EXT_BASE, not “$ext”!";
-            }
-        }
-    }
-
-    return bless \@extensions, $class;
-}
-
-sub _new_parse_arrayref {
-    my ($ext) = @_;
-    my $module = $ext->[0];
-    my $class = "Crypt::Perl::X509::Extension::$module";
-    Module::Load::load($class);
-    return $class->new( @{$ext}[ 1 .. $#$ext ] );
-}
-
-sub _encode_params {
-    my ($self) = @_;
-
-    my @exts_asn1;
-
-    for my $ext ( @$self ) {
-        my ($critical, $real_ext);
-        if ('HASH' eq ref $ext) {
-            ($critical, $real_ext) = @{$ext}{ qw(critical extension) };
-        }
-        elsif ('ARRAY' eq ref $ext) {
-            $real_ext = _new_parse_arrayref($ext);
-        }
-        else {
-            $real_ext = $ext;
-        }
-
-        push @exts_asn1, {
-            extnID => $real_ext->OID(),
-            ($critical ? (critical => Crypt::Perl::ASN1->ASN_BOOLEAN()) : ()),
-            extnValue => $real_ext->encode(),
-        },
-    };
-
-    return \@exts_asn1;
-}
+use constant asn1_macro => 'Extensions';
 
 1;

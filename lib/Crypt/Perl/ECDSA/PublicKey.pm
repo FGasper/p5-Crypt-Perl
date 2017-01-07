@@ -60,18 +60,20 @@ use Crypt::Perl::BigInt ();
 
 use constant ASN1_PUBLIC => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
 
-    FG_Keydata ::= SEQUENCE {
-        oid         OBJECT IDENTIFIER,
+    AlgorithmIdentifier ::= SEQUENCE {
+        algorithm   OBJECT IDENTIFIER,
         parameters  EcpkParameters
     }
 
     ECPublicKey ::= SEQUENCE {
-        keydata     FG_Keydata,
+        keydata     AlgorithmIdentifier,
         publicKey   BIT STRING
     }
 >;
 
 use constant _PEM_HEADER => 'EC PUBLIC KEY';
+
+use constant OID_ecPublicKey => '1.2.840.10045.2.1';
 
 #There’s no new_by_curve_name() method here because
 #that logic in PrivateKey is only really useful for when we
@@ -93,6 +95,21 @@ sub new {
     return $self->_add_params( $curve_parts );
 }
 
+sub algorithm_identifier_with_curve_name {
+    my ($self) = @_;
+
+    return $self->_algorithm_identifier($self->_named_curve_parameters());
+}
+
+sub _algorithm_identifier {
+    my ($self, $curve_parts) = @_;
+
+    return {
+        algorithm => $self->OID_ecPublicKey(),
+        parameters => $curve_parts,
+    };
+}
+
 sub _get_asn1_parts {
     my ($self, $curve_parts) = @_;
 
@@ -101,10 +118,7 @@ sub _get_asn1_parts {
         ASN1_PUBLIC(),
         {
             publicKey => $self->{'public'}->as_bytes(),
-            keydata => {
-                oid => $self->OID_ecPublicKey(),
-                parameters => $curve_parts,
-            },
+            keydata => $self->_algorithm_identifier($curve_parts),
         },
     );
 }

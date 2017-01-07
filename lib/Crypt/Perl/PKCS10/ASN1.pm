@@ -1,5 +1,7 @@
 package Crypt::Perl::PKCS10::ASN1;
 
+#XXX TODO: move to more general namespace
+
 use strict;
 use warnings;
 
@@ -7,6 +9,7 @@ our %OID = (
     extensionRequest => '1.2.840.113549.1.9.14',
     subjectAltName => '2.5.29.17',
 
+    sha224WithRSAEncryption => '1.2.840.113549.1.1.14',
     sha256WithRSAEncryption => '1.2.840.113549.1.1.11',
     sha384WithRSAEncryption => '1.2.840.113549.1.1.12',
     sha512WithRSAEncryption => '1.2.840.113549.1.1.13',
