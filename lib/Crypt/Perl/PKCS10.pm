@@ -23,8 +23,8 @@ Crypt::Perl::PKCS10 - Certificate Signing Request (CSR) creation
         attributes => [
             [ 'extensionRequest',
                 [ 'subjectAltName',
-                    dNSName => 'foo.com',
-                    dNSName => 'bar.com',
+                    [ dNSName => 'foo.com' ],
+                    [ dNSName => 'bar.com' ],
                 ],
             ],
         ],

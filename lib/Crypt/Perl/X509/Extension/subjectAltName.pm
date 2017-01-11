@@ -12,9 +12,9 @@ Crypt::Perl::X509::Extension::subjectAltName - X.509 subjectAltName extension
 =head1 SYNOPSIS
 
     my $san = Crypt::Perl::X509::Extension::subjectAltName->new(
-        dNSName => 'foo.com',
-        dNSName => 'bar.com',
-        rfc822Name => 'haha@tld.com',
+        [ dNSName => 'foo.com' ],
+        [ dNSName => 'bar.com' ],
+        [ rfc822Name => 'haha@tld.com' ],
     );
 
 =head1 DESCRIPTION
@@ -87,8 +87,17 @@ sub new {
 
     my @sequence;
 
-    while ( my ($type, $val) = splice( @type_vals, 0, 2 ) ) {
-        push @sequence, { $type => $val };
+#    while ( my ($type, $val) = splice( @type_vals, 0, 2 ) ) {
+#        push @sequence, { $type => $val };
+#    }
+
+    while (@type_vals) {
+        if ('ARRAY' eq ref $type_vals[0]) {
+            push @sequence, { @{ shift @type_vals } };
+        }
+        elsif ( !ref $type_vals[0] ) {
+            push @sequence, { shift(@type_vals) => shift(@type_vals) };
+        }
     }
 
     return bless \@sequence, $class;

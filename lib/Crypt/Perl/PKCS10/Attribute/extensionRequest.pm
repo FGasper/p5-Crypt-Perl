@@ -25,7 +25,10 @@ Crypt::Perl::PKCS10::Attribute::extensionRequest - CSR “extensionRequest” at
     #...for example:
 
     my $exreq = Crypt::Perl::PKCS10::Attribute::extensionRequest->new(
-        [ 'subjectAltName', dNSName => 'foo.com', dNSName => 'haha.tld' ],
+        [ 'subjectAltName',
+            [ dNSName => 'foo.com' ],
+            [ dNSName => 'haha.tld' ],
+        ],
     );
 
 =head1 DESCRIPTION

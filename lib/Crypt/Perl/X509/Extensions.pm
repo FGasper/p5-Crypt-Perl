@@ -25,7 +25,10 @@ Crypt::Perl::X509::Extensions - extensions list for X.509 certificates
     #...for example:
 
     my $exreq = Crypt::Perl::X509::Extensions->new(
-        [ 'subjectAltName', dNSName => 'foo.com', dNSName => 'haha.tld' ],
+        [ 'subjectAltName',
+            [ dNSName => 'foo.com' ],
+            [ dNSName => 'haha.tld' ],
+        ],
     );
 
 =head1 DESCRIPTION
