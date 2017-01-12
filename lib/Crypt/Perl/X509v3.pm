@@ -190,7 +190,7 @@ sub _encode_tbs_certificate {
         $sig_alg = "ecdsa-with-SHA$digest_length";
     }
     elsif ($self->{'_key'}->isa('Crypt::Perl::RSA::PublicKey')) {
-        $pubkey_der = $self->{'_key'}->to_subject_public_der();
+        $pubkey_der = $self->{'_key'}->to_subject_der();
         #$sig_alg = 'rsaEncryption'; #"sha${digest_length}WithRSAEncryption";
         $sig_alg = "sha${digest_length}WithRSAEncryption";
     }
@@ -216,7 +216,7 @@ sub _encode_tbs_certificate {
         subjectUniqueID => $self->{'_subject_unique_id'},
 
         subject => $self->{'_subject'}->encode(),
-        issuer => $self->{'_subject'}->encode(),
+        issuer => $self->{'_issuer'}->encode(),
 
         validity => {
             notBefore => { generalTime => $self->{'_not_before'} },

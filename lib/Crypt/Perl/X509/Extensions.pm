@@ -122,6 +122,11 @@ sub _encode_params {
             $real_ext = _new_parse_arrayref($real_ext);
         }
 
+        if (!defined $critical) {
+            $critical = $real_ext->can('CRITICAL');
+            $critical &&= $critical->();
+        }
+
         push @exts_asn1, {
             extnID => $real_ext->OID(),
             ($critical ? (critical => Crypt::Perl::ASN1->ASN_BOOLEAN()) : ()),

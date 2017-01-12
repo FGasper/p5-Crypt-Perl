@@ -35,76 +35,17 @@ Certificate Signing Request.
 
 =cut
 
-use parent qw( Crypt::Perl::X509::Extension );
+use parent qw(
+    Crypt::Perl::X509::Extension
+    Crypt::Perl::X509::GeneralNames
+);
+
+use Crypt::Perl::X509::GeneralNames ();
 
 use constant OID => '2.5.29.17';
 
-use constant ASN1 => <<END;
-    AnotherName ::= SEQUENCE {
-         type           OBJECT IDENTIFIER,
-         value      [0] EXPLICIT ANY
-    }
-
-    Name ::= SEQUENCE OF RelativeDistinguishedName
-    RelativeDistinguishedName ::= SET OF AttributeTypeAndValue
-    AttributeTypeAndValue ::= SEQUENCE {
-      type  OBJECT IDENTIFIER,
-      value DirectoryString}
-
-    DirectoryString ::= CHOICE {
-      teletexString   TeletexString,
-      printableString PrintableString,
-      bmpString       BMPString,
-      universalString UniversalString,
-      utf8String      UTF8String,
-      ia5String       IA5String,
-      integer         INTEGER}
-
-    EDIPartyName ::= SEQUENCE {
-         nameAssigner            [0]     DirectoryString OPTIONAL,
-         partyName               [1]     DirectoryString }
-
-    GeneralName ::= CHOICE {
-         otherName                       [0]     AnotherName,
-         rfc822Name                      [1]     IA5String,
-         dNSName                         [2]     IA5String,
-         x400Address                     [3]     ANY, --ORAddress,
-         directoryName                   [4]     Name,
-         ediPartyName                    [5]     EDIPartyName,
-         uniformResourceIdentifier       [6]     IA5String,
-         iPAddress                       [7]     OCTET STRING,
-         registeredID                    [8]     OBJECT IDENTIFIER
-    }
-
-    subjectAltName ::= SEQUENCE OF GeneralName
+use constant ASN1 => Crypt::Perl::X509::GeneralNames::ASN1() . <<END;
+    subjectAltName ::= GeneralNames
 END
-
-use Crypt::Perl::ASN1 ();
-use Crypt::Perl::PKCS10::ASN1 ();
-
-sub new {
-    my ($class, @type_vals) = @_;
-
-    my @sequence;
-
-#    while ( my ($type, $val) = splice( @type_vals, 0, 2 ) ) {
-#        push @sequence, { $type => $val };
-#    }
-
-    while (@type_vals) {
-        if ('ARRAY' eq ref $type_vals[0]) {
-            push @sequence, { @{ shift @type_vals } };
-        }
-        elsif ( !ref $type_vals[0] ) {
-            push @sequence, { shift(@type_vals) => shift(@type_vals) };
-        }
-    }
-
-    return bless \@sequence, $class;
-}
-
-sub _encode_params {
-    return [ @{ $_[0] } ];  #“de-bless”
-}
 
 1;

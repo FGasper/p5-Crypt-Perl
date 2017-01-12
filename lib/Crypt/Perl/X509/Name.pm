@@ -55,7 +55,7 @@ use constant ASN1 => <<END;
       -- universalString UniversalString,
       utf8String      UTF8String,
       -- ia5String       IA5String,
-      integer         INTEGER
+      integer         INTEGER   -- probably unused??
     }
 END
 
