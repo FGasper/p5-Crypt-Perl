@@ -1,4 +1,4 @@
-package Crypt::Perl::X509::Extension::authorityInfoAccess;
+package Crypt::Perl::X509::Extension::subjectInfoAccess;
 
 use strict;
 use warnings;
@@ -7,35 +7,42 @@ use warnings;
 
 =head1 NAME
 
-Crypt::Perl::X509::Extension::authorityInfoAccess
+Crypt::Perl::X509::Extension::subjectInfoAccess
+
+=head1 SYNOPSIS
+
+    my $usage_obj = Crypt::Perl::X509::Extension::subjectInfoAccess->new(
+    );
 
 =head1 SEE ALSO
 
-L<https://tools.ietf.org/html/rfc5280#section-4.2.2.1>
+L<https://tools.ietf.org/html/rfc5280#section-4.2.2.2>
 
 =cut
 
 use parent qw( Crypt::Perl::X509::Extension );
 
 use Crypt::Perl::X509::GeneralName ();
-use Crypt::Perl::X ();
 
-use constant OID => '1.3.6.1.5.5.7.1.1';
+use constant OID => '1.3.6.1.5.5.7.1.11';
+
+use constant CRITICAL => 0;
 
 use constant ASN1 => Crypt::Perl::X509::GeneralName::ASN1() . <<END;
-    authorityInfoAccess ::= SEQUENCE OF AccessDescription
-
-    AccessDescription ::= SEQUENCE {
-        accessMethod    OBJECT IDENTIFIER,
-        accessLocation  ANY -- GeneralName
+    AccessDescription  ::=  SEQUENCE {
+        accessMethod          OBJECT IDENTIFIER,
+        accessLocation        ANY -- GeneralName
     }
+
+    subjectInfoAccess ::= SEQUENCE OF AccessDescription
 END
 
 my %method = (
-    ocsp => '1.3.6.1.5.5.7.48.1',
-    caIssuers => '1.3.6.1.5.5.7.48.2',
+    caRepository => '1.3.6.1.5.5.7.48.5',
+    timeStamping => '1.3.6.1.5.5.7.48.3',
 );
 
+#TODO: Refactor with authorityInfoAccess
 sub new {
     my ($class, @accessDescrs) = @_;
 

@@ -36,8 +36,6 @@ use constant ASN1 => Crypt::Perl::X509::Name::ASN1() . <<END;
          iPAddress                       [7]     OCTET STRING,
          registeredID                    [8]     OBJECT IDENTIFIER
     }
-
-    GeneralNames ::= SEQUENCE OF GeneralName
 END
 
 sub new {

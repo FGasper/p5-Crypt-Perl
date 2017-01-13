@@ -122,6 +122,23 @@ END
                     } ],
                 ],
             ],
+            [ 'nameConstraints',
+                permitted => [
+                    [ dNSName => 'haha.tld', 1, 4 ],
+                ],
+                excluded => [
+                    [ dNSName => 'fofo.tld', 7 ],
+                    [ rfc822Name => 'haha@fofo.tld' ],
+                ],
+            ],
+            [ 'policyConstraints', requireExplicitPolicy => 4, inhibitPolicyMapping => 6 ],
+            [ inhibitAnyPolicy => 7 ],
+            [ 'subjectInfoAccess',
+                [ 'caRepository', uniformResourceIdentifier => 'http://some.car.uri' ],
+                [ 'timeStamping', uniformResourceIdentifier => 'http://some.timeStamping.uri' ],
+            ],
+            [ 'tlsFeature' => 'status_request_v2' ],
+            [ 'noCheck' ],
         ],
     );
 
