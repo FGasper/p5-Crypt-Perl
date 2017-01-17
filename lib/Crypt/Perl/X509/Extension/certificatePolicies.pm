@@ -13,8 +13,22 @@ Crypt::Perl::X509::Extension::certificatePolicies
 
     Crypt::Perl::X509::Extension::certificatePolicies->new(
         [ 'domain-validated' ],
-        [ '1.3.6.1.4.1.6449.1.2.2.52', [ cps => 'http://cps.url' ] ],
-        [ '1.2.3.4.5.6.7.8', [ unotice => 
+        [ '1.3.6.1.4.1.6449.1.2.2.52',
+            [ cps => 'http://cps.url' ],
+            [ cps => 'http://cps.url2' ],
+        ],
+        [ '1.2.3.4.5.6.7.8',
+            [ unotice => {
+
+                #NB: “Conforming CAs SHOULD NOT use the noticeRef option.”
+                noticeRef => {
+                    organization => 'FooFoo',
+                    noticeNumbers => [ 12, 23, 34 ],
+                },
+
+                explicitText => 'apple',
+            } ],
+        ],
     );
 
 =cut

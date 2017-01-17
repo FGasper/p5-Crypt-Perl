@@ -23,14 +23,14 @@ use constant ASN1 => <<END;
     KeyPurposeId ::= OBJECT IDENTIFIER
 END
 
-my %usages = (
-    serverAuth => '1.3.6.1.5.5.7.3.1',
-    clientAuth => '1.3.6.1.5.5.7.3.2',
-    codeSigning => '1.3.6.1.5.5.7.3.3',
-    emailProtection => '1.3.6.1.5.5.7.3.4',
-    timeStamping => '1.3.6.1.5.5.7.3.8',
-    ocspSigning => '1.3.6.1.5.5.7.3.9',
-);
+use constant {
+    OID_serverAuth => '1.3.6.1.5.5.7.3.1',
+    OID_clientAuth => '1.3.6.1.5.5.7.3.2',
+    OID_codeSigning => '1.3.6.1.5.5.7.3.3',
+    OID_emailProtection => '1.3.6.1.5.5.7.3.4',
+    OID_timeStamping => '1.3.6.1.5.5.7.3.8',
+    OID_OCSPSigning => '1.3.6.1.5.5.7.3.9',
+};
 
 sub new {
     my ($class, @purposes) = @_;
@@ -47,7 +47,11 @@ sub _encode_params {
 
     my $data = [
         map {
-            $usages{$_} || die( Crypt::Perl::X::create('Generic', "Unknown usage: “$_”") ),
+            if ( !$self->can("OID_$_") ) {
+                die( Crypt::Perl::X::create('Generic', "Unknown usage: “$_”") ),
+            }
+
+            $self->can("OID_$_")->();
         } @$self,
     ];
 

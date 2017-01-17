@@ -33,6 +33,10 @@ L<Crypt::Perl::PKCS10::Attribute::extensionRequest>’s constructor
 to include a request for a C<subjectAltName> extension in a PKCS #10
 Certificate Signing Request.
 
+=head1 SEE ALSO
+
+L<https://tools.ietf.org/html/rfc5280#section-4.2.1.6>
+
 =cut
 
 use parent qw(

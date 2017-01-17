@@ -70,15 +70,18 @@ END
 
     my $cert = Crypt::Perl::X509v3->new(
         subject => [ commonName => "Felipe$i" ],
-        issuer => [ commonName => "Felipe" . (1 + $i) ],
-        subject => [ commonName => "Felipe" . (1 + $i) ],
+        issuer => [
+            [ commonName => "Felipe" . (1 + $i) , surname => 'theIssuer' ],
+            [ givenName => 'separate RDNs' ],
+        ],
+        subject => [ commonName => "Felipe" . (1 + $i), surname => 'theSubject' ],
         key => $user_key->get_public_key(),
         not_after => time + 360000000,
 
         extensions => [
             [ 'basicConstraints', 1 ],
             [ 'keyUsage', 'keyCertSign', 'keyEncipherment', 'keyAgreement', 'digitalSignature', 'keyAgreement' ],
-            [ 'extKeyUsage', qw( serverAuth clientAuth codeSigning emailProtection timeStamping ocspSigning ) ],
+            [ 'extKeyUsage', qw( serverAuth clientAuth codeSigning emailProtection timeStamping OCSPSigning ) ],
             [ 'subjectKeyIdentifier', "\x00\x01\x02" ],
             [ 'issuerAltName',
                 [ dNSName => 'fooissuer.com' ],
@@ -139,6 +142,63 @@ END
             ],
             [ 'tlsFeature' => 'status_request_v2' ],
             [ 'noCheck' ],
+            [ 'policyMappings',
+                {
+                    subject => 'anyPolicy',
+                    issuer => '1.2.3.4',
+                },
+                {
+                    subject => '5.6.7.8',
+                    issuer => 'anyPolicy',
+                },
+            ],
+            [ 'cRLDistributionPoints',
+                {
+                    distributionPoint => {
+                        fullName => [
+                            [ uniformResourceIdentifier => 'http://myhost.com/myca.crl' ],
+                            [ dNSName => 'full.name2.tld' ],
+                        ],
+                    },
+                    reasons => [ 'unused', 'privilegeWithdrawn' ],
+                },
+                {
+                    distributionPoint => {
+                        nameRelativeToCRLIssuer => [
+                            commonName => 'common',
+                            surname => 'Jones',
+                        ],
+                    },
+                    cRLIssuer => [
+                        [ directoryName => [ commonName => 'thecommon' ] ],
+                    ],
+                },
+            ],
+            [ 'freshestCRL',
+                {
+                    distributionPoint => {
+                        fullName => [
+                            [ uniformResourceIdentifier => 'http://myhost.com/myca.crl' ],
+                            [ dNSName => 'full.name2.tld' ],
+                        ],
+                    },
+                    reasons => [ 'unused', 'privilegeWithdrawn' ],
+                },
+                {
+                    distributionPoint => {
+                        nameRelativeToCRLIssuer => [
+                            commonName => 'common',
+                            surname => 'Jones',
+                        ],
+                    },
+                    cRLIssuer => [
+                        [ directoryName => [ commonName => 'thecommon' ] ],
+                    ],
+                },
+            ],
+            #[ 'subjectDirectoryAttributes',
+            #    [ commonName => 'foo', 'bar' ],
+            #],
         ],
     );
 

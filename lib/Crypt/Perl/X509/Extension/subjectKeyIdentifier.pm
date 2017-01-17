@@ -25,13 +25,14 @@ use parent qw( Crypt::Perl::X509::Extension );
 
 use Crypt::Perl::X ();
 
-use constant OID => '2.5.29.14';
+use constant {
+    OID => '2.5.29.14',
+    CRITICAL => 0,
+};
 
 use constant ASN1 => <<END;
     subjectKeyIdentifier ::= OCTET STRING
 END
-
-use constant CRITICAL => 0;
 
 sub new {
     my ($class, $octet_str) = @_;

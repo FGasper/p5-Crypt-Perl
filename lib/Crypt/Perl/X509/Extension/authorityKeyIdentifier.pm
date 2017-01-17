@@ -19,7 +19,7 @@ Crypt::Perl::X509::Extension::authorityKeyIdentifier
 
 =head1 SEE ALSO
 
-L<https://tools.ietf.org/html/rfc5280#section-4.2.1.2>
+L<https://tools.ietf.org/html/rfc5280#section-4.2.1.1>
 
 =cut
 
@@ -28,7 +28,10 @@ use parent qw( Crypt::Perl::X509::Extension );
 use Crypt::Perl::X ();
 use Crypt::Perl::X509::GeneralName ();
 
-use constant OID => '2.5.29.35';
+use constant {
+    OID => '2.5.29.35',
+    CRITICAL => 0,
+};
 
 use constant ASN1 => Crypt::Perl::X509::GeneralNames::ASN1() . <<END;
     authorityKeyIdentifier ::= SEQUENCE {
