@@ -69,7 +69,7 @@ END
     my $i = 2;
 
     my $cert = Crypt::Perl::X509v3->new(
-        subject => [ commonName => "Felipe$i" ],
+        #subject => [ commonName => "Felipe$i" ],
         issuer => [
             [ commonName => "Felipe" . (1 + $i) , surname => 'theIssuer' ],
             [ givenName => 'separate RDNs' ],
@@ -85,6 +85,10 @@ END
             [ 'subjectKeyIdentifier', "\x00\x01\x02" ],
             [ 'issuerAltName',
                 [ dNSName => 'fooissuer.com' ],
+                [ directoryName => [
+                    givenName => 'Ludwig',
+                    surname => 'van Beethoven',
+                ] ],
             ],
             [ 'subjectAltName',
                 [ dNSName => 'foo.com' ],

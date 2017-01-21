@@ -83,12 +83,12 @@ sub new {
             if ( 'HASH' eq ref $ext ) {
                 if ( !try { $ext->{'extension'}->isa($EXT_BASE) }) {
                     if ( 'ARRAY' ne ref $ext->{'extension'} ) {
-                        die "“extension” in HASH reference must be ARRAY reference or instance of $EXT_BASE, not “$ext”!";
+                        die Crypt::Perl::X::create('Generic', "“extension” in HASH reference must be ARRAY reference or instance of $EXT_BASE, not “$ext”!");
                     }
                 }
             }
             elsif ( 'ARRAY' ne ref $ext ) {
-                die "Extension must be HASH reference, ARRAY reference, or instance of $EXT_BASE, not “$ext”!";
+                die Crypt::Perl::X::create('Generic', "Extension must be HASH reference, ARRAY reference, or instance of $EXT_BASE, not “$ext”!");
             }
         }
     }

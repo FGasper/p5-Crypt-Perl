@@ -88,8 +88,9 @@ sub new {
 
     while (@inputs) {
         if (my $ref = ref $inputs[0]) {
+            my $input = shift @inputs;
             die "Invalid RDN ref: $ref" if $ref ne 'ARRAY';
-            @seq = map { Crypt::Perl::X509::RelativeDistinguishedName->new( @$_ )->encode() } @inputs;
+            push @seq, Crypt::Perl::X509::RelativeDistinguishedName->new( @$input )->encode();
         }
 
         #Legacy-ish …
