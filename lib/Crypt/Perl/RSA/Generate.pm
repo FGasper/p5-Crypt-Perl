@@ -48,19 +48,20 @@ use Math::ProvablePrime ();
 
 use Crypt::Perl::BigInt ();
 use Crypt::Perl::RSA::PrivateKey ();
+use Crypt::Perl::X ();
 
 use constant PUBLIC_EXPONENTS => ( 65537, 3 );
 
 sub create {
     my ($mod_bits, $exp) = @_;
 
-    die "Need modulus length!" if !$mod_bits;
+    die Crypt::Perl::X::create('Generic', "Need modulus length!") if !$mod_bits;
 
     $exp ||= (PUBLIC_EXPONENTS())[0];
 
     if (!grep { $exp eq $_ } PUBLIC_EXPONENTS()) {
         my @allowed = PUBLIC_EXPONENTS();
-        die "Invalid public exponent ($exp); should be one of: [@allowed]";
+        die Crypt::Perl::X::create('Generic', "Invalid public exponent ($exp); should be one of: [@allowed]");
     }
 
     my $qs = $mod_bits >> 1;

@@ -154,7 +154,9 @@ sub get_jwa_alg {
     my $name = $self->get_curve_name();
 
     my $getter_cr = __PACKAGE__->can("JWA_CURVE_ALG_$name") or do {
-        die sprintf( "“%s” knows of no JWA “alg” for the curve “%s”!", ref($self), $name);
+        my $err = sprintf( "“%s” knows of no JWA “alg” for the curve “%s”!", ref($self), $name);
+
+        die Crypt::Perl::X::create('Generic', $err);
     };
 
     return $getter_cr->();
@@ -168,7 +170,8 @@ sub _get_jwk_digest_cr {
     my $name = $self->get_curve_name();
 
     my $getter_cr = $self->can("JWA_DIGEST_$name") or do {
-        die sprintf( "“%s” knows of no digest to use for JWA with the curve “%s”!", ref($self), $name);
+        my $err = sprintf( "“%s” knows of no digest to use for JWA with the curve “%s”!", ref($self), $name);
+        die Crypt::Perl::X::create('Generic', $err);
     };
 
     Module::Load::load('Digest::SHA');

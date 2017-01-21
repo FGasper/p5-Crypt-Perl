@@ -7,7 +7,7 @@ use warnings;
 sub new {
     my ($class, $q, $x) = @_;
 
-    die 'Need both q and x!' if grep { !defined } $q, $x;
+    die Crypt::Perl::X::create('Generic', 'Need both q and x!') if grep { !defined } $q, $x;
 
     return bless { x => $x, q => $q }, $class;
 }

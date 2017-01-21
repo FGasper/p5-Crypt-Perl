@@ -10,7 +10,7 @@ use Crypt::Perl::X ();
 sub get_jwk_thumbprint {
     my ($self, $hash_alg) = @_;
 
-    die 'Need a hashing algorithm!' if !length $hash_alg;
+    die Crypt::Perl::X::create('Generic', 'Need a hashing algorithm!') if !length $hash_alg;
 
     Module::Load::load('Digest::SHA');
     my $hash_cr = ($hash_alg =~ m<\Asha[0-9]+\z>) && Digest::SHA->can($hash_alg) or do {

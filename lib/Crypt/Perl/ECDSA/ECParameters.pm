@@ -90,7 +90,7 @@ sub normalize {
         $params = $parsed_or_der;
     }
     else {
-        die 'TODO';
+        die Crypt::Perl::X::create('Generic', 'TODO');
     }
 
     my $field_type = $params->{'fieldID'}{'fieldType'};
@@ -99,9 +99,10 @@ sub normalize {
             die Crypt::Perl::X::create('ECDSA::CharacteristicTwoUnsupported');
         }
 
-        die "Unknown field type OID: “$field_type”";
+        die Crypt::Perl::X::create('Generic', "Unknown field type OID: “$field_type”");
     }
 
+    #“seed” isn’t necessary here for calculations (… right??)
     my %curve = (
         p => $params->{'fieldID'}{'parameters'}{'prime-field'},
         a => $params->{'curve'}{'a'},

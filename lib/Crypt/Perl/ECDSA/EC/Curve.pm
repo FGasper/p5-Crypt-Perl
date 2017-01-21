@@ -17,12 +17,13 @@ use warnings;
 
 use Crypt::Perl::ECDSA::EC::FieldElement ();
 use Crypt::Perl::ECDSA::EC::Point ();
+use Crypt::Perl::X ();
 
 #All bigints
 sub new {
     my ( $class, $q, $a, $b ) = @_;
 
-    die 'Need q, a, and b!' if grep { !defined } $q, $a, $b;
+    die Crypt::Perl::X::create('Generic', 'Need q, a, and b!') if grep { !defined } $q, $a, $b;
 
     my $self = {
         q => $q,

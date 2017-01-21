@@ -55,6 +55,8 @@ values that are sensitive data!)
 
 use Try::Tiny;
 
+use Crypt::Perl::X ();
+
 use parent qw(
     Crypt::Perl::ASN1::Encodee
 );
@@ -81,7 +83,7 @@ sub new {
                 $attr = $class->new( @{$attr}[ 1 .. $#$attr ] );
             }
             else {
-                die "Attribute must be ARRAY reference or instance of $ATTR_BASE, not “$attr”!";
+                die Crypt::Perl::X::create('Generic', "Attribute must be ARRAY reference or instance of $ATTR_BASE, not “$attr”!");
             }
         }
     }

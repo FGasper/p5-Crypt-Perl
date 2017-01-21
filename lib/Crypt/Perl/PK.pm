@@ -42,7 +42,7 @@ sub parse_key {
     my ($der_or_pem) = @_;
 
     if (ref $der_or_pem) {
-        die "Need unblessed octet string, not “$der_or_pem”!";
+        die Crypt::Perl::X::create('Generic', "Need unblessed octet string, not “$der_or_pem”!");
     }
 
     my $obj;
@@ -63,7 +63,7 @@ sub parse_key {
         return $obj if $obj;
     }
 
-    die "Unrecognized key: “$der_or_pem”";
+    die Crypt::Perl::X::create('Generic', "Unrecognized key: “$der_or_pem”");
 }
 
 sub parse_jwk {

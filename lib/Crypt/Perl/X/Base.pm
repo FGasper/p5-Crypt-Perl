@@ -45,7 +45,7 @@ sub _check_overload {
     };
 
     #Should never happen as long as overload.pm is available.
-    die if !$_OVERLOADED{$class};
+    warn if !$_OVERLOADED{$class};
 
     $@ = $eval_err;
 

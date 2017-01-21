@@ -33,6 +33,7 @@ use Crypt::Perl::ASN1 ();
 use Crypt::Perl::PKCS8 ();
 use Crypt::Perl::ToDER ();
 use Crypt::Perl::ECDSA::ECParameters ();
+use Crypt::Perl::X ();
 
 sub private {
     my ($pem_or_der) = @_;
@@ -68,7 +69,7 @@ sub private {
             $struct->{'parameters'} = $params;
         }
         catch {
-            die "Failed to decode private key as either ECDSA native ($ec_err) or PKCS8 ($_)";
+            die Crypt::Perl::X::create('Generic', "Failed to decode private key as either ECDSA native ($ec_err) or PKCS8 ($_)");
         };
     };
 
@@ -115,7 +116,7 @@ sub public {
             $struct->{'keydata'}{'parameters'} = $params;
         }
         catch {
-            die "Failed to decode public key as either ECDSA native ($ec_err) or PKCS8 ($_)";
+            die Crypt::Perl::X::create('Generic', "Failed to decode public key as either ECDSA native ($ec_err) or SubjectPublicKeyInfo ($_)");
         };
     };
 
