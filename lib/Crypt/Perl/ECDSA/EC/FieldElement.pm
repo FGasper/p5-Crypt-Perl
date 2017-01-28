@@ -20,7 +20,7 @@ sub equals {
         return 1;
     }
 
-    return !grep { $self->{$_} != $other->{$_} } qw( q x );
+    return $self->{q}->beq($other->{q}) && $self->{x}->beq($other->{x});
 }
 
 sub to_bigint {
@@ -34,7 +34,7 @@ sub negate {
 
     return (ref $self)->new(
         $self->{'q'},
-        (0 - $self->{'x'}) % $self->{'q'},
+        $self->{'x'}->copy()->bneg()->bmod($self->{'q'}),
     );
 }
 
@@ -43,7 +43,7 @@ sub add {
 
     return $self->new(
         $self->{'q'},
-        ($self->{'x'} + $b->to_bigint()) % $self->{'q'},
+        $self->{'x'}->copy()->badd($b->to_bigint())->bmod($self->{'q'}),
     );
 }
 
@@ -52,7 +52,7 @@ sub subtract {
 
     return $self->new(
         $self->{'q'},
-        ($self->{'x'} - $b->to_bigint()) % $self->{'q'},
+        $self->{'x'}->copy()->bsub($b->to_bigint())->bmod($self->{'q'}),
     );
 }
 
@@ -61,7 +61,7 @@ sub multiply {
 
     return $self->new(
         $self->{'q'},
-        ($self->{'x'} * $b->to_bigint()) % $self->{'q'},
+        $self->{'x'}->copy()->bmul($b->to_bigint())->bmod($self->{'q'}),
     );
 }
 
@@ -74,13 +74,13 @@ sub square {
     );
 }
 
-sub divide {
-    my ($self, $b) = @_;
-
-    return $self->new(
-        $self->{'q'},
-        ($self->{'x'} * $b->to_bigint()->bmodinv($self->{'q'})) % $self->{'q'},
-    );
-}
+#sub divide {
+#    my ($self, $b) = @_;
+#
+#    return $self->new(
+#        $self->{'q'},
+#        ($self->{'x'} * $b->to_bigint()->copy()->bmodinv($self->{'q'})) % $self->{'q'},
+#    );
+#}
 
 1;

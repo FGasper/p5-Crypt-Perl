@@ -159,10 +159,10 @@ sub check_raw_encrypt_decrypt : Tests(2) {
     my $key = Crypt::Perl::RSA::Parse::private($largest_pem);
 
     my $crypted = $key->encrypt_raw($msg);
-    isnt( $crypted, $msg, 'encrypt() changes the message');
+    isnt( $crypted, $msg, 'encrypt_raw() changes the message');
 
     my $decrypted = $key->decrypt_raw($crypted);
-    is( $decrypted, $msg, '… and decrypt() undoes that change');
+    is( $decrypted, $msg, '… and decrypt_raw() undoes that change');
 
     return;
 }
