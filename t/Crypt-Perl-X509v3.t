@@ -31,8 +31,6 @@ use parent qw(
 use Crypt::Perl::ECDSA::Generate ();
 use Crypt::Perl::PK ();
 
-#use Crypt::Perl::X509::Name ();
-
 use Crypt::Perl::X509v3 ();
 
 if ( !caller ) {
@@ -102,7 +100,7 @@ END
                 #} ],
             ],
             [ 'authorityKeyIdentifier',
-                #keyIdentifier => "\x01\x02\x03",
+                keyIdentifier => "\x77\x88\x99",
                 authorityCertIssuer => [
                     [ dNSName => 'foo.com' ],
                     [ directoryName => [

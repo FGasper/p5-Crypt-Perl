@@ -72,16 +72,16 @@ Create an instance of this class. Parameters are:
 
 =over 4
 
-=item C<key>: An instance of either
+=item * C<key> - An instance of either
 C<Crypt::Perl::RSA::PrivateKey> or C<Crypt::Perl::ECDSA::PrivateKey>.
 If you’ve got a DER- or PEM-encoded key string, use L<Crypt::Perl::PK>
 (included in this distribution) to create an appropriate object.
 
-=item C<subject>: An array reference of arguments into
+=item * C<subject> - An array reference of arguments into
 L<Crypt::Perl::X509::Name>’s constructor.
 
-=item C<attributes>: An array reference of arguments into
-L<Crypt::Perl::PKCS10::Attrbutes>’s constructor.
+=item * C<attributes> - An array reference of arguments into
+L<Crypt::Perl::PKCS10::Attributes>’s constructor.
 
 =back
 

@@ -120,6 +120,9 @@ sub public {
         };
     };
 
+use Data::Dumper;
+print Dumper $struct;
+
     return Crypt::Perl::ECDSA::PublicKey->new(
         $struct->{'publicKey'}[0],
         $struct->{'keydata'}{'parameters'},
