@@ -58,6 +58,8 @@ use Try::Tiny;
 
 use Crypt::Perl::BigInt ();
 
+use constant OID_ecPublicKey => '1.2.840.10045.2.1';
+
 use constant ASN1_PUBLIC => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
 
     FG_Keydata ::= SEQUENCE {
