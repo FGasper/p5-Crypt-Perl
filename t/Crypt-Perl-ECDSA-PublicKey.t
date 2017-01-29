@@ -43,6 +43,44 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
+sub test_compressed : Tests(1) {
+    my $pem = <<END;
+-----BEGIN EC PRIVATE KEY-----
+MHcCAQEEIMad6ebreKzqt8jP0GAuzqclgwUMi4jscUJ53jqYmr7GoAoGCCqGSM49
+AwEHoUQDQgAERWiv/yjXvsCl0pGfNJ/qV5ya42dAu8LcZxQY8/q15BJbo09fc7es
+ddpYiQoziP/IVhwoJz2xFbzJSGeYCfzmeA==
+-----END EC PRIVATE KEY-----
+END
+
+    my $pubx_hex = '024568afff28d7bec0a5d2919f349fea579c9ae36740bbc2dc671418f3fab5e412';
+
+    my $need_y = '5ba34f5f73b7ac75da58890a3388ffc8561c28273db115bcc948679809fce678';
+
+    my $priv_hex = 'c69de9e6eb78aceab7c8cfd0602ecea72583050c8b88ec714279de3a989abec6';
+
+    my $x = '4568afff28d7bec0a5d2919f349fea579c9ae36740bbc2dc671418f3fab5e412';
+    my $a = 'ffffffff00000001000000000000000000000000fffffffffffffffffffffffc';
+    my $b = '5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b';
+    my $p = 'ffffffff00000001000000000000000000000000ffffffffffffffffffffffff';
+
+    $_ = Crypt::Perl::BigInt->from_hex($_) for ($x, $a, $b, $p);
+
+    #http://stackoverflow.com/questions/17171542/algorithm-for-elliptic-curve-point-compression
+    #The following don’t seem to follow from the general elliptic curve formula, but hey.
+    $a->bsub($p);
+    my $pident = $p->copy()->binc()->bdiv(4);
+
+    my $y = $x->copy()->bpow(3)->badd($x->copy()->bmul($a))->badd($b)->bmodpow($pident, $p);
+    if (substr($pubx_hex, 0, 2) eq '02' && $y->is_odd()) {
+        $y = $p->copy()->bsub($y);
+    }
+    print $y->as_hex() . $/;
+
+    #print $y2->copy()->bsqrt()->bmodinv($p)->as_hex() . $/;
+
+    return;
+}
+
 sub test_seed : Tests(1) {
     my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve/secp112r1.key");
     my $key = Crypt::Perl::ECDSA::Parse::private($pem)->get_public_key();
