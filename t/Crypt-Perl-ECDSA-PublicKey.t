@@ -67,6 +67,7 @@ END
 
     #http://stackoverflow.com/questions/17171542/algorithm-for-elliptic-curve-point-compression
     #The following don’t seem to follow from the general elliptic curve formula, but hey.
+    #also: https://en.wikipedia.org/wiki/Quadratic_residue#Prime_or_prime_power_modulus
     $a->bsub($p);
     my $pident = $p->copy()->binc()->bdiv(4);
 
@@ -75,8 +76,6 @@ END
         $y = $p->copy()->bsub($y);
     }
     print $y->as_hex() . $/;
-
-    #print $y2->copy()->bsqrt()->bmodinv($p)->as_hex() . $/;
 
     return;
 }
