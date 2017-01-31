@@ -52,13 +52,13 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
 
-    $self->num_method_tests( 'test_sign', 4 * @{ [ $class->_CURVE_NAMES() ] } );
+    $self->num_method_tests( 'test_sign', 8 * @{ [ $class->_CURVE_NAMES() ] } );
 
     return $self;
 }
 
 sub _CURVE_NAMES {
-    my $dir = "$FindBin::Bin/assets/ecdsa_explicit";
+    my $dir = "$FindBin::Bin/assets/ecdsa_explicit_compressed";
 
     opendir( my $dh, $dir );
 
@@ -120,7 +120,7 @@ sub test_to_der : Tests(2) {
 }
 
 sub test_seed : Tests(1) {
-    my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve/secp112r1.key");
+    my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve_compressed/secp112r1.key");
     my $key = Crypt::Perl::ECDSA::Parse::private($pem);
 
     my $curve_data = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_name('secp112r1');
@@ -136,6 +136,8 @@ sub test_seed : Tests(1) {
 sub test_sign : Tests() {
     my ($self) = @_;
 
+use Carp::Always;
+
     my $msg = 'Hello';
 
     #Use SHA1 since it’s the smallest digest that the latest OpenSSL accepts.
@@ -143,74 +145,79 @@ sub test_sign : Tests() {
     my $digest_alg = 'sha1';
 
     for my $param_enc ( qw( named_curve explicit ) ) {
-        my $dir = "$FindBin::Bin/assets/ecdsa_$param_enc";
+        for my $conv_form ( qw( compressed uncompressed ) ) {
+            my $dir = "$FindBin::Bin/assets/ecdsa_${param_enc}_$conv_form";
 
-        opendir( my $dh, $dir );
+            opendir( my $dh, $dir );
 
-        for my $node ( readdir $dh ) {
-            next if $node !~ m<(.+)\.key\z>;
+            for my $node ( readdir $dh ) {
+next if $node !~ m<secp224k1>;
+                next if $node !~ m<(.+)\.key\z>;
 
-            my $curve = $1;
+                my $curve = $1;
 
-            SKIP: {
-                note "$curve ($param_enc)";
+                SKIP: {
+                    note "$curve ($param_enc, $conv_form public point)";
 
-                my $pkey_pem = File::Slurp::read_file("$dir/$node");
+                    my $pkey_pem = File::Slurp::read_file("$dir/$node");
+print "\n$pkey_pem\n";
 
-                my $ecdsa;
-                try {
-                    $ecdsa = Crypt::Perl::ECDSA::Parse::private($pkey_pem);
-                }
-                catch {
-                    my $ok = try { $_->isa('Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported') };
-                    $ok ||= try { $_->isa('Crypt::Perl::X::ECDSA::NoCurveForOID') };
+                    my $ecdsa;
+                    try {
+                        $ecdsa = Crypt::Perl::ECDSA::Parse::private($pkey_pem);
+                    }
+                    catch {
+                        my $ok = try { $_->isa('Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported') };
+                        $ok ||= try { $_->isa('Crypt::Perl::X::ECDSA::NoCurveForOID') };
 
-                    skip $_->to_string(), 2 if $ok;
+                        skip $_->to_string(), 2 if $ok;
 
-                    local $@ = $_;
-                    die;
-                };
+                        local $@ = $_;
+                        die;
+                    };
 
-                #my $hello = $ecdsa->sign('Hello');
-                #note unpack( 'H*', $hello );
-                #note explain [ map { $_->as_hex(), $_->bit_length() } values %{ Crypt::Perl::ASN1->new()->prepare(Crypt::Perl::ECDSA::KeyBase::ASN1_SIGNATURE())->decode( $hello ) } ];
+                    #my $hello = $ecdsa->sign('Hello');
+                    #note unpack( 'H*', $hello );
+                    #note explain [ map { $_->as_hex(), $_->bit_length() } values %{ Crypt::Perl::ASN1->new()->prepare(Crypt::Perl::ECDSA::KeyBase::ASN1_SIGNATURE())->decode( $hello ) } ];
 
-                #note "Key Prv: " . $ecdsa->{'private'}->as_hex();
-                #note "Key Pub: " . $ecdsa->{'public'}->as_hex();
+                    #note "Key Prv: " . $ecdsa->{'private'}->as_hex();
+                    #note "Key Pub: " . $ecdsa->{'public'}->as_hex();
 
-                try {
-                    my $signature = $ecdsa->sign($dgst);
+                    try {
+                        my $signature = $ecdsa->sign($dgst);
 
-                    note "Sig: " . unpack('H*', $signature);
+                        note "Sig: " . unpack('H*', $signature);
 
-                    ok(
-                        $ecdsa->verify( $dgst, $signature ),
-                        "$curve, $param_enc parameters: self-verify",
-                    );
-
-                  SKIP: {
-                        skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
-
-                        skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
-
-                        my $ok = OpenSSL_Control::verify_private(
-                            $ecdsa->to_pem_with_explicit_curve(),
-                            $msg,
-                            $digest_alg,
-                            $signature,
+                        ok(
+                            $ecdsa->verify( $dgst, $signature ),
+                            "$curve, $param_enc parameters, $conv_form: self-verify",
                         );
 
-                        ok( $ok, "$curve, $param_enc parameters: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
-                    }
-                }
-                catch {
-                    if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {
-                        skip $_->to_string(), 2;
-                    }
+                    SKIP: {
+                            skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
+print "FROM OUR LOGIC:\n" . $ecdsa->to_pem_with_explicit_curve() . $/;
 
-                    local $@ = $_;
-                    die;
-                };
+                            skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
+
+                            my $ok = OpenSSL_Control::verify_private(
+                                $ecdsa->to_pem_with_explicit_curve(),
+                                $msg,
+                                $digest_alg,
+                                $signature,
+                            );
+
+                            ok( $ok, "$curve, $param_enc parameters, $conv_form: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
+                        }
+                    }
+                    catch {
+                        if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {
+                            skip $_->to_string(), 2;
+                        }
+
+                        local $@ = $_;
+                        die;
+                    };
+                }
             }
         }
     }

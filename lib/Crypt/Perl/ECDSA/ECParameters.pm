@@ -110,16 +110,27 @@ sub normalize {
         h => $params->{'cofactor'},
     );
 
-    @curve{'gx', 'gy'} = Crypt::Perl::ECDSA::Utils::split_G_or_public( $params->{'base'} );
+    #Ensure that numbers like 0 and 1 are represented as BigInt, too.
+    ref || ($_ = Crypt::Perl::BigInt->new($_)) for @curve{qw( p n h )};
 
-    $_ = Crypt::Perl::BigInt->from_bytes($_) for @curve{qw( a b gx gy )};
+    #XXX TODO: Why is this this way?
+    $_ = Crypt::Perl::BigInt->from_bytes($_) for @curve{ qw( a b ) };
+
+    my $base;
+    if ( substr($params->{'base'}, 0, 1) eq "\x04" ) {
+        $base = $params->{'base'};
+    }
+    else {
+        $base = Crypt::Perl::ECDSA::Utils::decompress_point( $params->{'base'}, @curve{qw( p a b )} );
+    }
+
+    @curve{'gx', 'gy'} = Crypt::Perl::ECDSA::Utils::split_G_or_public( $base );
+
+    $_ = Crypt::Perl::BigInt->from_bytes($_) for @curve{qw( gx gy )};
 
     if ( $params->{'curve'}{'seed'} ) {
         $curve{'seed'} = Crypt::Perl::BigInt->from_bytes($params->{'curve'}{'seed'});
     }
-
-    #Ensure that numbers like 0 and 1 are represented as BigInt, too.
-    ref || ($_ = Crypt::Perl::BigInt->new($_)) for @curve{qw( p n h )};
 
     return \%curve;
 }

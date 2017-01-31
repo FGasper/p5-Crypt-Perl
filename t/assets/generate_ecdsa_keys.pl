@@ -12,22 +12,18 @@ use OpenSSL_Control ();
 my $openssl_bin = OpenSSL_Control::openssl_bin();
 
 for my $param_enc ( qw( named_curve explicit ) ) {
-    my $dir = "$FindBin::Bin/ecdsa_$param_enc";
-    CORE::mkdir( $dir ) or do {
-        die "$dir: $!" if !$!{'EEXIST'};
-    };
+    for my $conv_form ( qw( compressed uncompressed ) ) {
+        my $dir = "$FindBin::Bin/ecdsa_${param_enc}_$conv_form";
 
-    for my $curve ( OpenSSL_Control::curve_names() ) {
-        print "Generating $curve ($param_enc) …$/";
+        CORE::mkdir( $dir ) or do {
+            die "$dir: $!" if !$!{'EEXIST'};
+        };
 
-        system(
-            $openssl_bin, 'ecparam',
-            '-genkey',
-            '-noout',
-            -name => $curve,
-            -out => "$dir/$curve.key",
-            -param_enc => $param_enc,
-        );
+        for my $curve ( OpenSSL_Control::curve_names() ) {
+            print "Generating $curve ($param_enc, $conv_form public point) …$/";
+
+            system( "$openssl_bin ecparam -genkey -noout -name $curve -conv_form $conv_form -param_enc $param_enc | $openssl_bin ec -conv_form $conv_form -out $dir/$curve.key" );
+        }
     }
 }
 

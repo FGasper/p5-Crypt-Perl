@@ -84,23 +84,21 @@ sub new {
         $public = Crypt::Perl::BigInt->from_bytes($public);
     }
 
-    my $self = {
-        public => $public,
-    };
+    my $self = bless {}, $class;
 
-    bless $self, $class;
+    $self->_set_public($public);
 
     return $self->_add_params( $curve_parts );
 }
 
 sub _get_asn1_parts {
-    my ($self, $curve_parts) = @_;
+    my ($self, $public_type, $curve_parts) = @_;
 
     return $self->__to_der(
         'ECPublicKey',
         ASN1_PUBLIC(),
+        $public_type,
         {
-            publicKey => $self->{'public'}->as_bytes(),
             keydata => {
                 oid => $self->OID_ecPublicKey(),
                 parameters => $curve_parts,

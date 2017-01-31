@@ -3,6 +3,8 @@ package Crypt::Perl::ECDSA::KeyBase;
 use strict;
 use warnings;
 
+use Try::Tiny;
+
 use parent qw(
     Crypt::Perl::KeyBase
 );
@@ -98,13 +100,13 @@ sub verify_jwa {
 sub to_der_with_curve_name {
     my ($self) = @_;
 
-    return $self->_get_asn1_parts($self->_named_curve_parameters());
+    return $self->_get_asn1_parts('uncompressed', $self->_named_curve_parameters());
 }
 
 sub to_der_with_explicit_curve {
     my ($self) = @_;
 
-    return $self->_get_asn1_parts($self->_explicit_curve_parameters());
+    return $self->_get_asn1_parts('uncompressed', $self->_explicit_curve_parameters());
 }
 
 sub to_pem_with_curve_name {
@@ -123,6 +125,38 @@ sub to_pem_with_explicit_curve {
     return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
 }
 
+#----------------------------------------------------------------------
+
+sub to_der_with_curve_name_compressed {
+    my ($self) = @_;
+
+    return $self->_get_asn1_parts('compressed', $self->_named_curve_parameters());
+}
+
+sub to_der_with_explicit_curve_compressed {
+    my ($self) = @_;
+
+    return $self->_get_asn1_parts('compressed', $self->_explicit_curve_parameters('compressed'));
+}
+
+sub to_pem_with_curve_name_compressed {
+    my ($self) = @_;
+
+    my $der = $self->to_der_with_curve_name_compressed();
+
+    return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
+}
+
+sub to_pem_with_explicit_curve_compressed {
+    my ($self) = @_;
+
+    my $der = $self->to_der_with_explicit_curve_compressed();
+
+    return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
+}
+
+#----------------------------------------------------------------------
+
 sub max_sign_bits {
     my ($self) = @_;
 
@@ -138,7 +172,7 @@ sub get_curve_name {
 sub get_struct_for_public_jwk {
     my ($self) = @_;
 
-    my ($xb, $yb) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+    my ($xb, $yb) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->_decompress_public_point() );
 
     Module::Load::load('MIME::Base64');
 
@@ -163,6 +197,59 @@ sub get_jwa_alg {
 }
 
 #----------------------------------------------------------------------
+
+sub _set_public {
+    my ($self, $pub_in) = @_;
+
+    my $pub_bin;
+
+    my $input_is_obj;
+    if ( try { $pub_in->isa('Crypt::Perl::BigInt') } ) {
+        $pub_bin = $pub_in->as_bytes();
+        $input_is_obj = 1;
+    }
+    else {
+        $pub_in =~ s<\A\0+><>;
+        $pub_bin = $pub_in;
+    }
+
+    my $first_octet = ord substr( $pub_bin, 0, 1 );
+
+    if ($first_octet == 4) {
+        $self->{'_public_bin'} = $pub_bin;
+    }
+    elsif ($first_octet == 2 || $first_octet == 3) {
+        $self->{'_public_compressed_bin'} = $pub_bin;
+    }
+    else {
+        die( sprintf "Invalid leading octet in public point: %v02x", $pub_bin);
+    }
+
+    return;
+}
+
+sub _compress_public_point {
+    my ($self) = @_;
+
+    return $self->{'_public_compressed_bin'} ||= do {
+        Crypt::Perl::ECDSA::Utils::compress_point( $self->{'_public_bin'} );
+    };
+}
+
+sub _decompress_public_point {
+    my ($self) = @_;
+
+    return $self->{'_public_bin'} ||= do {
+        my $curve_hr = $self->_curve();
+
+        die "Need compressed bin!" if !$self->{'_public_compressed_bin'};
+
+        Crypt::Perl::ECDSA::Utils::decompress_point(
+            $self->{'_public_compressed_bin'},
+            @{$curve_hr}{ qw( p a b ) },
+        );
+    };
+}
 
 sub _get_jwk_digest_cr {
     my ($self) = @_;
@@ -189,8 +276,8 @@ sub _get_jwk_curve_name {
 sub _verify {
     my ($self, $msg, $r, $s) = @_;
 
-    if ($r->bge(1) && $s->bge(1)) {
-        my ($x, $y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+    if ($r->is_positive() && $s->is_positive()) {
+        my ($x, $y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->_decompress_public_point() );
         $_ = Crypt::Perl::BigInt->from_bytes($_) for ($x, $y);
 
         my $curve = $self->_get_curve_obj();
@@ -207,7 +294,7 @@ sub _verify {
 
         my $n = $self->_curve()->{'n'};
 
-        if ($r < $n && $s < $n) {
+        if ($r->blt($n) && $s->blt($n)) {
             my $c = $s->copy()->bmodinv($n);
 
             my $u1 = $e->copy()->bmul($c)->bmod($n);
@@ -233,12 +320,7 @@ sub _G {
 sub _pad_bytes_for_asn1 {
     my ($self, $bytes) = @_;
 
-    my $curve_hr = $self->_curve();
-    my $nbytes = length $curve_hr->{'p'}->as_bytes();
-
-    substr( $bytes, 0, 0 ) = ("\0" x ($nbytes - length $bytes));
-
-    return $bytes;
+    return Crypt::Perl::ECDSA::Utils::pad_bytes_for_asn1( $bytes, $self->_curve()->{'p'} );
 }
 
 sub _named_curve_parameters {
@@ -252,7 +334,7 @@ sub _named_curve_parameters {
 }
 
 sub _explicit_curve_parameters {
-    my ($self) = @_;
+    my ($self, $type) = @_;
     my $curve_hr = $self->_curve();
 
     my ($gx, $gy) = map { $_->as_bytes() } @{$curve_hr}{'gx', 'gy'};
@@ -270,6 +352,11 @@ sub _explicit_curve_parameters {
         $curve{'seed'} = $curve_hr->{'seed'}->as_bytes();
     }
 
+    my $base = "\x{04}$gx$gy";
+    if ($type && $type eq 'compressed') {
+        $base = Crypt::Perl::ECDSA::Utils::compress_point($base);
+    }
+
     return {
         ecParameters => {
             version => 1,
@@ -280,7 +367,7 @@ sub _explicit_curve_parameters {
                 },
             },
             curve => \%curve,
-            base => "\x{04}$gx$gy",
+            base => $base,
             order => $curve_hr->{'n'},
             cofactor => $curve_hr->{'h'},
         },
@@ -288,19 +375,18 @@ sub _explicit_curve_parameters {
 }
 
 sub __to_der {
-    my ($self, $macro, $template, $data_hr) = @_;
+    my ($self, $macro, $template, $public_type, $data_hr) = @_;
 
-    my $curve_hr = $self->_curve();
+    my $pub_bin = ($public_type eq 'compressed') ? $self->_compress_public_point() : $self->_decompress_public_point();
 
-    my $nbytes = Crypt::Perl::Math::ceil( $curve_hr->{'n'} / 8 );
+    #my ($pub_x, $pub_y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
+    #
+    #for my $str ( $pub_x, $pub_y ) {
+    #    $str = $self->_pad_bytes_for_asn1($str);
+    #}
 
-    my ($pub_x, $pub_y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
-
-    for my $str ( $pub_x, $pub_y ) {
-        $str = $self->_pad_bytes_for_asn1($str);
-    }
-
-    local $data_hr->{'publicKey'} = "\x04$pub_x$pub_y";
+    #local $data_hr->{'publicKey'} = "\x04$pub_x$pub_y";
+    local $data_hr->{'publicKey'} = $pub_bin;
 
     Module::Load::load('Crypt::Perl::ASN1');
     my $asn1 = Crypt::Perl::ASN1->new()->prepare($template);

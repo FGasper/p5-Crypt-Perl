@@ -120,7 +120,11 @@ sub new {
         version => $key_parts->{'version'},
     };
 
-    for my $k ( qw( private public ) ) {
+    bless $self, $class;
+
+    $self->_set_public( $key_parts->{'public'} );
+
+    for my $k ( qw( private ) ) {
         if ( try { $key_parts->{$k}->isa('Crypt::Perl::BigInt') } ) {
             $self->{$k} = $key_parts->{$k};
         }
@@ -128,8 +132,6 @@ sub new {
             die "“$k” must be “Crypt::Perl::BigInt”, not “$key_parts->{$k}”!";
         }
     }
-
-    bless $self, $class;
 
     return $self->_add_params( $curve_parts );
 }
@@ -162,7 +164,7 @@ sub get_public_key {
     Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
 
     return Crypt::Perl::ECDSA::PublicKey->new(
-        $self->{'public'},
+        $self->_decompress_public_point(),
         $self->_explicit_curve_parameters(),
     );
 }
@@ -235,13 +237,14 @@ sub _sign {
 }
 
 sub _get_asn1_parts {
-    my ($self, $curve_parts) = @_;
+    my ($self, $public_type, $curve_parts) = @_;
 
     my $private_str = $self->{'private'}->as_bytes();
 
     return $self->__to_der(
         'ECPrivateKey',
         ASN1_PRIVATE(),
+        $public_type,
         {
             version => 1,
             privateKey => $private_str,
