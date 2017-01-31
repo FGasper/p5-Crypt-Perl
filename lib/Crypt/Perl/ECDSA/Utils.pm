@@ -15,6 +15,8 @@ This interface is undocumented for now.
 use strict;
 use warnings;
 
+use Crypt::Perl::ECDSA::Math ();
+
 #Splits the combined (uncompressed) generator or the public key
 #into its two component halves (octet strings).
 sub split_G_or_public {
@@ -70,28 +72,17 @@ sub decompress_point {
     #The following don’t seem to follow from the general elliptic curve formula, but hey.
     #also: https://en.wikipedia.org/wiki/Quadratic_residue#Prime_or_prime_power_modulus
     my $a_p = $a->copy()->bsub($p);
-    my $pident = $p->copy()->binc()->brsft(2);
 
     my $x = Crypt::Perl::BigInt->from_bytes(substr $cpub_bin, 1);
     my $y = $x->copy()->bmodpow(3, $p);
 
-    my $t2 = $x->copy()->bmodpow($a, $p);
+    my $t2 = $x->copy()->bmul($a)->bmod($p);
     $y->badd($t2)->badd($b);
+    $y = Crypt::Perl::ECDSA::Math::tonelli_shanks( $y, $p );
 
-    #$y->bsqrt()->bmod($p);
-
-#    my $y = $x->copy()->bpow(3)->badd( $x->copy()->bmul($a_p) );
-#    $y->badd($b)->bmodpow($pident, $p);
-#
     if (!!$y_is_even eq !!$y->is_odd()) {
         $y->bsub($p)->bneg();
     }
-
-print "P: " . $p->as_hex() . $/;
-print "A: " . $a->as_hex() . $/;
-print "B: " . $b->as_hex() . $/;
-print "X: " . $x->as_hex() . $/;
-print "Y ($y_is_even): " . $y->as_hex() . $/;
 
     return join(
         q<>,

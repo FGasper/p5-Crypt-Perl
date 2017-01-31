@@ -151,7 +151,6 @@ use Carp::Always;
             opendir( my $dh, $dir );
 
             for my $node ( readdir $dh ) {
-next if $node !~ m<secp224k1>;
                 next if $node !~ m<(.+)\.key\z>;
 
                 my $curve = $1;
@@ -160,7 +159,6 @@ next if $node !~ m<secp224k1>;
                     note "$curve ($param_enc, $conv_form public point)";
 
                     my $pkey_pem = File::Slurp::read_file("$dir/$node");
-print "\n$pkey_pem\n";
 
                     my $ecdsa;
                     try {
@@ -195,7 +193,6 @@ print "\n$pkey_pem\n";
 
                     SKIP: {
                             skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
-print "FROM OUR LOGIC:\n" . $ecdsa->to_pem_with_explicit_curve() . $/;
 
                             skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
 
