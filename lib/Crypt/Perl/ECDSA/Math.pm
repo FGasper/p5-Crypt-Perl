@@ -7,7 +7,8 @@ use warnings;
 
 use Crypt::Perl::BigInt ();
 
-#A port of libtomcrypt’s mp_sqrtmod_prime()
+#A port of libtomcrypt’s mp_sqrtmod_prime().
+#The return value will be a Crypt::Perl::BigInt reference.
 #
 #See also implementations at:
 #   https://rosettacode.org/wiki/Tonelli-Shanks_algorithm
@@ -26,8 +27,6 @@ sub tonelli_shanks {
     if (jacobi($n, $p) == -1) {
         die sprintf( "jacobi(%s, %s) must not be -1", $n->as_hex(), $p->as_hex());
     }
-
-    die "prime must be odd!" if $p->beq(2);
 
     #HAC 3.36
     if ( $p->copy()->bmod(4)->beq(3) ) {
@@ -87,6 +86,9 @@ sub _bi2 {
 }
 
 #cf. mp_jacobi()
+#
+#The return value is a plain scalar (-1, 0, or 1).
+#
 sub jacobi {
     my ($a, $n) = @_;
 
@@ -121,23 +123,19 @@ sub _jacobi_backend {
 
     #step 1
     if ($a->is_zero()) {
-        if ($n->is_one()) {
-            return 1;
-        }
-
-        return 0;
+        return $n->is_one() ? 1 : 0;
     }
 
     #step 2
-    if ($a->is_one()) {
-        return 1;
-    }
+    return 1 if $a->is_one();
 
     #default
     my $si = 0;
 
     my $a1 = $a->copy();
 
+    #Determine $a1’s greatest factor that is a power of 2,
+    #which is the number of lest-significant 0 bits.
     my $ki = _count_lsb($a1);
 
     $a1->brsft($ki);

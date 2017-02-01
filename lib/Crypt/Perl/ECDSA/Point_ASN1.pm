@@ -1,4 +1,4 @@
-package Crypt::Perl::ECDSA::Point_ASN1;
+package Crypt::Perl::ECDSA::EncodedPoint;
 
 use strict;
 use warnings;

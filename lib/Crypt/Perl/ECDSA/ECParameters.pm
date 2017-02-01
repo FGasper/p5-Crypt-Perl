@@ -16,7 +16,7 @@ use strict;
 use warnings;
 
 use Crypt::Perl::BigInt ();
-use Crypt::Perl::ECDSA::Point_ASN1 ();
+use Crypt::Perl::ECDSA::EncodedPoint ();
 use Crypt::Perl::ECDSA::Utils ();
 use Crypt::Perl::X ();
 
@@ -115,7 +115,7 @@ sub normalize {
 
     $_ = Crypt::Perl::BigInt->from_bytes($_) for @curve{ qw( a b ) };
 
-    my $base = Crypt::Perl::ECDSA::Point_ASN1->new($params->{'base'})->get_uncompressed(\%curve);
+    my $base = Crypt::Perl::ECDSA::EncodedPoint->new($params->{'base'})->get_uncompressed(\%curve);
 
     @curve{'gx', 'gy'} = Crypt::Perl::ECDSA::Utils::split_G_or_public( $base );
 

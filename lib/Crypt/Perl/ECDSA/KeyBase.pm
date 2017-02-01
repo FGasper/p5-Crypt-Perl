@@ -20,7 +20,7 @@ use Crypt::Perl::ECDSA::EC::DB ();
 use Crypt::Perl::ECDSA::EC::Point ();
 use Crypt::Perl::ECDSA::ECParameters ();
 use Crypt::Perl::ECDSA::NIST ();
-use Crypt::Perl::ECDSA::Point_ASN1 ();
+use Crypt::Perl::ECDSA::EncodedPoint ();
 use Crypt::Perl::ECDSA::Utils ();
 use Crypt::Perl::X ();
 
@@ -202,7 +202,7 @@ sub get_jwa_alg {
 sub _set_public {
     my ($self, $pub_in) = @_;
 
-    $self->{'_public'} = Crypt::Perl::ECDSA::Point_ASN1->new($pub_in);
+    $self->{'_public'} = Crypt::Perl::ECDSA::EncodedPoint->new($pub_in);
 
     return;
 }
@@ -321,7 +321,7 @@ sub _explicit_curve_parameters {
         $curve{'seed'} = $curve_hr->{'seed'}->as_bytes();
     }
 
-    #This doesn’t really need to be a Point_ASN1.pm.
+    #This doesn’t really need to be a EncodedPoint.pm.
     my $base = "\x{04}$gx$gy";
     if ($type) {
         if ( $type eq 'compressed') {
