@@ -46,7 +46,7 @@ sub new {
 
     my $self = $class->SUPER::new();
 
-    $self->num_method_tests( 'test_jacobi', 0 + @{ [_JACOBI_TESTS()] } );
+    $self->num_method_tests( 'test_jacobi', 2 * @{ [_JACOBI_TESTS()] } );
     $self->num_method_tests( 'test_tonelli_shanks', 0 + @{ [_TONELLI_SHANKS_TESTS()] } );
 
     return $self;
@@ -54,6 +54,8 @@ sub new {
 
 sub _TONELLI_SHANKS_TESTS {
     return (
+
+        #From libtom’s own tests
         { n => 14, p => 5, r => 3 },    #or 2
         { n => 9, p => 7, r => 4 },     #or 3
         { n => 2, p => 113, r => 62 },  #or 51
@@ -62,7 +64,6 @@ sub _TONELLI_SHANKS_TESTS {
         { n => 10, p => 13, r => 7 },
         { n => 56, p => 101, r => 37 },
         { n => 1030, p => 10009, r => 1632 },
-        { n => 1032, p => 10009, r => 0 },
         { n => 44402, p => 100049, r => 30468 },
         { n => 665820697, p => 1000000009, r => 378633312 },
 
@@ -141,6 +142,7 @@ sub test_jacobi : Tests() {
     for my $tt (@t) {
         my $ret = Crypt::Perl::ECDSA::Math::jacobi( map { Crypt::Perl::BigInt->new($_) } @{$tt}[0, 1] );
         is( $ret, $tt->[2], "@{$tt}[0,1] => $tt->[2]" );
+        is( ref($ret), q<>, '… and it’s not a reference' );
     }
 
     return;
