@@ -80,10 +80,6 @@ use constant _PEM_HEADER => 'EC PUBLIC KEY';
 sub new {
     my ($class, $public, $curve_parts) = @_;
 
-    if ( !try { $public->isa('Crypt::Perl::BigInt') } ) {
-        $public = Crypt::Perl::BigInt->from_bytes($public);
-    }
-
     my $self = bless {}, $class;
 
     $self->_set_public($public);
@@ -92,12 +88,12 @@ sub new {
 }
 
 sub _get_asn1_parts {
-    my ($self, $public_type, $curve_parts) = @_;
+    my ($self, $point_form, $curve_parts) = @_;
 
     return $self->__to_der(
         'ECPublicKey',
         ASN1_PUBLIC(),
-        $public_type,
+        $point_form,
         {
             keydata => {
                 oid => $self->OID_ecPublicKey(),

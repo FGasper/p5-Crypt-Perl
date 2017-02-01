@@ -20,6 +20,7 @@ use Crypt::Perl::ECDSA::EC::DB ();
 use Crypt::Perl::ECDSA::EC::Point ();
 use Crypt::Perl::ECDSA::ECParameters ();
 use Crypt::Perl::ECDSA::NIST ();
+use Crypt::Perl::ECDSA::Point_ASN1 ();
 use Crypt::Perl::ECDSA::Utils ();
 use Crypt::Perl::X ();
 
@@ -201,29 +202,7 @@ sub get_jwa_alg {
 sub _set_public {
     my ($self, $pub_in) = @_;
 
-    my $pub_bin;
-
-    my $input_is_obj;
-    if ( try { $pub_in->isa('Crypt::Perl::BigInt') } ) {
-        $pub_bin = $pub_in->as_bytes();
-        $input_is_obj = 1;
-    }
-    else {
-        $pub_in =~ s<\A\0+><>;
-        $pub_bin = $pub_in;
-    }
-
-    my $first_octet = ord substr( $pub_bin, 0, 1 );
-
-    if ($first_octet == 4) {
-        $self->{'_public_bin'} = $pub_bin;
-    }
-    elsif ($first_octet == 2 || $first_octet == 3) {
-        $self->{'_public_compressed_bin'} = $pub_bin;
-    }
-    else {
-        die( sprintf "Invalid leading octet in public point: %v02x", $pub_bin);
-    }
+    $self->{'_public'} = Crypt::Perl::ECDSA::Point_ASN1->new($pub_in);
 
     return;
 }
@@ -231,24 +210,13 @@ sub _set_public {
 sub _compress_public_point {
     my ($self) = @_;
 
-    return $self->{'_public_compressed_bin'} ||= do {
-        Crypt::Perl::ECDSA::Utils::compress_point( $self->{'_public_bin'} );
-    };
+    return $self->{'_public'}->get_compressed();
 }
 
 sub _decompress_public_point {
     my ($self) = @_;
 
-    return $self->{'_public_bin'} ||= do {
-        my $curve_hr = $self->_curve();
-
-        die "Need compressed bin!" if !$self->{'_public_compressed_bin'};
-
-        Crypt::Perl::ECDSA::Utils::decompress_point(
-            $self->{'_public_compressed_bin'},
-            @{$curve_hr}{ qw( p a b ) },
-        );
-    };
+    return $self->{'_public'}->get_uncompressed( $self->_curve() );
 }
 
 sub _get_jwk_digest_cr {
@@ -335,6 +303,7 @@ sub _named_curve_parameters {
 
 sub _explicit_curve_parameters {
     my ($self, $type) = @_;
+
     my $curve_hr = $self->_curve();
 
     my ($gx, $gy) = map { $_->as_bytes() } @{$curve_hr}{'gx', 'gy'};
@@ -352,9 +321,15 @@ sub _explicit_curve_parameters {
         $curve{'seed'} = $curve_hr->{'seed'}->as_bytes();
     }
 
+    #This doesn’t really need to be a Point_ASN1.pm.
     my $base = "\x{04}$gx$gy";
-    if ($type && $type eq 'compressed') {
-        $base = Crypt::Perl::ECDSA::Utils::compress_point($base);
+    if ($type) {
+        if ( $type eq 'compressed') {
+            $base = Crypt::Perl::ECDSA::Utils::compress_point($base);
+        }
+        elsif ( $type ne 'uncompressed' ) {
+            die "Unsupported point format: “$type”";
+        }
     }
 
     return {

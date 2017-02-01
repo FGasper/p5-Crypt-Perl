@@ -113,7 +113,6 @@ my $y_is_even = 1;
 
     my $t2 = $x->copy()->bmul($a)->bmod($p);
     $y->badd($t2)->badd($b);
-use Crypt::Perl::ECDSA::Math ();
     $y = Crypt::Perl::ECDSA::Math::tonelli_shanks( $y, $p );
 
     if (!!$y_is_even eq !!$y->is_odd()) {
@@ -134,7 +133,8 @@ use Crypt::Perl::ECDSA::Math ();
 }
 
 sub test_seed : Tests(1) {
-    my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve/secp112r1.key");
+    my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve_compressed/secp112r1.key");
+use Carp::Always;
     my $key = Crypt::Perl::ECDSA::Parse::private($pem)->get_public_key();
 
     my $curve_data = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_name('secp112r1');
@@ -149,12 +149,12 @@ sub test_seed : Tests(1) {
 
 #cf. RFC 7517, page 25
 sub test_jwk : Tests(2) {
-    my $prkey = Crypt::Perl::ECDSA::PublicKey->new_by_curve_name(
+    my $pbkey = Crypt::Perl::ECDSA::PublicKey->new_by_curve_name(
         Crypt::Perl::BigInt->from_bytes( "\x04" . MIME::Base64::decode_base64url('MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4') . MIME::Base64::decode_base64url('4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM') ),
         'prime256v1',
     );
 
-    my $pub_jwk = $prkey->get_struct_for_public_jwk();
+    my $pub_jwk = $pbkey->get_struct_for_public_jwk();
 
     my $expected_pub = {
         kty => "EC",
@@ -173,7 +173,7 @@ sub test_jwk : Tests(2) {
     my $sha384_thumbprint = 'bLeg0iV0lOxemYi1inZct_fpBVGT0PjmOJfkLKNQzwiVJph-qr70kbtxqtdk9pVx';
 
     is(
-        $prkey->get_jwk_thumbprint('sha384'),
+        $pbkey->get_jwk_thumbprint('sha384'),
         $sha384_thumbprint,
         'to_jwk_thumbprint(sha384)',
     );

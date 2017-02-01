@@ -95,12 +95,9 @@ sub jacobi {
 
         $ret *= $ret2;
 
-        if ($help) {
-            ($a, $n) = @$help;
-        }
-        else {
-            last;
-        }
+        last if !$help;
+
+        ($a, $n) = @$help;
     }
 
     return $ret;

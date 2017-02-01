@@ -136,8 +136,6 @@ sub test_seed : Tests(1) {
 sub test_sign : Tests() {
     my ($self) = @_;
 
-use Carp::Always;
-
     my $msg = 'Hello';
 
     #Use SHA1 since it’s the smallest digest that the latest OpenSSL accepts.

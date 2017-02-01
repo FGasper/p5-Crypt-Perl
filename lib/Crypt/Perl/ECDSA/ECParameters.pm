@@ -16,6 +16,7 @@ use strict;
 use warnings;
 
 use Crypt::Perl::BigInt ();
+use Crypt::Perl::ECDSA::Point_ASN1 ();
 use Crypt::Perl::ECDSA::Utils ();
 use Crypt::Perl::X ();
 
@@ -57,7 +58,6 @@ use constant ASN1_ECParameters => q<
     }
 
     FieldElement ::= OCTET STRING
-    -- FieldElement ::= INTEGER
 
     Curve ::= SEQUENCE {
         a           FieldElement,
@@ -113,16 +113,9 @@ sub normalize {
     #Ensure that numbers like 0 and 1 are represented as BigInt, too.
     ref || ($_ = Crypt::Perl::BigInt->new($_)) for @curve{qw( p n h )};
 
-    #XXX TODO: Why is this this way?
     $_ = Crypt::Perl::BigInt->from_bytes($_) for @curve{ qw( a b ) };
 
-    my $base;
-    if ( substr($params->{'base'}, 0, 1) eq "\x04" ) {
-        $base = $params->{'base'};
-    }
-    else {
-        $base = Crypt::Perl::ECDSA::Utils::decompress_point( $params->{'base'}, @curve{qw( p a b )} );
-    }
+    my $base = Crypt::Perl::ECDSA::Point_ASN1->new($params->{'base'})->get_uncompressed(\%curve);
 
     @curve{'gx', 'gy'} = Crypt::Perl::ECDSA::Utils::split_G_or_public( $base );
 
