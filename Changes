@@ -62,3 +62,8 @@ Revision history for Perl module Crypt::Perl
 
 0.15 Tue Jan 03 2017
 - Fix tests for Perl <5.14
+
+0.16
+- Add logic for compressed, uncompressed, and hybrid curve points
+- Improve documentation concerning ECDSA key formats
+- Fix (?) handling of “seed” values
