@@ -83,7 +83,15 @@ sub _KEY_TYPES_TO_TEST {
     return @curves;
 }
 
-sub test_generate : Tests(9) {
+sub test_legacy_alias : Tests(1) {
+    is(
+        \&Crypt::Perl::ECDSA::Generate::by_name,
+        \&Crypt::Perl::ECDSA::Generate::by_curve_name,
+        'by_name() alias',
+    );
+}
+
+sub test_generate : Tests() {
     my ($self) = @_;
 
     my $msg = rand;
@@ -96,12 +104,12 @@ sub test_generate : Tests(9) {
     my $digest_alg = 'sha1';
 
     for my $curve ( $self->_KEY_TYPES_TO_TEST() ) {
-        my $key_obj = Crypt::Perl::ECDSA::Generate::by_name($curve);
+        my $key_obj = Crypt::Perl::ECDSA::Generate::by_curve_name($curve);
 
         isa_ok(
             $key_obj,
             'Crypt::Perl::ECDSA::PrivateKey',
-            "$curve: return of by_name()",
+            "$curve: return of by_curve_name()",
         );
 
       SKIP: {

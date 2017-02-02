@@ -26,10 +26,6 @@ Crypt::Perl::ECDSA::PublicKey - object representation of ECDSA public key
     #against the original message.
     $pbkey->verify_jwa($payload, $sig) or die "Invalid signature!";
 
-    #Corresponding “der” methods exist as well.
-    my $cn_pem = $pbkey->to_pem_with_curve_name();
-    my $expc_pem = $pbkey->to_pem_with_explicit_curve();
-
     #----------------------------------------------------------------------
 
     #Includes “kty”, “crv”, “x”, and “y”.
@@ -46,6 +42,8 @@ Crypt::Perl::ECDSA::PublicKey - object representation of ECDSA public key
 =head1 DISCUSSION
 
 The SYNOPSIS above should be illustration enough of how to use this class.
+
+Export methods (PEM, DER, etc.) are shown in L<Crypt::Perl::ECDSA>.
 
 =cut
 

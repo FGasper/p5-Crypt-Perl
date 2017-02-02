@@ -99,9 +99,13 @@ sub verify_jwa {
 }
 
 sub to_der_with_curve_name {
-    my ($self, @params) = @_;
+    my ($self, %params) = @_;
 
-    return $self->_get_asn1_parts($self->_named_curve_parameters(), @params);
+    if ($params{'seed'}) {
+        die Crypt::Perl::X::create('Generic', '“seed” is meaningless to a named-curve export.');
+    }
+
+    return $self->_get_asn1_parts($self->_named_curve_parameters(), %params);
 }
 
 sub to_der_with_explicit_curve {

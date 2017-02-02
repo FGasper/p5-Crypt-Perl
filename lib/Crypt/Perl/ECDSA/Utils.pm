@@ -69,8 +69,6 @@ sub decompress_point {
     }
 
     #http://stackoverflow.com/questions/17171542/algorithm-for-elliptic-curve-point-compression
-    #The following don’t seem to follow from the general elliptic curve formula, but hey.
-    #also: https://en.wikipedia.org/wiki/Quadratic_residue#Prime_or_prime_power_modulus
     my $a_p = $a->copy()->bsub($p);
 
     my $x = Crypt::Perl::BigInt->from_bytes(substr $cpub_bin, 1);

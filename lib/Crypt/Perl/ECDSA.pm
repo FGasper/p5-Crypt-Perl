@@ -16,7 +16,7 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
 
     #----------------------------------------------------------------------
 
-    my $prkey_by_name = Crypt::Perl::ECDSA::Generate::by_name('secp521r1');
+    my $prkey_by_name = Crypt::Perl::ECDSA::Generate::by_curve_name('secp521r1');
 
     #Probably only useful for trying out a custom curve?
     my $prkey_by_curve = Crypt::Perl::ECDSA::Generate::by_explicit_curve(
@@ -25,15 +25,16 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
             a => ..., #isa Crypt::Perl::BigInt
             b => ..., #isa Crypt::Perl::BigInt
             n => ..., #isa Crypt::Perl::BigInt
+
+            #Supposedly this can be deduced from the above, but I don’t
+            #see the math for this around. It’s not in libtomcryt, AFAICT.
+            #It may have to do with Schoof’s Algorithm?
             h => ..., #isa Crypt::Perl::BigInt
+
             gx => ..., #isa Crypt::Perl::BigInt
             gy => ..., #isa Crypt::Perl::BigInt
         },
     );
-
-    my $der = $prkey->to_der_with_curve_name();
-
-    my $der2 = $prkey->to_der_with_explicit_curve_name();
 
     #----------------------------------------------------------------------
 
@@ -46,6 +47,22 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
     die 'Wut' if !$private->verify($hash, $sig);
 
     die 'Wut' if !$public->verify($hash, $sig);
+
+    #----------------------------------------------------------------------
+
+    $key->to_der_with_curve_name();
+    $key->to_der_with_curve_name( compressed => 1 );
+    $key->to_pem_with_curve_name();
+    $key->to_pem_with_curve_name( compressed => 1 );
+
+    $key->to_der_with_explicit_curve();
+    $key->to_der_with_explicit_curve( seed => 1 );
+    $key->to_der_with_explicit_curve( compressed => 1 );
+    $key->to_der_with_explicit_curve( seed => 1, compressed => 1 );
+    $key->to_pem_with_explicit_curve();
+    $key->to_pem_with_explicit_curve( seed => 1 );
+    $key->to_pem_with_explicit_curve( compressed => 1 );
+    $key->to_pem_with_explicit_curve( seed => 1, compressed => 1 );
 
 =head1 DISCUSSION
 
