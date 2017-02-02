@@ -163,9 +163,13 @@ sub get_public_key {
 
     Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
 
+    my $curve_hr = $self->_explicit_curve_parameters( seed => 1 );
+    my $ccurve_hr = $curve_hr->{'ecParameters'}{'curve'};
+    $ccurve_hr->{'seed'} = [ $ccurve_hr->{'seed'} ];
+
     return Crypt::Perl::ECDSA::PublicKey->new(
         $self->_decompress_public_point(),
-        $self->_explicit_curve_parameters( seed => 1 ),
+        $curve_hr,
     );
 }
 

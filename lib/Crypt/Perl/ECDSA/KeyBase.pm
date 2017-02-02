@@ -341,7 +341,7 @@ sub _add_params {
 
         #Convert::ASN1 returns bit strings as an array of [ $content, $length ].
         #Since normalize() wants that, we local() it here.
-        local $params->{'curve'}{'seed'} = [$params->{'curve'}{'seed'}] if $params->{'curve'} && $params->{'curve'}{'seed'};
+        #local $params->{'curve'}{'seed'} = [$params->{'curve'}{'seed'}] if $params->{'curve'} && $params->{'curve'}{'seed'};
 
         $self->{'curve'} = Crypt::Perl::ECDSA::ECParameters::normalize($params);
     }

@@ -558,14 +558,6 @@ use constant CURVE_2_23_43_1_4_12 => (
 );
 
 #----------------------------------------------------------------------
-use constant OID_Oakley_EC2N_3 => '';
-
-# Skipping data for Oakley-EC2N-3:
-# Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported: This library does not support ECDSA curves that use Characteristic-2 fields.
-#----------------------------------------------------------------------
-use constant OID_Oakley_EC2N_4 => '';
-
-#----------------------------------------------------------------------
 use constant OID_brainpoolP160r1 => '1.3.36.3.3.2.8.1.1.1';
 
 use constant CURVE_1_3_36_3_3_2_8_1_1_1 => (

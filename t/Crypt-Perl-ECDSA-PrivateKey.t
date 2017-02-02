@@ -52,7 +52,7 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
 
-    $self->num_method_tests( 'test_sign', 8 * @{ [ $class->_CURVE_NAMES() ] } );
+    $self->num_method_tests( 'test_sign', 12 * @{ [ $class->_CURVE_NAMES() ] } );
 
     return $self;
 }
@@ -147,7 +147,7 @@ sub test_sign : Tests() {
     my $digest_alg = 'sha1';
 
     for my $param_enc ( qw( named_curve explicit ) ) {
-        for my $conv_form ( qw( compressed uncompressed ) ) {
+        for my $conv_form ( qw( compressed uncompressed hybrid ) ) {
             my $dir = "$FindBin::Bin/assets/ecdsa_${param_enc}_$conv_form";
 
             opendir( my $dh, $dir );

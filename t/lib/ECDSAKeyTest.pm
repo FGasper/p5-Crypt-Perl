@@ -9,16 +9,24 @@ use parent qw(
     TestClass
 );
 
+#This has hybrid public and base points and so is good for testing
+#hybrid parsing.
 use constant PEM_FOR_COMPRESSED_TEST => <<END;
 -----BEGIN EC PRIVATE KEY-----
-MHcCAQEEIMad6ebreKzqt8jP0GAuzqclgwUMi4jscUJ53jqYmr7GoAoGCCqGSM49
-AwEHoUQDQgAERWiv/yjXvsCl0pGfNJ/qV5ya42dAu8LcZxQY8/q15BJbo09fc7es
-ddpYiQoziP/IVhwoJz2xFbzJSGeYCfzmeA==
+MIIBaAIBAQQgxp3p5ut4rOq3yM/QYC7OpyWDBQyLiOxxQnneOpiavsaggfowgfcC
+AQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAAAAAAAAAAAAAA////////////////
+MFsEIP////8AAAABAAAAAAAAAAAAAAAA///////////////8BCBaxjXYqjqT57Pr
+vVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSdNgiG5wSTamZ44ROdJreBn36QBEEH
+axfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li/hp/m47n60p8D54W
+K84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA//////////+85vqtpxeehPO5ysL8
+YyVRAgEBoUQDQgAGRWiv/yjXvsCl0pGfNJ/qV5ya42dAu8LcZxQY8/q15BJbo09f
+c7esddpYiQoziP/IVhwoJz2xFbzJSGeYCfzmeA==
 -----END EC PRIVATE KEY-----
 END
 
 sub test_compressed : Tests(9) {
     my ($self) = @_;
+use Carp::Always;
 
     my $key_obj = $self->_key_for_test_compressed(PEM_FOR_COMPRESSED_TEST());
 
