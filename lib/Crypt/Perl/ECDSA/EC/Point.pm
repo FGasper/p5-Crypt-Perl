@@ -282,9 +282,10 @@ sub add {
     #var y3 = x1v2.multiply(THREE).multiply(u).subtract(y1.multiply(v3)).subtract(zu2.multiply(u)).multiply(b.z).add(u.multiply(v3)).mod(this.curve.q);
     #my $y3 = $z2 * (3 * $x1 * $u * $v2 - $y1 * $v3 - $z1 * ($u ** 3)) + $u * $v3;
     my $y3 = $u->copy()->bmul($bi3)->bmul($x1);
-    $y3->bmuladd($v2, $y1->copy()->bmul($v3)->bneg());
+    $y3->bmuladd($v2, $y1->bmul($v3)->bneg());      #no more y1 after this
     $y3->bsub( $u->copy()->bpow($bi3)->bmul($z1) );
-    $y3->bmuladd( $z2, $u->copy()->bmul($v3) );
+
+    $y3->bmuladd( $z2, $u->bmul($v3) );             #we don’t need $u anymore
 
     #// z3 = v^3 * z1 * z2
     #var z3 = v3.multiply(this.z).multiply(b.z).mod(this.curve.q);

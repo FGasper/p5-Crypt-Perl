@@ -67,3 +67,4 @@ Revision history for Perl module Crypt::Perl
 - Add logic for compressed, uncompressed, and hybrid curve points
 - Improve documentation concerning ECDSA key formats
 - Fix (?) handling of “seed” values
+- Optimizations to the ECC math
