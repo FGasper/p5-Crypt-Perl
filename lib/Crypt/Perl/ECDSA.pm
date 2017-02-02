@@ -69,6 +69,42 @@ C<Crypt::Perl> “has no opinion” regarding which curves you use; it ships all
 of the prime-field curves that (L<OpenSSL|http://openssl.org>) includes and
 works with any of them. You can try out custom curves as well.
 
+=head1 FORMATS SUPPORTED
+
+Elliptic-curve keys can come in a variety of formats. This library supports
+almost all of them:
+
+=over
+
+=item Parse and export of named curves and explicit curves. (See below
+about explicit curve parameters.)
+
+=item Parse and export of curve points in compressed or uncompressed form,
+and parse of points in hybrid form. (L<RFC 5480|https://www.rfc-editor.org/rfc/rfc5480.txt>
+prohibits use of the hybrid form.)
+
+=back
+
+Explicit curves (i.e., giving the curve by full parameters rather than by
+name reference) may be a known curve or an arbitrary curve.
+Explicit curves may include or omit the seed value. It is omitted in output
+by default. They may also include or
+omit the cofactor, but if the curve is unknown the cofactor is required.
+This is because this library’s export of explicit curves always includes the
+cofactor. While it’s not required for ECDSA, it’s recommended, and it’s
+required for ECDH. Moreover, unlike the seed (which nither ECDSA nor ECDH
+requires), the cofactor is small enough that its inclusion only enlarges the
+key by a few bytes.
+
+I believe the cofactor can be deduced from the other curve parameters,
+but I’ve not had time to learn how.
+
+Generator/base points will be exported as compressed or uncompressed
+according to the public point. If for some reason you really need a
+compressed base point but an uncompressed public point or vice-versa,
+and you need this library to do it for you,
+please explain your need for such a thing in your pull request. :-)
+
 =head1 TODO
 
 Functionality can be augmented as feature requests come in.
@@ -78,6 +114,9 @@ In particular, it would be great to support characteristic-two curves, though
 almost everything seems to expect the prime-field variety.
 (OpenSSL is the only implementation I know of that
 supports characteristic-two.)
+
+It would also be nice to have logic that deduces the cofactor from the
+other curve parameters.
 
 =head1 ACKNOWLEDGEMENTS
 

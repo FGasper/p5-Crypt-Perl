@@ -47,7 +47,7 @@ sub compress_point {
         die( sprintf "Invalid point to compress: %v.02x", $pub_bin );
     }
 
-    my $first_octet = (chr( substr $pub_bin, -1 ) % 2) ? "\x03" : "\x02";
+    my $first_octet = (ord( substr $pub_bin, -1 ) % 2) ? "\x03" : "\x02";
 
     my ($xb) = split_G_or_public( $pub_bin );
 

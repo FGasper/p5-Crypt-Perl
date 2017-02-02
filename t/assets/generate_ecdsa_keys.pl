@@ -12,7 +12,7 @@ use OpenSSL_Control ();
 my $openssl_bin = OpenSSL_Control::openssl_bin();
 
 for my $param_enc ( qw( named_curve explicit ) ) {
-    for my $conv_form ( qw( compressed uncompressed ) ) {
+    for my $conv_form ( qw( compressed uncompressed hybrid ) ) {
         my $dir = "$FindBin::Bin/ecdsa_${param_enc}_$conv_form";
 
         CORE::mkdir( $dir ) or do {

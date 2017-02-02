@@ -29,7 +29,7 @@ use MIME::Base64 ();
 
 use lib "$FindBin::Bin/lib";
 use parent qw(
-    Test::Class
+    ECDSAKeyTest
 );
 
 use lib "$FindBin::Bin/../lib";
@@ -119,7 +119,7 @@ sub test_to_der : Tests(2) {
     return;
 }
 
-sub test_seed : Tests(1) {
+sub test_seed : Tests(2) {
     my $pem = File::Slurp::read_file("$FindBin::Bin/assets/ecdsa_named_curve_compressed/secp112r1.key");
     my $key = Crypt::Perl::ECDSA::Parse::private($pem);
 
@@ -128,7 +128,11 @@ sub test_seed : Tests(1) {
 
     my $der_hex = unpack 'H*', $key->to_der_with_explicit_curve();
 
-    like( $der_hex, qr<\Q$seed_hex\E>, 'seed is in explicit parameters' );
+    unlike( $der_hex, qr<\Q$seed_hex\E>, 'seed is NOT in explicit parameters by default' );
+
+    $der_hex = unpack 'H*', $key->to_der_with_explicit_curve( seed => 1 );
+
+    like( $der_hex, qr<\Q$seed_hex\E>, 'seed is in explicit parameters by request' );
 
     return;
 }
@@ -340,6 +344,11 @@ sub test_verify : Tests(2) {
     );
 
     return;
+}
+
+sub _key_for_test_compressed {
+    my ($self, $pem) = @_;
+    return Crypt::Perl::ECDSA::Parse::private($pem);
 }
 
 1;

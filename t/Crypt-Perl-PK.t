@@ -22,7 +22,7 @@ use File::Temp;
 use lib "$FindBin::Bin/lib";
 
 use parent qw(
-    Test::Class
+    TestClass
 );
 
 use Crypt::Perl::PK ();

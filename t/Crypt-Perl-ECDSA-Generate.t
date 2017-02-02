@@ -31,9 +31,7 @@ use Symbol::Get ();
 use Crypt::Perl::ECDSA::EC::CurvesDB ();
 use Crypt::Perl::ECDSA::EC::DB ();
 
-use parent qw(
-    Test::Class
-);
+use parent qw( TestClass );
 
 use OpenSSL_Control ();
 

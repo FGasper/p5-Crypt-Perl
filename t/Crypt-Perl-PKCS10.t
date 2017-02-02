@@ -24,7 +24,7 @@ use lib "$FindBin::Bin/lib";
 use OpenSSL_Control ();
 
 use parent qw(
-    Test::Class
+    TestClass
     NeedsOpenSSL
 );
 

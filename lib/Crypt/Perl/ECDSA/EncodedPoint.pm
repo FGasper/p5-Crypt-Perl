@@ -5,6 +5,9 @@ use warnings;
 
 use Try::Tiny;
 
+use Crypt::Perl::ECDSA::Utils ();
+use Crypt::Perl::X ();
+
 #input can be a string or BigInt,
 #in any of “hybrid”, “uncompressed”, or “compressed” formats
 sub new {
@@ -37,14 +40,13 @@ sub new {
         $self->{'_compressed_bin'} = $bin;
     }
     else {
-        die( sprintf "Invalid leading octet in ECDSA point: %v02x", $bin);
+        die Crypt::Perl::X::Create('Generic', sprintf "Invalid leading octet in ECDSA point: %v02x", $bin);
     }
 
     return $self;
 }
 
-use Crypt::Perl::ECDSA::Utils ();
-
+#returns a string
 sub get_compressed {
     my ($self) = @_;
 
@@ -53,6 +55,7 @@ sub get_compressed {
     };
 }
 
+#returns a string
 sub get_uncompressed {
     my ($self, $curve_hr) = @_;
 

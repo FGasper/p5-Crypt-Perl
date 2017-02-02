@@ -17,7 +17,8 @@ use Test::NoWarnings;
 use Test::Deep;
 use Test::Exception;
 
-use parent qw( Test::Class );
+use lib "$FindBin::Bin/lib";
+use parent qw( TestClass );
 
 use MIME::Base64 ();
 

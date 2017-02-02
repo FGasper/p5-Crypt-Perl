@@ -99,64 +99,32 @@ sub verify_jwa {
 }
 
 sub to_der_with_curve_name {
-    my ($self) = @_;
+    my ($self, @params) = @_;
 
-    return $self->_get_asn1_parts('uncompressed', $self->_named_curve_parameters());
+    return $self->_get_asn1_parts($self->_named_curve_parameters(), @params);
 }
 
 sub to_der_with_explicit_curve {
-    my ($self) = @_;
+    my ($self, @params) = @_;
 
-    return $self->_get_asn1_parts('uncompressed', $self->_explicit_curve_parameters());
+    return $self->_get_asn1_parts($self->_explicit_curve_parameters(@params), @params);
 }
 
 sub to_pem_with_curve_name {
-    my ($self) = @_;
+    my ($self, @params) = @_;
 
-    my $der = $self->to_der_with_curve_name();
+    my $der = $self->to_der_with_curve_name(@params);
 
     return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
 }
 
 sub to_pem_with_explicit_curve {
-    my ($self) = @_;
+    my ($self, @params) = @_;
 
-    my $der = $self->to_der_with_explicit_curve();
-
-    return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
-}
-
-#----------------------------------------------------------------------
-
-sub to_der_with_curve_name_compressed {
-    my ($self) = @_;
-
-    return $self->_get_asn1_parts('compressed', $self->_named_curve_parameters());
-}
-
-sub to_der_with_explicit_curve_compressed {
-    my ($self) = @_;
-
-    return $self->_get_asn1_parts('compressed', $self->_explicit_curve_parameters('compressed'));
-}
-
-sub to_pem_with_curve_name_compressed {
-    my ($self) = @_;
-
-    my $der = $self->to_der_with_curve_name_compressed();
+    my $der = $self->to_der_with_explicit_curve(@params);
 
     return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
 }
-
-sub to_pem_with_explicit_curve_compressed {
-    my ($self) = @_;
-
-    my $der = $self->to_der_with_explicit_curve_compressed();
-
-    return Crypt::Format::der2pem($der, $self->_PEM_HEADER());
-}
-
-#----------------------------------------------------------------------
 
 sub max_sign_bits {
     my ($self) = @_;
@@ -301,8 +269,9 @@ sub _named_curve_parameters {
     };
 }
 
+#The idea is to emulate what Convert::ASN1 gives us as the parse.
 sub _explicit_curve_parameters {
-    my ($self, $type) = @_;
+    my ($self, %params) = @_;
 
     my $curve_hr = $self->_curve();
 
@@ -317,19 +286,15 @@ sub _explicit_curve_parameters {
         b => $curve_hr->{'b'}->as_bytes(),
     );
 
-    if ($curve_hr->{'seed'}) {
+    if ($params{'seed'} && $curve_hr->{'seed'}) {
+
+        #We don’t care about the bit count. (Right?)
         $curve{'seed'} = $curve_hr->{'seed'}->as_bytes();
     }
 
-    #This doesn’t really need to be a EncodedPoint.pm.
     my $base = "\x{04}$gx$gy";
-    if ($type) {
-        if ( $type eq 'compressed') {
-            $base = Crypt::Perl::ECDSA::Utils::compress_point($base);
-        }
-        elsif ( $type ne 'uncompressed' ) {
-            die "Unsupported point format: “$type”";
-        }
+    if ( $params{'compressed'} ) {
+        $base = Crypt::Perl::ECDSA::Utils::compress_point($base);
     }
 
     return {
@@ -350,17 +315,10 @@ sub _explicit_curve_parameters {
 }
 
 sub __to_der {
-    my ($self, $macro, $template, $public_type, $data_hr) = @_;
+    my ($self, $macro, $template, $data_hr, %params) = @_;
 
-    my $pub_bin = ($public_type eq 'compressed') ? $self->_compress_public_point() : $self->_decompress_public_point();
+    my $pub_bin = $params{'compressed'} ? $self->_compress_public_point() : $self->_decompress_public_point();
 
-    #my ($pub_x, $pub_y) = Crypt::Perl::ECDSA::Utils::split_G_or_public( $self->{'public'}->as_bytes() );
-    #
-    #for my $str ( $pub_x, $pub_y ) {
-    #    $str = $self->_pad_bytes_for_asn1($str);
-    #}
-
-    #local $data_hr->{'publicKey'} = "\x04$pub_x$pub_y";
     local $data_hr->{'publicKey'} = $pub_bin;
 
     Module::Load::load('Crypt::Perl::ASN1');
@@ -380,6 +338,11 @@ sub _add_params {
     my ($self, $params_struct) = @_;
 
     if (my $params = $params_struct->{'ecParameters'}) {
+
+        #Convert::ASN1 returns bit strings as an array of [ $content, $length ].
+        #Since normalize() wants that, we local() it here.
+        local $params->{'curve'}{'seed'} = [$params->{'curve'}{'seed'}] if $params->{'curve'} && $params->{'curve'}{'seed'};
+
         $self->{'curve'} = Crypt::Perl::ECDSA::ECParameters::normalize($params);
     }
     else {
@@ -398,7 +361,7 @@ sub _curve_params_for_OID {
 sub _curve {
     my ($self) = @_;
 
-    return $self->{'curve'} ||= $self->_curve_params_for_OID();
+    return $self->{'curve'};
 }
 
 #----------------------------------------------------------------------

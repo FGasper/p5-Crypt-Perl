@@ -88,18 +88,18 @@ sub new {
 }
 
 sub _get_asn1_parts {
-    my ($self, $point_form, $curve_parts) = @_;
+    my ($self, $curve_parts, @params) = @_;
 
     return $self->__to_der(
         'ECPublicKey',
         ASN1_PUBLIC(),
-        $point_form,
         {
             keydata => {
                 oid => $self->OID_ecPublicKey(),
                 parameters => $curve_parts,
             },
         },
+        @params,
     );
 }
 

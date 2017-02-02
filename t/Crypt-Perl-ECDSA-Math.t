@@ -25,9 +25,7 @@ use MIME::Base64 ();
 
 use lib "$FindBin::Bin/lib";
 
-use parent qw(
-    Test::Class
-);
+use parent qw( TestClass );
 
 use Crypt::Perl::BigInt ();
 

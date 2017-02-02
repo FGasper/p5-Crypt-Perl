@@ -5,6 +5,12 @@ use warnings;
 
 use Crypt::Perl::BigInt ();
 
+my ($bi1, $bi2, $bi3);
+
+END {
+    undef $bi1, $bi2, $bi3;
+}
+
 sub new_infinity {
     my ($class) = @_;
 
@@ -17,11 +23,15 @@ sub new_infinity {
 sub new {
     my ($class, $curve, $x, $y, $z) = @_;
 
+    $bi1 ||= Crypt::Perl::BigInt->new(1);
+    $bi2 ||= Crypt::Perl::BigInt->new(2);
+    $bi3 ||= Crypt::Perl::BigInt->new(3);
+
     my $self = {
         curve => $curve,
         x => $x,
         y => $y,
-        z => $z || Crypt::Perl::BigInt->new(1),
+        z => $z || $bi1->copy(),
         zinv => undef,
     };
 
@@ -93,19 +103,19 @@ sub twice {
 
     # w = 3 * x1^2 + a * z1^2
     #var w = x1.square().multiply(THREE);
-    my $w = $x1->copy()->bpow(2)->bmul(3);
+    my $w = $x1->copy()->bpow($bi2)->bmul($bi3);
 
-    if ($a != 0) {
+    if (!$a->is_zero()) {
         #$w += ($self->{'z'} ** 2) * $a;
-        $w->badd( $a->copy()->bmul( $self->{'z'}->copy()->bpow(2) ) );
+        $w->badd( $a->copy()->bmul( $self->{'z'} )->bmul($self->{'z'}) );
     }
 
-    $w %= $self->{'curve'}{'q'};
+    $w->bmod($self->{'curve'}{'q'});
 
     # x3 = 2 * y1 * z1 * (w^2 - 8 * x1 * y1^2 * z1)
     #var x3 = w.square().subtract(x1.shiftLeft(3).multiply(y1sqz1)).shiftLeft(1).multiply(y1z1).mod(this.curve.q);
 
-    my $x3 = $w->copy()->bmuladd( $w, $y1sqz1->copy()->bmul( $x1->copy()->blsft(3)->bneg() ) )->bmul( $y1z1->copy()->badd($y1z1) );
+    my $x3 = $w->copy()->bmuladd( $w, $y1sqz1->copy()->bmul($x1)->blsft($bi3)->bneg() )->bmul($bi2)->bmul($y1z1);
     #my $x3 = 2 * $y1z1 * (($w ** 2) - ($x1 << 3) * $y1sqz1);
     #my $x3 = ($w ** 2) - (($x1 << 3) * $y1sqz1);
     #$x3 = $x3 << 1;
@@ -114,15 +124,21 @@ sub twice {
     # y3 = 4 * y1^2 * z1 * (3 * w * x1 - 2 * y1^2 * z1) - w^3
     #var y3 = w.multiply(THREE).multiply(x1).subtract(y1sqz1.shiftLeft(1)).shiftLeft(2).multiply(y1sqz1).subtract(w.square().multiply(w)).mod(this.curve.q);
     #my $y3 = 4 * $y1sqz1 * (3 * $w * $x1 - 2 * $y1sqz1) - ($w ** 3);
-    my $y3 = $y1sqz1->copy()->blsft(2)->bmuladd(
-        $w->copy()->bmul(3)->bmuladd($x1, $y1sqz1->copy()->blsft(1)->bneg()),
-        $w->copy()->bpow(3)->bneg(),
+    my $y3 = $y1sqz1->copy()->blsft($bi2);
+
+    $y3->bmuladd(
+
+        #We don’t need y1sqz1 anymore
+        $w->copy()->bmul($bi3)->bmuladd($x1, $y1sqz1->blsft($bi1)->bneg()),
+
+        #Don’t need $w anymore
+        $w->bpow($bi3)->bneg(),
     );
 
     #// z3 = 8 * (y1 * z1)^3
     #var z3 = y1z1.square().multiply(y1z1).shiftLeft(3).mod(this.curve.q);
     #my $z3 = ($y1z1 ** 3) << 3;
-    my $z3 = $y1z1->bpow(3)->blsft(3);  #don’t need y1z1 anymore
+    my $z3 = $y1z1->bpow($bi3)->blsft($bi3);  #don’t need y1z1 anymore
 
     #In original JS logic
     $_->bmod($self->{'curve'}{'q'}) for ($x3, $y3, $z3);
@@ -162,7 +178,7 @@ sub multiply {
 
 #print "here2\n";
     my $e = $k;
-    my $h = $e->copy()->bmul(3);
+    my $h = $e->copy()->bmul($bi3);
 #print "h: " . $h->as_hex() . $/;
 
     my $neg = $self->negate();
@@ -258,16 +274,16 @@ sub add {
     #var x3 = zu2.subtract(x1v2.shiftLeft(1)).multiply(b.z).subtract(v3).multiply(v).mod(this.curve.q);
     #my $x3 = $v * ($z2 * ($z1 * ($u ** 2) - 2 * $x1 * ($v ** 2)) - ($v ** 3));
     my $x3 = $u->copy()->bmul($u);
-    $x3->bmuladd( $z1, $x1->copy()->blsft(1)->bneg()->bmul($v)->bmul($v) );
-    $x3->bmuladd( $z2, $v->copy()->bpow(3)->bneg() );
+    $x3->bmuladd( $z1, $x1->copy()->blsft($bi1)->bneg()->bmul($v)->bmul($v) );
+    $x3->bmuladd( $z2, $v->copy()->bpow($bi3)->bneg() );
     $x3->bmul($v);
 
     #// y3 = z2 * (3 * x1 * u * v^2 - y1 * v^3 - z1 * u^3) + u * v^3
     #var y3 = x1v2.multiply(THREE).multiply(u).subtract(y1.multiply(v3)).subtract(zu2.multiply(u)).multiply(b.z).add(u.multiply(v3)).mod(this.curve.q);
     #my $y3 = $z2 * (3 * $x1 * $u * $v2 - $y1 * $v3 - $z1 * ($u ** 3)) + $u * $v3;
-    my $y3 = $u->copy()->bmul(3)->bmul($x1);
+    my $y3 = $u->copy()->bmul($bi3)->bmul($x1);
     $y3->bmuladd($v2, $y1->copy()->bmul($v3)->bneg());
-    $y3->bsub( $u->copy()->bpow(3)->bmul($z1) );
+    $y3->bsub( $u->copy()->bpow($bi3)->bmul($z1) );
     $y3->bmuladd( $z2, $u->copy()->bmul($v3) );
 
     #// z3 = v^3 * z1 * z2

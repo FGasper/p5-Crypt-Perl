@@ -165,7 +165,7 @@ sub get_public_key {
 
     return Crypt::Perl::ECDSA::PublicKey->new(
         $self->_decompress_public_point(),
-        $self->_explicit_curve_parameters(),
+        $self->_explicit_curve_parameters( seed => 1 ),
     );
 }
 
@@ -237,19 +237,19 @@ sub _sign {
 }
 
 sub _get_asn1_parts {
-    my ($self, $public_type, $curve_parts) = @_;
+    my ($self, $curve_parts, @params) = @_;
 
     my $private_str = $self->{'private'}->as_bytes();
 
     return $self->__to_der(
         'ECPrivateKey',
         ASN1_PRIVATE(),
-        $public_type,
         {
             version => 1,
             privateKey => $private_str,
             parameters => $curve_parts,
         },
+        @params,
     );
 }
 
