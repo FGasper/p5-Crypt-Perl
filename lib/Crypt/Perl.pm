@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = '0.15_1';
+our $VERSION = '0.15_2';
 
 =encoding utf-8
 
@@ -80,7 +80,7 @@ to the entire distribution.
 
 =over 4
 
-=item * Security audit. A check against OpenSSL or LibTomCrypt
+=item * Security audit. A check against OpenSSL or L<LibTomCrypt|http://www.libtom.net>
 would be awesome.
 
 =item * Document the exception system so that applications can use it.
@@ -98,6 +98,8 @@ Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.
 Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
+
+Other parts are parted from L<LibTomCrypt|http://www.libtom.net>.
 
 =head1 LICENSE
 
