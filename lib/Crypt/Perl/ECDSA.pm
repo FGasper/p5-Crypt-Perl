@@ -142,6 +142,8 @@ The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://kjur.g
 Curve data is copied from OpenSSL. (See the script included in the
 distribution.)
 
+The point decompression logic is ported from L<LibTomCrypt|http://libtom.net>.
+
 =cut
 
 1;
