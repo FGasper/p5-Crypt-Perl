@@ -135,8 +135,6 @@ sub test_jacobi : Tests() {
     #is( _count_lsb(8), 3, 'count LSB' );
     #is( _count_lsb(3072), 10, 'count LSB 3072' );
 
-    use Carp::Always;
-
     for my $tt (@t) {
         my $ret = Crypt::Perl::ECDSA::Math::jacobi( map { Crypt::Perl::BigInt->new($_) } @{$tt}[0, 1] );
         is( $ret, $tt->[2], "@{$tt}[0,1] => $tt->[2]" );

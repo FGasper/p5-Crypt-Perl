@@ -26,7 +26,6 @@ END
 
 sub test_compressed : Tests(9) {
     my ($self) = @_;
-use Carp::Always;
 
     my $key_obj = $self->_key_for_test_compressed(PEM_FOR_COMPRESSED_TEST());
 
