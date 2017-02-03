@@ -115,13 +115,13 @@ sub test_generate : Tests() {
       SKIP: {
             skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
 
-            my $pid = IPC::Open3::open3( my $wfh, my $rfh, undef, "$ossl_bin ec -text" );
-            print {$wfh} $key_obj->to_pem_with_explicit_curve() or die $!;
-            close $wfh;
-            my $parsed = do { local $/; <$rfh> };
-            close $rfh;
+            my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
+            print {$fh} $key_obj->to_pem_with_explicit_curve() or die $!;
+            close $fh;
 
-            waitpid $pid, 0;
+            system( "$ossl_bin ec -text -in $path -out $path.out" );
+
+            my $parsed = File::Slurp::read_file("$path.out");
 
             ok( !$?, "$curve: OpenSSL parses OK" ) or diag $parsed;
         }
