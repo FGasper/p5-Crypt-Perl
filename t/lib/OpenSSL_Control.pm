@@ -56,7 +56,6 @@ sub can_ecdsa {
             my $pid = open my $rdr, '-|', "$bin ecparam -list_curves";
             my $out = do { local $/; <$rdr> };
             close $rdr;
-            waitpid $pid, 0;
 
             $_ecdsa_test_err = $?;
 
