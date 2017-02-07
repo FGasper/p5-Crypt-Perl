@@ -68,3 +68,6 @@ Revision history for Perl module Crypt::Perl
 - Improve documentation concerning ECDSA key formats
 - Fix (?) handling of “seed” values
 - Optimizations to the ECC math
+
+0.17
+- All exceptions that originate in Crypt::Perl are now Crypt::Perl::X instances.
