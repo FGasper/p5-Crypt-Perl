@@ -21,7 +21,7 @@ your purpose better.
 
 See submodules for usage examples of:
 
-=over 4
+=over
 
 =item * Key generation
 
@@ -41,7 +41,7 @@ See submodules for usage examples of:
 
 =head1 SUPPORTED PUBLIC KEY ENCRYPTION ALGORITHMS
 
-=over 4
+=over
 
 =item * L<RSA|Crypt::Perl::RSA>
 
@@ -78,14 +78,13 @@ should be fine.
 There are TODO items listed in the submodules; the following are general
 to the entire distribution.
 
-=over 4
-
-=item * Security audit. A check against OpenSSL or L<LibTomCrypt|http://www.libtom.net>
-would be awesome.
+=over
 
 =item * Document the exception system so that applications can use it.
 
-=item * Add more tests.
+=item * Add more tests, e.g., against L<CryptX>.
+
+=item * Some formal security audit would be nice.
 
 =item * Make it faster :)
 

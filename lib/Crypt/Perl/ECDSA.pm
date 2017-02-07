@@ -75,7 +75,7 @@ can do.
 The security advantages of elliptic-curve cryptography (ECC) are a matter of
 some controversy. While the math itself is apparently bulletproof, there are
 varying opinions about the integrity of the various curves that are recommended
-for ECC. Some believe that some curves contain “backdoors” that would allow
+for ECC. Some believe that some curves contain backdoors that would allow
 L<NIST|https://www.nist.gov> to sniff a transmission. For more information,
 look at L<http://safecurves.cr.yp.to>.
 
@@ -88,7 +88,7 @@ works with any of them. You can try out custom curves as well.
 
 =head1 FORMATS SUPPORTED
 
-Elliptic-curve keys can come in a variety of formats. This library supports
+Elliptic-curve keys can be in a variety of formats. This library supports
 almost all of them:
 
 =over
@@ -97,7 +97,8 @@ almost all of them:
 about explicit curve parameters.)
 
 =item Parse and export of curve points in compressed or uncompressed form,
-and parse of points in hybrid form. (L<RFC 5480|https://www.rfc-editor.org/rfc/rfc5480.txt>
+and parse of points in hybrid form.
+(NB: L<RFC 5480|https://www.rfc-editor.org/rfc/rfc5480.txt>
 prohibits use of the hybrid form.)
 
 =back
@@ -105,7 +106,7 @@ prohibits use of the hybrid form.)
 Explicit curves (i.e., giving the curve by full parameters rather than by
 name reference) may be a known curve or an arbitrary curve.
 Explicit curves may include or omit the seed value. It is omitted in output
-by default. They may also include or
+by default. Explicit curves may also include or
 omit the cofactor, but if the curve is unknown the cofactor is required.
 This is because this library’s export of explicit curves always includes the
 cofactor. While it’s not required for ECDSA, it’s recommended, and it’s
@@ -137,7 +138,8 @@ other curve parameters.
 
 =head1 ACKNOWLEDGEMENTS
 
-The ECDSA logic here is ported from Kenji Urushima’s L<jsrsasign|http://kjur.github.io/jsrsasign/>.
+Most of the ECDSA logic here is ported from Kenji Urushima’s
+L<jsrsasign|http://kjur.github.io/jsrsasign/>.
 
 Curve data is copied from OpenSSL. (See the script included in the
 distribution.)
