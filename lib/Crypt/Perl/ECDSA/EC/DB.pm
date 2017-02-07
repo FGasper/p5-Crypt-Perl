@@ -53,8 +53,11 @@ use Crypt::Perl::X ();
 #   y^2 = x^3 + ax + b
 #----------------------------------------------------------------------
 
-use constant CURVE_ORDER => qw( p a b n h gx gy );
-use constant GETTER_CURVE_ORDER => ( CURVE_ORDER(), 'seed' );
+#“h” is determinable from the other curve parameters
+#and should not be considered necessary to match.
+use constant CURVE_EQUIVALENCY => qw( p a b n gx gy );
+
+use constant GETTER_CURVE_ORDER => ( CURVE_EQUIVALENCY(), 'h', 'seed' );
 
 sub get_oid_for_curve_name {
     my ($name) = @_;
@@ -108,17 +111,27 @@ sub get_curve_name_by_data {
 
         next if !$db_hex_data_hr;  #i.e., if we have no params for the OID
 
-        for my $k ( CURVE_ORDER() ) {
-#print "$key-$k ($hex_data{$k}) ($db_hex_data_hr->{$k})\n";
+        for my $k ( CURVE_EQUIVALENCY() ) {
             next NS_KEY if $hex_data{$k} ne $db_hex_data_hr->{$k};
         }
 
         #We got a match!
+
         my $name = substr($key, 4);  # strip leading “OID_”
 
         #We store dashes as underscores so we can use the namespace.
         #Hopefully no curve OID name will ever contain an underscore!!
         $name =~ tr<_><->;
+
+        #… but let’s make sure the extras (cofactor and seed) are correct,
+        #if given. Note that all curves have cofactor == 1 except secp112r2 and
+        #secp128r2, both of which have cofactor == 4.
+        #
+        for my $k ( qw( h seed ) ) {
+            if ( defined $hex_data{$k} && $hex_data{$k} ne $db_hex_data_hr->{$k} ) {
+                die Crypt::Perl::X::create('Generic', "Curve parameters match “$name”, but “$k” ($hex_data{$k}) does not match expected value ($db_hex_data_hr->{$k})!");
+            }
+        }
 
         return $name;
     }

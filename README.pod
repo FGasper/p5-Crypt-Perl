@@ -14,7 +14,7 @@ your purpose better.
 
 See submodules for usage examples of:
 
-=over 4
+=over
 
 =item * Key generation
 
@@ -24,15 +24,17 @@ See submodules for usage examples of:
 
 =item * Encryption & decryption
 
-=item * Import (L<Crypt::Perl::PK>) & export from L<JWK|https://tools.ietf.org/html/rfc7517> format
+=item * Import (L<Crypt::Perl::PK>) from & export to L<JSON Web Key|https://tools.ietf.org/html/rfc7517> format
 
 =item * L<JWK thumbprints|https://tools.ietf.org/html/rfc7638>
 
+=item * Certificate Signing Request (CSR) generation (PKCS #10), using RSA or ECDSA (L<Crypt::Perl::PKCS10>)
+
 =back
 
-=head1 SUPPORTED ALGORITHMS
+=head1 SUPPORTED PUBLIC KEY ENCRYPTION ALGORITHMS
 
-=over 4
+=over
 
 =item * L<RSA|Crypt::Perl::RSA>
 
@@ -42,39 +44,40 @@ See submodules for usage examples of:
 
 =head1 SECURITY
 
-B<NO GUARANTEES!!!> So far this is just my own effort—and a port of existing
-(likely also un-audited) logic at that.
-B<There has been no formal security review.>
-L<I did find one security problem|https://github.com/kjur/jsrsasign/issues/221>
-in one of the source libraries; there may well be more.
+Given the number of original tests in this distribution, I am B<reasonably>
+confident that this code is as secure as the random number generation in
+L<Bytes::Random::Secure::Tiny> can allow. The tests verify the logic here
+against OpenSSL, on which millions of applications rely every day.
 
-That said, I am B<reasonably> confident that this is a “good enough” effort
-for the intended circumstance (i.e., no access to other tools). Patches are
-always welcome! :)
+That said: B<NO GUARANTEES!!!> The tests here are original, but the
+production logic is ported from elsewhere. There has been no formal security
+review. L<I found at least one security flaw|https://github.com/kjur/jsrsasign/issues/221>
+in one of the source libraries; there may be more.
+
+Of course, L<OpenSSL has not been trouble-free, either|https://www.openssl.org/news/vulnerabilities.html>!
+
+Caveat emptor.
 
 =head1 SPEED
 
-Most operations here are reasonably quick, but certain ones (e.g., RSA
-key generation) are pretty slow. Depending on your use case, this may or may
-not be workable for you. It will always, of course, be slower than C-based
-implementations like OpenSSL or L<LibTomCrypt|http://www.libtom.org/LibTomCrypt/>.
-This code does take advantage of XS-based backends for modules like
-L<Math::BigInt> and L<Bytes::Random::Secure::Tiny> where available.
+RSA key generation is slow—too slow, probably, unless you have
+L<Math::BigInt::GMP> or L<Math::BigInt::Pari> (either of which requires XS).
+It’s one application where pure-Perl cryptography just doesn’t seem
+feasible. :-( Everything else, though, including all ECDSA operations,
+should be fine.
 
 =head1 TODO
 
 There are TODO items listed in the submodules; the following are general
 to the entire distribution.
 
-=over 4
-
-=item * Security audit. A check against OpenSSL or LibTomCrypt
-would be awesome. I find OpenSSL overly confusing to read, and
-I didn’t think to check LibTomCrypt until I had solved the major problems.
+=over
 
 =item * Document the exception system so that applications can use it.
 
-=item * Add more tests.
+=item * Add more tests, e.g., against L<CryptX>.
+
+=item * Some formal security audit would be nice.
 
 =item * Make it faster :)
 
@@ -87,6 +90,8 @@ Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.
 Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
+
+Other parts are parted from L<LibTomCrypt|http://www.libtom.net>.
 
 =head1 LICENSE
 

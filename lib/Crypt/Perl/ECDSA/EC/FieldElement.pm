@@ -74,6 +74,51 @@ sub square {
     );
 }
 
+#sub negate {
+#    my ($self) = @_;
+#
+#    return $self->_spawn_mod( $self->{'x'}->copy()->bneg() );
+#}
+#
+#sub add {
+#    my ($self, $b) = @_;
+#
+#    return $self->_spawn_mod( $self->{'x'}->copy()->badd($b->to_bigint()) );
+#}
+#
+#sub subtract {
+#    my ($self, $b) = @_;
+#
+#    return $self->_spawn_mod( $self->{'x'}->copy()->bsub($b->to_bigint()) );
+#}
+#
+#sub multiply {
+#    my ($self, $b) = @_;
+#
+#    return $self->_spawn_mod( $self->{'x'}->copy()->bmul($b->to_bigint()) );
+#}
+#
+#sub square {
+#    my ($self) = @_;
+#
+#    return $self->_spawn( $self->{'x'}->copy()->bmodpow(2, $self->{'q'}) );
+#}
+#
+#sub _spawn_mod {
+#    my ($self, $num) = @_;
+#
+#    $num->bmod( $self->{'q'} );
+#
+#    return $self->_spawn($num);
+#}
+#
+#sub _spawn {
+#    my ($self, $num) = @_;
+#
+#    return (ref $self)->new( $self->{'q'}, $num );
+#}
+#
+##Unused:
 #sub divide {
 #    my ($self, $b) = @_;
 #

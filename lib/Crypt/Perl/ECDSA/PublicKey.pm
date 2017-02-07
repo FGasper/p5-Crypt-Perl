@@ -26,10 +26,6 @@ Crypt::Perl::ECDSA::PublicKey - object representation of ECDSA public key
     #against the original message.
     $pbkey->verify_jwa($payload, $sig) or die "Invalid signature!";
 
-    #Corresponding “der” methods exist as well.
-    my $cn_pem = $pbkey->to_pem_with_curve_name();
-    my $expc_pem = $pbkey->to_pem_with_explicit_curve();
-
     #----------------------------------------------------------------------
 
     #Includes “kty”, “crv”, “x”, and “y”.
@@ -46,6 +42,8 @@ Crypt::Perl::ECDSA::PublicKey - object representation of ECDSA public key
 =head1 DISCUSSION
 
 The SYNOPSIS above should be illustration enough of how to use this class.
+
+Export methods (PEM, DER, etc.) are shown in L<Crypt::Perl::ECDSA>.
 
 =cut
 
@@ -80,32 +78,26 @@ use constant _PEM_HEADER => 'EC PUBLIC KEY';
 sub new {
     my ($class, $public, $curve_parts) = @_;
 
-    if ( !try { $public->isa('Crypt::Perl::BigInt') } ) {
-        $public = Crypt::Perl::BigInt->from_bytes($public);
-    }
+    my $self = bless {}, $class;
 
-    my $self = {
-        public => $public,
-    };
-
-    bless $self, $class;
+    $self->_set_public($public);
 
     return $self->_add_params( $curve_parts );
 }
 
 sub _get_asn1_parts {
-    my ($self, $curve_parts) = @_;
+    my ($self, $curve_parts, @params) = @_;
 
     return $self->__to_der(
         'ECPublicKey',
         ASN1_PUBLIC(),
         {
-            publicKey => $self->{'public'}->as_bytes(),
             keydata => {
                 oid => $self->OID_ecPublicKey(),
                 parameters => $curve_parts,
             },
         },
+        @params,
     );
 }
 

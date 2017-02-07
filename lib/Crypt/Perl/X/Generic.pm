@@ -1,4 +1,4 @@
-package Crypt::Perl::X;
+package Crypt::Perl::X::Generic;
 
 use strict;
 use warnings;

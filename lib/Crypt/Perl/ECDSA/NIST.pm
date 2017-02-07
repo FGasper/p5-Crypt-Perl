@@ -9,7 +9,7 @@ use Crypt::Perl::X ();
 
 use constant JWK_CURVE_prime256v1 => 'P-256';
 use constant JWK_CURVE_secp384r1 => 'P-384';
-use constant JWK_CURVE_secp521r1 => 'P-512';
+use constant JWK_CURVE_secp521r1 => 'P-521';
 
 sub get_nist_for_curve_name {
     my ($curve_name) = @_;

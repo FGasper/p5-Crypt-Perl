@@ -11,7 +11,7 @@ Crypt::Perl::ECDSA::Generate - ECDSA key generation
     use Crypt::Perl::ECDSA::Generate ();
 
     #$prkey is a C::P::E::PrivateKey instance.
-    my $prkey = Crypt::Perl::ECDSA::Generate::by_name('secp521r1');
+    my $prkey = Crypt::Perl::ECDSA::Generate::by_curve_name('secp521r1');
 
     my $signature = $prkey->sign('Hello!');
 
@@ -50,7 +50,7 @@ use Crypt::Perl::ECDSA::PrivateKey ();
 
 #The curve name is optional; if given, only the name will be encoded
 #into the key rather than the explicit curve parameters.
-sub by_name {
+sub by_curve_name {
     my ($curve_name) = @_;
 
     my $key_parts = _generate(
@@ -59,6 +59,8 @@ sub by_name {
 
     return Crypt::Perl::ECDSA::PrivateKey->new_by_curve_name($key_parts, $curve_name);
 }
+
+*by_name = *by_curve_name;  #legacy
 
 sub by_explicit_curve {
     my ($curve_hr) = @_;

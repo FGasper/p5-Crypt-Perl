@@ -17,13 +17,13 @@ use Test::NoWarnings;
 use Test::Deep;
 use Test::Exception;
 
+use lib "$FindBin::Bin/lib";
+
 use parent qw(
-    Test::Class
+    TestClass
 );
 
 use Math::BigInt ();
-
-use lib "$FindBin::Bin/lib";
 
 use Crypt::Perl::Math ();
 

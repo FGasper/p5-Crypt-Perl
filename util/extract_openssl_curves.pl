@@ -20,9 +20,9 @@ use constant CURVE_<oid> => (
     '<a>', # a
     '<b>', # b
     '<n>', # n / order
-    '<h>', # h / cofactor
     '<gx>', # gx / generator-x
     '<gy>', # gy / generator-y
+    '<h>', # h / cofactor
     '<seed>', # seed
 );
 END

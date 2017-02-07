@@ -24,7 +24,7 @@ use lib "$FindBin::Bin/lib";
 use OpenSSL_Control ();
 
 use parent qw(
-    Test::Class
+    TestClass
     NeedsOpenSSL
 );
 
@@ -93,7 +93,7 @@ sub test_new : Tests() {
             $print_type = "RSA ($type-bit)";
         }
         else {
-            $key = Crypt::Perl::ECDSA::Generate::by_name($type);
+            $key = Crypt::Perl::ECDSA::Generate::by_curve_name($type);
             $print_type = "ECDSA ($type)";
         }
 

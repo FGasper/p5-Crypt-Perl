@@ -14,6 +14,16 @@ use Module::Load ();
 
 use lib '../lib';
 
+use constant BLACKLIST_CURVES => (
+
+    #OpenSSL says of these:
+    #   Not suitable for ECDSA.
+    #   Questionable extension field!
+    #
+    'Oakley-EC2N-3',
+    'Oakley-EC2N-4',
+);
+
 sub openssl_version {
     my $bin = openssl_bin();
     return scalar qx<$bin version -v -o -f>;
@@ -43,11 +53,9 @@ sub can_ecdsa {
         my $bin = openssl_bin();
 
         if ($bin) {
-            my $pid = IPC::Open3::open3( my $wtr, my $rdr, undef, "$bin ecparam -list_curves" );
-            close $wtr;
+            my $pid = open my $rdr, '-|', "$bin ecparam -list_curves";
             my $out = do { local $/; <$rdr> };
             close $rdr;
-            waitpid $pid, 0;
 
             $_ecdsa_test_err = $?;
 
@@ -102,7 +110,14 @@ sub curve_names {
     my $bin = openssl_bin();
     my @lines = qx<$bin ecparam -list_curves>;
 
-    return map { m<(\S+)\s*:> ? $1 : () } @lines;
+    my @all_curves = map { m<(\S+)\s*:> ? $1 : () } @lines;
+
+    my %lookup;
+    @lookup{$all_curves[$_]} = $_ for 0 .. $#all_curves;
+
+    delete @lookup{ BLACKLIST_CURVES() };
+
+    return sort { $lookup{$a} <=> $lookup{$b} } keys %lookup;
 }
 
 sub curve_oid {
