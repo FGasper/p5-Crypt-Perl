@@ -122,7 +122,11 @@ sub new {
         version => $key_parts->{'version'},
     };
 
-    for my $k ( qw( private public ) ) {
+    bless $self, $class;
+
+    $self->_set_public( $key_parts->{'public'} );
+
+    for my $k ( qw( private ) ) {
         if ( try { $key_parts->{$k}->isa(NUMBER_CLASS()) } ) {
             $self->{$k} = $key_parts->{$k};
         }
@@ -130,8 +134,6 @@ sub new {
             die Crypt::Perl::X::create('Generic', sprintf "“$k” must be “%s”, not “$key_parts->{$k}”!", NUMBER_CLASS());
         }
     }
-
-    bless $self, $class;
 
     return $self->_add_params( $curve_parts );
 }
@@ -163,9 +165,13 @@ sub get_public_key {
 
     Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
 
+    my $curve_hr = $self->_explicit_curve_parameters( seed => 1 );
+    my $ccurve_hr = $curve_hr->{'ecParameters'}{'curve'};
+    $ccurve_hr->{'seed'} = [ $ccurve_hr->{'seed'} ];
+
     return Crypt::Perl::ECDSA::PublicKey->new(
-        $self->{'public'},
-        $self->_explicit_curve_parameters(),
+        $self->_decompress_public_point(),
+        $curve_hr,
     );
 }
 
@@ -237,7 +243,7 @@ sub _sign {
 }
 
 sub _get_asn1_parts {
-    my ($self, $curve_parts) = @_;
+    my ($self, $curve_parts, @params) = @_;
 
     my $private_str = $self->{'private'}->as_bytes();
 
@@ -249,6 +255,7 @@ sub _get_asn1_parts {
             privateKey => $private_str,
             parameters => $curve_parts,
         },
+        @params,
     );
 }
 

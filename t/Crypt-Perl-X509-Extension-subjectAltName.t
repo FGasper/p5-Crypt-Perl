@@ -17,11 +17,8 @@ use Test::NoWarnings;
 use Test::Deep;
 use Test::Exception;
 
-use parent qw(
-    Test::Class
-);
-
 use lib "$FindBin::Bin/lib";
+use parent qw( TestClass );
 
 use Crypt::Perl::X509::Extension::subjectAltName ();
 

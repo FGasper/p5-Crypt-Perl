@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = 0.15;
+our $VERSION = '0.16';
 
 =encoding utf-8
 
@@ -21,7 +21,7 @@ your purpose better.
 
 See submodules for usage examples of:
 
-=over 4
+=over
 
 =item * Key generation
 
@@ -41,7 +41,7 @@ See submodules for usage examples of:
 
 =head1 SUPPORTED PUBLIC KEY ENCRYPTION ALGORITHMS
 
-=over 4
+=over
 
 =item * L<RSA|Crypt::Perl::RSA>
 
@@ -78,14 +78,13 @@ should be fine.
 There are TODO items listed in the submodules; the following are general
 to the entire distribution.
 
-=over 4
-
-=item * Security audit. A check against OpenSSL or LibTomCrypt
-would be awesome.
+=over
 
 =item * Document the exception system so that applications can use it.
 
-=item * Add more tests.
+=item * Add more tests, e.g., against L<CryptX>.
+
+=item * Some formal security audit would be nice.
 
 =item * Make it faster :)
 
@@ -98,6 +97,8 @@ Much of the logic here comes from Kenji Urushima’s L<jsrsasign|https://github.
 Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
+
+Other parts are parted from L<LibTomCrypt|http://www.libtom.net>.
 
 =head1 LICENSE
 

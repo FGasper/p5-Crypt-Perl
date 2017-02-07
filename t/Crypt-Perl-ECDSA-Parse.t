@@ -26,10 +26,7 @@ use Digest::SHA ();
 use File::Slurp ();
 use File::Temp ();
 
-use lib "$FindBin::Bin/lib";
-use parent qw(
-    Test::Class
-);
+use parent qw( TestClass );
 
 use lib "$FindBin::Bin/../lib";
 

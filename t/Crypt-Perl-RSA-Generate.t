@@ -23,7 +23,7 @@ use lib "$FindBin::Bin/lib";
 
 use parent qw(
     NeedsOpenSSL
-    Test::Class
+    TestClass
 );
 
 use Crypt::Format ();
