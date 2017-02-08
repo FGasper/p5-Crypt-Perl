@@ -71,3 +71,4 @@ Revision history for Perl module Crypt::Perl
 
 0.17
 - All exceptions that originate in Crypt::Perl are now Crypt::Perl::X instances.
+- BUG FIX: Make RSA key generation typecast to Crypt::Perl::BigInt.
