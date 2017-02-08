@@ -121,6 +121,8 @@ sub create {
     }
 }
 
-*_get_random_prime = \&Math::ProvablePrime::find;
+sub _get_random_prime {
+    return Crypt::Perl::BigInt->new( Math::ProvablePrime::find(@_) );
+}
 
 1;
