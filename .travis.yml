@@ -19,6 +19,8 @@ matrix:
     - os: osx
       perl: system
       before_install:
+        - brew install openssl
+        - brew link openssl
         - cpan App::cpanminus
         - export PATH=$PATH:$HOME/perl5/bin
         - export PERL5LIB=$HOME/perl5/lib
