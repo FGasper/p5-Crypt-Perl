@@ -19,4 +19,5 @@ matrix:
       before_install:
         - cpan App::cpanminus
         - export PATH=/usr/local/opt/openssl/bin:$PATH:$HOME/perl5/bin
-        - export PERL5LIB=$HOME/perl5/lib
+        #- export PERL5LIB=$HOME/perl5/lib
+        - cpanm --local-lib=~/perl5 local::lib
