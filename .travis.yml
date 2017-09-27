@@ -14,7 +14,7 @@ perl:
   - "5.12"
   - "5.10"
   - "5.8"
-install: cpanm --installdeps --notest .
+install: echo "perl5: $PERL5LIB"; cpanm --installdeps --notest .
 matrix:
   include:
     - os: osx
