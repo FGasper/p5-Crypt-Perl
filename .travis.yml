@@ -12,7 +12,6 @@ perl:
   - "5.12"
   - "5.10"
   - "5.8.9"     #5.8.8 screws up: printf "%v.02x", "\x07\x66"
-07.066
 matrix:
   include:
     - os: osx
