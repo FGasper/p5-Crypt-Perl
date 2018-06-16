@@ -16,6 +16,8 @@ sub new {
 
     my @sequence;
 
+    # Accept either pairs of two-member arrays (new, preferred format)
+    # or flat key/value pairs.
     while (@type_vals) {
         if ('ARRAY' eq ref $type_vals[0]) {
             push @sequence, shift @type_vals;
