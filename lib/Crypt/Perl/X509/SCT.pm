@@ -96,13 +96,6 @@ sub encode {
     if ( 32 != length $opts{'key_id'} ) {
         die sprintf("“key_id” (%v.02x) must be 32 bytes!", $opts{'key_id'});
     }
-use Data::Dumper;
-print Dumper(
-        @opts{'key_id', 'timestamp'},
-        $hash_idx,
-        $sig_idx,
-        $opts{'signature'},
-);
 
     return pack _TEMPLATE(), (
         @opts{'key_id', 'timestamp'},

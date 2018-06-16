@@ -64,12 +64,8 @@ sub new {
 
 sub _encode_params {
     my ($self) = @_;
-use Data::Dumper;
-$Data::Dumper::Useqq = 1;
-print Dumper( scts_in => $self );
 
     my @scts = map { Crypt::Perl::X509::SCT::encode(%$_) } @$self;
-print Dumper( scts => \@scts );
 
     # Prefix with length.
     _tls_length_encode($_) for @scts;
@@ -77,8 +73,6 @@ print Dumper( scts => \@scts );
     my $list = join( q<>, @scts );
 
     _tls_length_encode($list);
-print Dumper(list => $list);
-return $list;
 }
 
 sub _tls_length_encode {

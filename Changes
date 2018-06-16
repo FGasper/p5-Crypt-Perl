@@ -2,6 +2,7 @@ Revision history for Perl module Crypt::Perl
 
 0.18
 - Experimental support for creation of X.509 certificates.
+- Reverse the changelog
 
 0.17 Web Feb 08 2017
 - All exceptions that originate in Crypt::Perl are now Crypt::Perl::X instances.
