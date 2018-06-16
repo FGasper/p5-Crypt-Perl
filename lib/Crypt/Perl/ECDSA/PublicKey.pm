@@ -55,23 +55,24 @@ use parent qw( Crypt::Perl::ECDSA::KeyBase );
 use Try::Tiny;
 
 use Crypt::Perl::BigInt ();
+use Crypt::Perl::ECDSA::ECParameters ();
 
 use constant ASN1_PUBLIC => Crypt::Perl::ECDSA::KeyBase->ASN1_Params() . q<
 
-    AlgorithmIdentifier ::= SEQUENCE {
+    -- FG: For some reason just plain “AlgorithmIdentifier”
+    -- causes the parser not to decode parameters.namedCurve.
+    FG_AlgorithmIdentifier ::= SEQUENCE {
         algorithm   OBJECT IDENTIFIER,
         parameters  EcpkParameters
     }
 
     ECPublicKey ::= SEQUENCE {
-        keydata     AlgorithmIdentifier,
+        keydata     FG_AlgorithmIdentifier,
         publicKey   BIT STRING
     }
 >;
 
 use constant _PEM_HEADER => 'EC PUBLIC KEY';
-
-use constant OID_ecPublicKey => '1.2.840.10045.2.1';
 
 #There’s no new_by_curve_name() method here because
 #that logic in PrivateKey is only really useful for when we
@@ -97,7 +98,7 @@ sub _algorithm_identifier {
     my ($self, $curve_parts) = @_;
 
     return {
-        algorithm => $self->OID_ecPublicKey(),
+        algorithm => Crypt::Perl::ECDSA::ECParameters::OID_ecPublicKey(),
         parameters => $curve_parts,
     };
 }
