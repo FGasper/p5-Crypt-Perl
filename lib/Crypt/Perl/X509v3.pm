@@ -7,7 +7,22 @@ use warnings;
 
 =head1 NAME
 
-Crypt::Perl::X509v3
+Crypt::Perl::X509v3 - TLS/SSL Certificates
+
+=head1 SYNOPSIS
+
+=head1 STATUS
+
+This module is B<experimental>! The API may well change between versions.
+If you’re going to build something off of it, ensure that you check
+Crypt::Perl’s changelog before updating this module.
+
+=head1 DESCRIPTION
+
+This module can create TLS/SSL certificates. The caller has full control
+over all certificate components.
+
+There currently is not a parsing interface. Hopefully that can be remedied.
 
 =cut
 

@@ -7,7 +7,7 @@ use warnings;
 
 =head1 NAME
 
-Crypt::Perl::X509::Extension::policyConstraints
+Crypt::Perl::X509::Extension::inhibitAnyPolicy
 
 =head1 SYNOPSIS
 
