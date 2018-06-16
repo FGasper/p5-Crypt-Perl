@@ -165,10 +165,7 @@ sub generate_key_pair {
 
     # crypto_sign_keypair
 
-    my @digest = unpack 'C*', Digest::SHA::sha512($seed);
-    $digest[0]  &= 0xf8;    #248
-    $digest[31] &= 0x7f;    #127
-    $digest[31] |= 0x40;    # 64
+    my @digest = _digest32($seed);
 
     my $p = [ map { [ gf0() ] } 0 .. 3 ];
 
@@ -179,6 +176,17 @@ sub generate_key_pair {
     my $pk = _pack($p);
 
     return( [ unpack 'C*', $seed ], $pk );
+}
+
+sub _digest32 {
+    my ($seed) = @_;
+
+    my @digest = unpack 'C*', Digest::SHA::sha512($seed);
+    $digest[0]  &= 0xf8;    #248
+    $digest[31] &= 0x7f;    #127
+    $digest[31] |= 0x40;    # 64
+
+    return @digest;
 }
 
 # p is an array of arrays
@@ -333,5 +341,172 @@ sub _Z {
 }
 
 sub _S { _M( $_[0], $_[1], $_[1] ) }
+
+#----------------------------------------------------------------------
+
+sub _reduce {
+    my ($r) = @_;
+
+    my @x;
+
+    for my $i ( 0 .. 63 ) {
+        $x[$i] = $r->[$i];
+        $r->[$i] = 0;
+    }
+#print "reduce-x: @x\n";
+#print "reduce-r: @$r\n";
+
+    _modL( $r, \@x );
+
+    return;
+}
+
+sub _modL {
+    my ($r, $x) = @_;
+
+    my ($k);
+
+    for my $i ( reverse( 32 .. 63 ) ) {
+        my $carry = 0;
+
+        my ($j, $k);
+
+        for (
+            ($j = $i - 32), ($k = $i - 12);
+            $j < $k;
+            ++$j
+        ) {
+            $x->[$j] += $carry - 16 * $x->[$i] * (L())[$j - ($i - 32)];
+
+            # originally “>> 8” rather than “/ 256”;
+            # we need a floor(), too.
+            $carry = int( ($x->[$j] + 128) / 256 );
+            $carry-- if $x->[$j] < -128;
+
+#print "$x->[$j] + 128 = " . ($x->[$j] + 128) . ", carry=$carry$/";
+            $x->[$j] -= $carry * 256;
+        }
+#print "j,k,x: $j, $k, @$x\n";
+
+        $x->[$j] += $carry;
+        $x->[$i] = 0;
+    }
+#print "x1: @$x\n";
+
+    my $carry = 0;
+
+    for my $j ( 0 .. 31 ) {
+        $x->[$j] += $carry - ($x->[31] >> 4) * (L())[$j];
+
+        # originally “>> 8” rather than “/ 256”; we also need floor
+        # $carry = $x->[$j] >> 8;
+        $carry = int( $x->[$j] / 256 );
+        $carry-- if $x->[$j] < 0;
+
+#print "xj: $x->[$j]; carry: $carry\n";
+
+        $x->[$j] &= 255;
+    }
+#print "x2: @$x\n";
+
+    $x->[$_] -= $carry * (L())[$_] for 0 .. 31;
+
+    for my $i ( 0 .. 31 ) {
+        $x->[$i + 1] += $x->[$i] >> 8;
+        $r->[$i] = $x->[$i] & 255;
+    }
+
+    return;
+}
+
+sub verify {
+    my ($public_ar, $msg, $sig_ar) = @_;
+
+    my @sm = @$sig_ar, unpack( 'C*', $msg );
+    my @m = (0) x @sm;
+    #my @t = (0) x 32;
+
+    my @p = map { [ gf() ] } 1 .. 4;
+    my @q = map { [ gf() ] } 1 .. 4;
+
+    if ( _unpackneg( \@q, $public_ar ) ) {
+        die "-1??";
+    }
+
+    @m = @sm;
+    @m[ 32 .. 63 ] = @{$public_ar};
+
+    my @h = Digest::SHA::sha512( pack 'C*', @m );
+    _reduce(\@h);
+
+    _scalarmult(\@p, \@q, \@h);
+
+    my @latter_sm = @sm[32 .. $#sm];
+    _scalarbase( \@q, \@latter_sm );
+    @sm[32 .. $#sm] = @latter_sm;
+
+    _add( \@p, \@q );
+    my @t = _pack(\@p);
+
+    my $n = @sm - SIGN_BYTE_LENGTH;
+
+#  if(crypto_verify_32(sm, 0, t, 0)) {
+#    for(i = 0; i < n; ++i) {
+#      m[i] = 0;
+#    }
+#    return -1;
+#  }
+#
+#  for(i = 0; i < n; ++i) {
+#    m[i] = sm[i + 64];
+#  }
+#  mlen = n;
+#return mlen;
+}
+
+sub sign {
+    my ($private_ar, $public_ar, $msg) = @_;
+
+    my @x = (0) x 64;
+
+    my @p = map { [ gf0() ] } 1 .. 4;
+
+    my @digest = unpack 'C*', Digest::SHA::sha512(pack 'C*', @$private_ar);
+    $digest[0]  &= 0xf8;    #248
+    $digest[31] &= 0x7f;    #127
+    $digest[31] |= 0x40;    # 64
+
+    my @sm = (0) x 32;
+    push @sm, @digest[32 .. 63];
+    push @sm, unpack( 'C*', $msg );
+
+    my @r = unpack 'C*', Digest::SHA::sha512( pack 'C*', @sm[32 .. $#sm] );
+    _reduce(\@r);
+    _scalarbase( \@p, \@r );
+    @sm[ 0 .. 31 ] = @{ _pack(\@p) };
+
+    @sm[32 .. 63] = @{$public_ar};
+#print "sm: @sm\n";
+
+    my @h = unpack 'C*', Digest::SHA::sha512( pack 'C*', @sm );
+    _reduce( \@h );
+#print "reduced h @h\n";
+
+    @x[0 .. 31] = @r[0 .. 31];
+
+    for my $i ( 0 .. 31) {
+        for my $j ( 0 .. 31 ) {
+            $x[ $i + $j ] += $h[$i] * $digest[$j];
+        }
+    }
+
+    my @latter_sm = @sm[32 .. $#sm];
+
+    _modL( \@latter_sm, \@x );
+
+    @sm[32 .. $#sm] = @latter_sm;
+
+    return @sm[ 0 .. (SIGN_BYTE_LENGTH - 1) ];
+}
 
 1;
