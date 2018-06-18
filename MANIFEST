@@ -30,7 +30,6 @@ lib/Crypt/Perl/KeyBase.pm
 lib/Crypt/Perl/Math.pm
 lib/Crypt/Perl/PK.pm
 lib/Crypt/Perl/PKCS10.pm
-lib/Crypt/Perl/PKCS10/ASN1.pm
 lib/Crypt/Perl/PKCS10/Attribute.pm
 lib/Crypt/Perl/PKCS10/Attribute/challengePassword.pm
 lib/Crypt/Perl/PKCS10/Attribute/extensionRequest.pm
