@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = '0.17';
+our $VERSION = '0.18-TRIAL3';
 
 =encoding utf-8
 
@@ -98,7 +98,7 @@ Most of the tests depend on the near-ubiquitous L<OpenSSL|http://openssl.org>,
 without which the Internet would be a very, very different reality from
 what we know!
 
-Other parts are parted from L<LibTomCrypt|http://www.libtom.net>.
+Other parts are ported from L<LibTomCrypt|http://www.libtom.net>.
 
 =head1 LICENSE
 
