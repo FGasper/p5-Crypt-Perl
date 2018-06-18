@@ -11,16 +11,44 @@ Crypt::Perl::X509v3 - TLS/SSL Certificates
 
 =head1 SYNOPSIS
 
+    my $cert = Crypt::Perl::X509v3->new(
+        key => $crypt_perl_public_key_obj,
+        issuer => [
+            [ commonName => 'Foo', surname => 'theIssuer' ],
+            [ givenName => 'separate RDNs' ],
+        ],
+        subject => \@subject,   #same format as issuer
+
+        not_before => $unixtime,
+        not_after => $unixtime,
+
+        # The same structure as in Crypt::Perl::PKCS10 …
+        extensions => [
+            [ keyUsage => 'keyCertSign', 'keyEncipherment' ],
+            [ $extn_name => @extn_args ],
+            # ..
+        ],
+
+        serial_number => 12345,
+
+        issuer_unique_id => '..',
+        subject_unique_id => '..',
+    );
+
+    $cert->sign( $crypt_perl_private_key_obj, 'sha256' );
+
+    my $pem = $cert->to_pem();
+
 =head1 STATUS
 
-This module is B<experimental>! The API may well change between versions.
+This module is B<experimental>! The API may change between versions.
 If you’re going to build something off of it, ensure that you check
 Crypt::Perl’s changelog before updating this module.
 
 =head1 DESCRIPTION
 
 This module can create TLS/SSL certificates. The caller has full control
-over all certificate components.
+over all certificate components, and anything not specified is not assumed.
 
 There currently is not a parsing interface. Hopefully that can be remedied.
 
