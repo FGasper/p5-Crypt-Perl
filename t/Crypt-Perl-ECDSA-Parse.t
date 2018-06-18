@@ -102,7 +102,6 @@ END
 }
 
 sub test_jwk_public : Tests(1) {
-use Carp::Always;
 
     my ($jwk) = {
         kty => 'EC',
