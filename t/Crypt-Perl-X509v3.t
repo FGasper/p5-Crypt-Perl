@@ -31,7 +31,7 @@ use parent qw(
 use Crypt::Perl::ECDSA::Generate ();
 use Crypt::Perl::PK ();
 
-use Crypt::Perk::X509v3 ();
+use Crypt::Perl::X509v3 ();
 
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
