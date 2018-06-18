@@ -31,8 +31,6 @@ use parent qw(
 use Crypt::Perl::ECDSA::Generate ();
 use Crypt::Perl::PK ();
 
-use Crypt::Perl::X509v3 ();
-
 if ( !caller ) {
     my $test_obj = __PACKAGE__->new();
     plan tests => $test_obj->expected_tests(+1);

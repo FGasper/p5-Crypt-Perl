@@ -16,19 +16,11 @@ excellent walkthrough of the format that this module deals with.
 
 =cut
 
-BEGIN {
-    local $@;
-    if (!eval { pack 'q' }) {
-        my $module = __PACKAGE__.
-        die "$module uses 64-bit integers, which this perl ($^X, $^V) does not support.";
-    }
-}
-
 use constant _TEMPLATE => join(
     q<>,
     'x',    # version 1
     'a32',  # key_id
-    'Q>',   # timestamp
+    'N2',   # timestamp; use this rather than “Q>” to support Perl 5.8.9.
     'xx',   # zero-length extensions array
     'C',    # hash algorithm
     'C',    # signature algorithm
@@ -98,7 +90,9 @@ sub encode {
     }
 
     return pack _TEMPLATE(), (
-        @opts{'key_id', 'timestamp'},
+        $opts{'key_id'},
+        ( $opts{'timestamp'} >> 32 ),
+        ( $opts{'timestamp'} & 0xffff_ffff ),
         $hash_idx,
         $sig_idx,
         length($opts{'signature'}),

@@ -109,6 +109,7 @@ t/Crypt-Perl-RSA-Parse.t
 t/Crypt-Perl-RSA-PrivateKey.t
 t/Crypt-Perl-RSA-PublicKey.t
 t/Crypt-Perl-X509-Extension-subjectAltName.t
+t/Crypt-Perl-X509-SCT.t
 t/Crypt-Perl-X509v3.t
 t/assets/RS256.dump
 t/assets/c2pnb163v1.key
