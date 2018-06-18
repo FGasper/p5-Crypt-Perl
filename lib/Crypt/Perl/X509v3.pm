@@ -30,14 +30,15 @@ use parent qw( Crypt::Perl::ASN1::Encodee );
 
 use Digest::SHA ();
 
-use Crypt::Perl::X ();
+use Crypt::Perl::ASN1::Signatures ();
 use Crypt::Perl::X509::Extensions ();
 use Crypt::Perl::X509::Name ();
+
+use Crypt::Perl::X ();
 
 #TODO: refactor
 *to_der = __PACKAGE__->can('encode');
 
-#TODO: already refactored?
 sub to_pem {
     my ($self) = @_;
 
@@ -164,7 +165,7 @@ sub sign {
     }
 
     $sig_alg = {
-        algorithm => $Crypt::Perl::PKCS10::ASN1::OID{$sig_alg},
+        algorithm => $Crypt::Perl::ASN1::Signatures::OID{$sig_alg},
     };
 
     $self->{'_signed'} = {
@@ -198,7 +199,6 @@ sub _encode_tbs_certificate {
 
     my $pubkey_der;
 
-    #XXX TODO refactor w/ PKCS10
     if ($self->{'_key'}->isa('Crypt::Perl::ECDSA::PublicKey')) {
         $pubkey_der = $self->{'_key'}->to_der_with_curve_name();
         #$sig_alg = 'ecPublicKey'; #"ecdsa-with-SHA$digest_length";
@@ -212,9 +212,6 @@ sub _encode_tbs_certificate {
     else {
         die "Key ($self->{'_key'}) is not a recognized public key object!";
     }
-
-    #XXX
-    use Crypt::Perl::PKCS10::ASN1 ();
 
     my $extns_bin;
     if ($self->{'_extensions'}) {
@@ -241,7 +238,7 @@ sub _encode_tbs_certificate {
         subjectPublicKeyInfo => $pubkey_der,
 
         signature => {
-            algorithm => $Crypt::Perl::PKCS10::ASN1::OID{$sig_alg},
+            algorithm => $Crypt::Perl::ASN1::Signatures::OID{$sig_alg},
         },
 
         ( $extns_bin ? ( extensions => { extensions => $extns_bin } ) : () ),

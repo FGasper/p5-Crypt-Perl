@@ -68,8 +68,6 @@ sub new {
 
             if ($dp->{'fullName'}) {
                 my $gns = Crypt::Perl::X509::GeneralNames->new( @{ $pp{'distributionPoint'}{'fullName'} } );
-                use Data::Dumper;
-                print STDERR Dumper [ gns => $gns->_encode_params(), sprintf '%v.02x', $gns->encode() ];
 
                 $pp{'distributionPoint'} = {
                     fullName => $gns->encode(),
@@ -79,7 +77,6 @@ sub new {
             }
             elsif ($dp->{'nameRelativeToCRLIssuer'}) {
                 my $rdn = Crypt::Perl::X509::RelativeDistinguishedName->new( @{ $dp->{'nameRelativeToCRLIssuer'} } );
-                use Data::Dumper;
 
                 $pp{'distributionPoint'} = {
                     nameRelativeToCRLIssuer => $rdn->encode(),

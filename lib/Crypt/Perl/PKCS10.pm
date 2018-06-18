@@ -108,8 +108,8 @@ use Crypt::Format ();
 use Digest::SHA ();
 
 use Crypt::Perl::ASN1 ();
+use Crypt::Perl::ASN1::Signatures ();
 use Crypt::Perl::PKCS10::Attributes ();
-use Crypt::Perl::PKCS10::ASN1 ();
 use Crypt::Perl::PKCS10::Attributes ();
 use Crypt::Perl::X509::Name ();
 use Crypt::Perl::X ();
@@ -212,7 +212,7 @@ sub _encode_params {
         die Crypt::Perl::X::create('Generic', "Key ($key) is not a recognized private key class instance!");
     }
 
-    $sig_alg = $Crypt::Perl::PKCS10::ASN1::OID{$sig_alg} || do {
+    $sig_alg = $Crypt::Perl::ASN1::Signatures::OID{$sig_alg} || do {
         die Crypt::Perl::X::create('Generic', "Unrecognized signature algorithm OID: “$sig_alg”");
     };
 
