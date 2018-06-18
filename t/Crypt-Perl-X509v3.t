@@ -41,7 +41,7 @@ if ( !caller ) {
 
 #----------------------------------------------------------------------
 
-sub test_creation : Tests(1) {
+sub test_creation : Tests(2) {
 
     my $rsa_1024 = <<END;
 -----BEGIN RSA PRIVATE KEY-----
@@ -235,8 +235,13 @@ END
     print {$wfh} $pem or die $!;
     close $wfh;
 
-    print `openssl asn1parse -i -dump -in $fpath`;
-    diag scalar `openssl x509 -text -in $fpath -noout`;
+    my $ossl_bin = OpenSSL_Control::openssl_bin();
 
-    ok 1;
+    diag scalar `$ossl_bin asn1parse -i -dump -in $fpath`;
+    cmp_ok($?, '==', 0, 'asn1parse succeeds' );
+
+    diag scalar `$ossl_bin x509 -text -in $fpath -noout`;
+    cmp_ok($?, '==', 0, 'x509 parses OK');
+
+    return;
 }

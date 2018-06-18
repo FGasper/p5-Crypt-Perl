@@ -99,6 +99,10 @@ sub new {
 sub _new_parse_arrayref {
     my ($ext) = @_;
     my $module = $ext->[0];
+
+    # For the acmeValdation-v1 extension …
+    $module =~ tr<-><_>;
+
     my $class = "Crypt::Perl::X509::Extension::$module";
     Module::Load::load($class);
     return $class->new( @{$ext}[ 1 .. $#$ext ] );
