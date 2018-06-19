@@ -96,7 +96,7 @@ sub decode {
     my $hdr = _get_der_header($digest_oid);
 
     $octets =~ m<\A \x00 \x01 \xff+ \x00 \Q$hdr\E >x or do {
-        my $err = sprintf "Invalid EMSA-PKCS1-v1_5/$digest_oid: %v02x", $octets;
+        my $err = sprintf "Invalid RSA-PKCS1-v1_5/$digest_oid: %v02x", $octets;
         die Crypt::Perl::X::create('Generic', $err);
     };
 
