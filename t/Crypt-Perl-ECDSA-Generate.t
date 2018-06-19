@@ -114,6 +114,8 @@ sub test_generate : Tests() {
             "$curve: return of by_curve_name()",
         );
 
+        diag "curve: $curve";
+
       SKIP: {
             skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
 
