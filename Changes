@@ -1,6 +1,9 @@
 Revision history for Perl module Crypt::Perl
 
-0.18
+0.19 Tue Jun 19 2018
+- Add note about X.509 generation to main POD’s list of features.
+
+0.18 Mon Jun 18 2018
 - Experimental support for creation of X.509 certificates.
 - Reverse the changelog
 
