@@ -1,5 +1,7 @@
 package Crypt::Perl::X509::SCT;
 
+use strict;
+
 =head1 NAME
 
 Crypt::Perl::X509::SCT
