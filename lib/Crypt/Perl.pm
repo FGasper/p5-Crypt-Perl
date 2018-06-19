@@ -37,7 +37,7 @@ See submodules for usage examples of:
 
 =item * Certificate Signing Request (PKCS #10) generation (L<Crypt::Perl::PKCS10>)
 
-=item * SSL/TLS certificate (X.509) generation (L<Crypt::Perl::X509v3), including
+=item * SSL/TLS certificate (X.509) generation (L<Crypt::Perl::X509v3>), including
 a broad variety of extensions
 
 =back
