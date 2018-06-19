@@ -105,7 +105,11 @@ sub test_generate : Tests() {
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
 
+    my @ossl_curves = $ossl_has_ecdsa ? OpenSSL_Control::curve_names() : ();
+
     for my $curve ( $self->_KEY_TYPES_TO_TEST() ) {
+        diag "curve: $curve";
+
         my $key_obj = Crypt::Perl::ECDSA::Generate::by_curve_name($curve);
 
         isa_ok(
@@ -114,10 +118,12 @@ sub test_generate : Tests() {
             "$curve: return of by_curve_name()",
         );
 
-        diag "curve: $curve";
-
       SKIP: {
             skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
+
+            if (!grep { $curve eq $_ } @ossl_curves) {
+                skip "OpenSSL doesn’t support this curve ($curve)", 1;
+            }
 
             my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
             print {$fh} $key_obj->to_pem_with_explicit_curve() or die $!;
@@ -125,8 +131,7 @@ sub test_generate : Tests() {
 
             system( "$ossl_bin ec -text -in $path -out $path.out" );
 
-            my $parsed = eval { File::Slurp::read_file("$path.out") };
-            warn if !defined $parsed;
+            my $parsed = File::Slurp::read_file("$path.out");
 
             ok( !$?, "$curve: OpenSSL parses OK" ) or diag $parsed;
         }
