@@ -122,7 +122,7 @@ sub test_generate : Tests() {
             skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
 
             if (!grep { $curve eq $_ } @ossl_curves) {
-                skip "Your OpenSSL doesn’t support this curve ($curve)", 1;
+                skip "Your OpenSSL doesn’t support this curve ($curve).", 1;
             }
 
             my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
@@ -146,7 +146,7 @@ sub test_generate : Tests() {
                     skip 'No OpenSSL ECDSA support!', 1 if !$ossl_has_ecdsa;
 
                     if (!grep { $curve eq $_ } @ossl_curves) {
-                        skip "Your OpenSSL doesn’t support this curve ($curve)", 1;
+                        skip "Your OpenSSL doesn’t support this curve ($curve).", 1;
                     }
 
                     ok(

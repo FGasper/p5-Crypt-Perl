@@ -1,7 +1,7 @@
 Revision history for Perl module Crypt::Perl
 
-0.20
-- Fix tests that failed on CentOS 6
+0.20 Tue Jun 19 2018
+- Fix tests that failed on CentOS 6’s OpenSSL.
 
 0.19 Tue Jun 19 2018
 - Add note about X.509 generation to main POD’s list of features.
