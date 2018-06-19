@@ -1,6 +1,7 @@
 package Crypt::Perl::X509::SCT;
 
 use strict;
+use warnings;
 
 =head1 NAME
 
