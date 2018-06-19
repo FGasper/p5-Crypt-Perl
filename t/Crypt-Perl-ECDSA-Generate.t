@@ -123,7 +123,8 @@ sub test_generate : Tests() {
 
             system( "$ossl_bin ec -text -in $path -out $path.out" );
 
-            my $parsed = File::Slurp::read_file("$path.out");
+            my $parsed = eval { File::Slurp::read_file("$path.out") };
+            warn if !defined $parsed;
 
             ok( !$?, "$curve: OpenSSL parses OK" ) or diag $parsed;
         }
