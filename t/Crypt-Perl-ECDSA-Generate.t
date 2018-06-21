@@ -149,15 +149,21 @@ sub test_generate : Tests() {
                         skip "Your OpenSSL doesn’t support this curve ($curve).", 1;
                     }
 
+                    skip 'Your OpenSSL can’t correct verify an ECDSA digest against a private key!', 1 if OpenSSL_Control::has_ecdsa_verify_private_bug();
+
+                    # This used to use explicit curves, but certain older
+                    # OpenSSL releases can’t verify digests with those.
+                    my $key_pem = $key_obj->to_pem_with_curve_name();
+
                     ok(
                         OpenSSL_Control::verify_private(
-                            $key_obj->to_pem_with_explicit_curve(),
+                            $key_pem,
                             $msg,
                             $digest_alg,
                             $sig,
                         ),
-                        "$curve: OpenSSL verifies signature",
-                    ) or print $key_obj->to_pem_with_explicit_curve() . "\n";
+                        "$curve: OpenSSL verifies signature ($digest_alg) of ($msg)",
+                    ) or print "$key_pem\n";
                 }
             }
             catch {
