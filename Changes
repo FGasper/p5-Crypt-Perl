@@ -1,5 +1,8 @@
 Revision history for Perl module Crypt::Perl
 
+0.22
+- Skip SCT tests in perls that can’t grok 64-bit.
+
 0.21 Tue Jun 19 2018
 - Fix main POD encoding
 
