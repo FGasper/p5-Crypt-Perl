@@ -1,10 +1,11 @@
 Revision history for Perl module Crypt::Perl
 
-0.22
+0.22 Fri Jun 22 2018
 - Skip SCT tests in perls that can’t grok 64-bit.
 - Skip OpenSSL digest verification on OpenSSLs that can’t verify
   against a private key.
 - Remove superfluous Module::Load uses.
+- Update README.pod.
 
 0.21 Tue Jun 19 2018
 - Fix main POD encoding
