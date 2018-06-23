@@ -83,15 +83,11 @@ C<rsa> and C<ecdsa>. (cf. the URL for C<hash_algorithm> values)
 sub encode {
     my (%opts) = @_;
 
-    my $exc = $@;
-
     # A non-64-bit perl has no business in this module.
-    if (!eval { pack 'q' }) {
+    if (!_can_64_bit()) {
         my $pkg = __PACKAGE__;
         die "$pkg requires a 64-bit Perl interpreter.\n";
     }
-
-    $@ = $exc;
 
     my $hash_idx = _array_lookup(
         \@_TLS_hash_algorithm,
@@ -116,6 +112,17 @@ sub encode {
         length($opts{'signature'}),
         $opts{'signature'},
     );
+}
+
+# called from test
+sub _can_64_bit {
+    my $exc = $@;
+
+    my $ok = !!eval { pack 'q' };
+
+    $@ = $exc;
+
+    return $ok;
 }
 
 # decode() will be easy to implement when needed

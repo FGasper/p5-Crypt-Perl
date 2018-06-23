@@ -1,5 +1,8 @@
 Revision history for Perl module Crypt::Perl
 
+0.23
+- Yet another attempt to get tests passing on 32-bit.
+
 0.22 Fri Jun 22 2018
 - Skip SCT tests in perls that can’t grok 64-bit.
 - Skip OpenSSL digest verification on OpenSSLs that can’t verify
