@@ -239,7 +239,7 @@ sub _sign {
         substr( $sig, 0, 0 ) = "\0" x ($sig_length - length $sig);
     }
     else {
-        die Crypt::Perl::X::create('Generic', "Unknown signature scheme: “$scheme”");
+        die Crypt::Perl::X::create('Generic', "Unknown RSA signature scheme: “$scheme”");
     }
 
     return $sig;
