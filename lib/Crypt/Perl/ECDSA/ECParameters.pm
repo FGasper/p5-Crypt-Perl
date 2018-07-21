@@ -17,8 +17,6 @@ use warnings;
 
 use Try::Tiny;
 
-use Module::Load ();
-
 use Crypt::Perl::BigInt ();
 use Crypt::Perl::ECDSA::EncodedPoint ();
 use Crypt::Perl::ECDSA::Utils ();
@@ -27,8 +25,11 @@ use Crypt::Perl::X ();
 #NOTE: This needs never to use Crypt::Perl::ECDSA::DB
 #so that extract_openssl_curves.pl will work.
 
-use constant OID_prime_field => '1.2.840.10045.1.1';
-use constant OID_characteristic_two_field => '1.2.840.10045.1.2';
+use constant {
+    OID_ecPublicKey => '1.2.840.10045.2.1',
+    OID_prime_field => '1.2.840.10045.1.1',
+    OID_characteristic_two_field => '1.2.840.10045.1.2',
+};
 
 use constant EXPORTABLE => qw( p a b n h gx gy );
 

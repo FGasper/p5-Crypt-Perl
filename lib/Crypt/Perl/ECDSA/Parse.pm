@@ -27,8 +27,6 @@ use warnings;
 
 use Try::Tiny;
 
-use Module::Load ();
-
 use Crypt::Perl::ASN1 ();
 use Crypt::Perl::PKCS8 ();
 use Crypt::Perl::ToDER ();
@@ -38,7 +36,7 @@ use Crypt::Perl::X ();
 sub private {
     my ($pem_or_der) = @_;
 
-    Module::Load::load('Crypt::Perl::ECDSA::PrivateKey');
+    require Crypt::Perl::ECDSA::PrivateKey;
 
     Crypt::Perl::ToDER::ensure_der($pem_or_der);
 
@@ -58,7 +56,7 @@ sub private {
             my $pk8_struct = $asn1_pkcs8->decode($pem_or_der);
 
             #It still might succeed, even if this is wrong, so don’t die().
-            if ( $pk8_struct->{'privateKeyAlgorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::PrivateKey->OID_ecPublicKey() ) {
+            if ( $pk8_struct->{'privateKeyAlgorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::ECParameters::OID_ecPublicKey() ) {
                 warn "Unknown private key algorithm OID: “$pk8_struct->{'privateKeyAlgorithm'}{'algorithm'}”";
             }
 
@@ -85,7 +83,7 @@ sub private {
 sub public {
     my ($pem_or_der) = @_;
 
-    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
+    require Crypt::Perl::ECDSA::PublicKey;
 
     Crypt::Perl::ToDER::ensure_der($pem_or_der);
 
@@ -105,7 +103,7 @@ sub public {
             my $spk_struct = $asn1_pkcs8->decode($pem_or_der);
 
             #It still might succeed, even if this is wrong, so don’t die().
-            if ( $spk_struct->{'algorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::PublicKey->OID_ecPublicKey() ) {
+            if ( $spk_struct->{'algorithm'}{'algorithm'} ne Crypt::Perl::ECDSA::ECParameters::OID_ecPublicKey() ) {
                 warn "Unknown private key algorithm OID: “$spk_struct->{'algorithm'}{'algorithm'}”";
             }
 
@@ -129,12 +127,10 @@ sub public {
 sub jwk {
     my ($hr) = @_;
 
-    Module::Load::load($_) for qw(
-        Crypt::Perl::ECDSA::NIST
-        Crypt::Perl::ECDSA::EC::DB
-        Crypt::Perl::Math
-        MIME::Base64
-    );
+    require Crypt::Perl::ECDSA::NIST;
+    require Crypt::Perl::ECDSA::EC::DB;
+    require Crypt::Perl::Math;
+    require MIME::Base64;
 
     my $curve_name = Crypt::Perl::ECDSA::NIST::get_curve_name_for_nist($hr->{'crv'});
     my $curve_hr = Crypt::Perl::ECDSA::EC::DB::get_curve_data_by_name($curve_name);
@@ -151,8 +147,8 @@ sub jwk {
     my $public = Crypt::Perl::BigInt->from_bytes("\x{04}$x$y");
 
     if ($hr->{'d'}) {
-        Module::Load::load('Crypt::Perl::ECDSA::PrivateKey');
-        Module::Load::load('Crypt::Perl::JWK');
+        require Crypt::Perl::ECDSA::PrivateKey;
+        require Crypt::Perl::JWK;
 
         my %args = (
             version => 1,
@@ -163,7 +159,7 @@ sub jwk {
         return Crypt::Perl::ECDSA::PrivateKey->new_by_curve_name(\%args, $curve_name);
     }
 
-    Module::Load::load('Crypt::Perl::ECDSA::PublicKey');
+    require Crypt::Perl::ECDSA::PublicKey;
     return Crypt::Perl::ECDSA::PublicKey->new_by_curve_name( $public, $curve_name);
 }
 

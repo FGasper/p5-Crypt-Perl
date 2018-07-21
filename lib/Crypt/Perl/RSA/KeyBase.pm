@@ -85,6 +85,15 @@ sub to_der {
     return $self->_to_der($self->_ASN1_MACRO());
 }
 
+sub algorithm_identifier {
+    my ($self) = @_;
+
+    return {
+        algorithm => OID_rsaEncryption(),
+        parameters => Crypt::Perl::ASN1::NULL(),
+    };
+}
+
 use constant OID_rsaEncryption => '1.2.840.113549.1.1.1';
 
 sub _to_subject_public_der {
@@ -93,10 +102,7 @@ sub _to_subject_public_der {
     my $asn1 = $self->_asn1_find('SubjectPublicKeyInfo');
 
     return $asn1->encode( {
-        algorithm => {
-            algorithm => OID_rsaEncryption(),
-            parameters => Crypt::Perl::ASN1::NULL(),
-        },
+        algorithm => $self->algorithm_identifier(),
         subjectPublicKey => $self->_to_der('RSAPublicKey'),
     } );
 }
@@ -104,7 +110,7 @@ sub _to_subject_public_der {
 sub get_struct_for_public_jwk {
     my ($self) = @_;
 
-    Module::Load::load('MIME::Base64');
+    require MIME::Base64;
 
     return {
         kty => 'RSA',
@@ -118,8 +124,8 @@ sub get_struct_for_public_jwk {
 sub _asn1_find {
     my ($self, $macro) = @_;
 
-    Module::Load::load('Crypt::Perl::ASN1');
-    Module::Load::load('Crypt::Perl::RSA::Template');
+    require Crypt::Perl::ASN1;
+    require Crypt::Perl::RSA::Template;
     my $asn1 = Crypt::Perl::ASN1->new()->prepare(
         Crypt::Perl::RSA::Template::get_template('INTEGER'),
     );
@@ -158,7 +164,7 @@ sub _verify {
             die Crypt::Perl::X::create('Generic', $err);
         }
 
-        Module::Load::load('Crypt::Perl::RSA::PKCS1_v1_5');
+        require Crypt::Perl::RSA::PKCS1_v1_5;
         return $digest eq Crypt::Perl::RSA::PKCS1_v1_5::decode($octets, $hasher);
     }
 
