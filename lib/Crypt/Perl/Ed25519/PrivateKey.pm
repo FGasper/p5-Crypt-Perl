@@ -3,6 +3,42 @@ package Crypt::Perl::Ed25519::PrivateKey;
 use strict;
 use warnings;
 
+=encoding utf-8
+
+=head1 NAME
+
+Crypt::Perl::Ed25519::PrivateKey
+
+=head1 SYNOPSIS
+
+    my $new_key = Crypt::Perl::Ed25519::PrivateKey->new();
+
+    # The passed-in string should contain ONLY the private pieces.
+    my $import_key = Crypt::Perl::Ed25519::PrivateKey->new( $priv_str );
+
+    # … or do this if you’ve got the public component:
+    $import_key = Crypt::Perl::Ed25519::PrivateKey->new( $priv_str, $pub_str );
+
+    # Returns an octet string
+    my $signature = $key->sign( $message );
+
+    $key->verify( $message, $signature ) or die "Invalid sig for msg!";
+
+    #----------------------------------------------------------------------
+
+    # These return an octet string.
+    my $pub_str = $key->get_public();
+    my $priv_str = $key->get_private();
+
+    # Returns an object
+    my $pub_obj = $key->get_public_key();
+
+=head1 DESCRIPTION
+
+This class implements Ed25519 signing and verification.
+
+=cut
+
 use parent qw(
   Crypt::Perl::Ed25519::KeyBase
 );
@@ -29,8 +65,16 @@ sub new {
     }, $class;
 }
 
+sub get_private {
+    my ($self) = @_;
+
+    return $self->{'_private'};
+}
+
 sub get_public_key {
     my ($self) = @_;
+
+    require Crypt::Perl::Ed25519::PublicKey;
 
     return Crypt::Perl::Ed25519::PublicKey->new( $self->{'_public'} );
 }
