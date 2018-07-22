@@ -1,4 +1,4 @@
-package Crypt::Perl::ED25519::Math;
+package Crypt::Perl::Ed25519::Math;
 
 use strict;
 use warnings;
@@ -136,20 +136,14 @@ sub modL {
     # In Perl, -98 >> 4 = 1152921504606846969. :-<
     my $x31_rshift_4 = Math::Utils::floor( $x->[31] / 16 );
 
-#print "X before 3rd-last “for”: @$x\n";
     for my $j ( 0 .. 31 ) {
-#print "$j zero - $x->[$j] / $carry / $x31_rshift_4\n";
         $x->[$j] += $carry - $x31_rshift_4 * (L())[$j];
-#print "$j one - $x->[$j]\n";
 
         # originally “>> 8” rather than “/ 256”; we also need floor
-        # $carry = $x->[$j] >> 8;
         $carry = Math::Utils::floor( $x->[$j] / 256 );
 
         $x->[$j] &= 255;
-#print "$j two - $x->[$j] (carry = $carry)\n";
     }
-#print "X before 2nd-last “for”: @$x\n";
 
     $x->[$_] -= $carry * (L())[$_] for 0 .. 31;
 

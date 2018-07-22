@@ -11,12 +11,12 @@ use Bytes::Random::Secure::Tiny ();
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
-use Crypt::Perl::ED25519::PrivateKey;
+use Crypt::Perl::Ed25519::PrivateKey;
 
 {
     my $msg = 'test';
 
-    my $key = Crypt::Perl::ED25519::PrivateKey->new('01234567890123456789012345678901');
+    my $key = Crypt::Perl::Ed25519::PrivateKey->new('01234567890123456789012345678901');
 
     my $signature = $key->sign($msg);
 
@@ -70,7 +70,7 @@ for my $idx ( 0 .. $#pre_assigned_tests) {
 
     my $pub_str = join q<.>, map { sprintf '%02x', $_ } @$pub_ar;
 
-    my $key = Crypt::Perl::ED25519::PrivateKey->new( join q<>, map { chr } @$priv_ar );
+    my $key = Crypt::Perl::Ed25519::PrivateKey->new( join q<>, map { chr } @$priv_ar );
     is_deeply(
         sprintf('%v.02x', $key->get_public() ),
         $pub_str,
@@ -96,7 +96,7 @@ for my $idx ( 0 .. $#pre_assigned_tests) {
 my $rng = Bytes::Random::Secure::Tiny->new();
 
 for my $i ( 1 .. 8 ) {
-    my $key = Crypt::Perl::ED25519::PrivateKey->new();
+    my $key = Crypt::Perl::Ed25519::PrivateKey->new();
 
     my $msg1 = $rng->bytes(24);
     my $sig1 = $key->sign($msg1);

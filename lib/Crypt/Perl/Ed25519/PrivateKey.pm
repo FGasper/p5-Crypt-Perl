@@ -1,15 +1,15 @@
-package Crypt::Perl::ED25519::PrivateKey;
+package Crypt::Perl::Ed25519::PrivateKey;
 
 use strict;
 use warnings;
 
 use parent qw(
-  Crypt::Perl::ED25519::KeyBase
+  Crypt::Perl::Ed25519::KeyBase
 );
 
 use Digest::SHA ();
 
-use Crypt::Perl::ED25519::Math;
+use Crypt::Perl::Ed25519::Math;
 
 sub new {
     my ($class, $priv, $pub) = @_;
@@ -32,7 +32,7 @@ sub new {
 sub get_public_key {
     my ($self) = @_;
 
-    return Crypt::Perl::ED25519::PublicKey->new( $self->{'_public'} );
+    return Crypt::Perl::Ed25519::PublicKey->new( $self->{'_public'} );
 }
 
 sub sign {
@@ -40,7 +40,7 @@ sub sign {
 
     my @x = (0) x 64;
 
-    my @p = map { [ Crypt::Perl::ED25519::Math::gf0() ] } 1 .. 4;
+    my @p = map { [ Crypt::Perl::Ed25519::Math::gf0() ] } 1 .. 4;
 
     my $digest_ar = _digest32( $self->{'_private'} );
 
@@ -49,19 +49,14 @@ sub sign {
     push @sm, unpack( 'C*', $msg );
 
     my @r = unpack 'C*', Digest::SHA::sha512( pack 'C*', @sm[32 .. $#sm] );
-use Data::Dumper;
-#print STDERR Dumper( 'before reduce', "@r" );
-    Crypt::Perl::ED25519::Math::reduce(\@r);
-#print STDERR Dumper( 'after reduce', "@r" );
-    Crypt::Perl::ED25519::Math::scalarbase( \@p, \@r );
-#print STDERR Dumper( 'after scalarbase', \@p, \@r );
-    @sm[ 0 .. 31 ] = @{ Crypt::Perl::ED25519::Math::pack(\@p) };
-#print STDERR Dumper('after pack', [ @sm[0 .. 31] ]);
+    Crypt::Perl::Ed25519::Math::reduce(\@r);
+    Crypt::Perl::Ed25519::Math::scalarbase( \@p, \@r );
+    @sm[ 0 .. 31 ] = @{ Crypt::Perl::Ed25519::Math::pack(\@p) };
 
     @sm[32 .. 63] = @{$self->{'_public_ar'}};
 
     my @h = unpack 'C*', Digest::SHA::sha512( pack 'C*', @sm );
-    Crypt::Perl::ED25519::Math::reduce( \@h );
+    Crypt::Perl::Ed25519::Math::reduce( \@h );
 
     @x[0 .. 31] = @r[0 .. 31];
 
@@ -73,10 +68,7 @@ use Data::Dumper;
 
     my @latter_sm = @sm[32 .. $#sm];
 
-#print STDERR "before last modL: @latter_sm\n";
-#print STDERR "before last modL - x: @x\n";
-    Crypt::Perl::ED25519::Math::modL( \@latter_sm, \@x );
-#print STDERR "after last modL: @latter_sm\n";
+    Crypt::Perl::Ed25519::Math::modL( \@latter_sm, \@x );
 
     @sm[32 .. $#sm] = @latter_sm;
 
@@ -90,13 +82,13 @@ sub _deduce_public_from_private {
 
     my $digest_ar = _digest32($private);
 
-    my $p = [ map { [ Crypt::Perl::ED25519::Math::gf0() ] } 0 .. 3 ];
+    my $p = [ map { [ Crypt::Perl::Ed25519::Math::gf0() ] } 0 .. 3 ];
 
     # private key is 32 bytes for private part
     # plus 32 bytes for the public part
 
-    Crypt::Perl::ED25519::Math::scalarbase($p, $digest_ar);
-    my $pk = Crypt::Perl::ED25519::Math::pack($p);
+    Crypt::Perl::Ed25519::Math::scalarbase($p, $digest_ar);
+    my $pk = Crypt::Perl::Ed25519::Math::pack($p);
 
     return pack 'C*', @$pk;
 }

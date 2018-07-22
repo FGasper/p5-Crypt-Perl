@@ -4,7 +4,7 @@ use Test::More;
 use Test::FailWarnings;
 use Test::Deep;
 
-use Crypt::Perl::ED25519::Math;
+use Crypt::Perl::Ed25519::Math;
 
 #----------------------------------------------------------------------
 
@@ -34,7 +34,7 @@ plan tests => @reduce_tests + @modL_tests;
 for my $idx (0 .. $#reduce_tests) {
     my $rt = $reduce_tests[$idx];
 
-    Crypt::Perl::ED25519::Math::reduce( my $reduce_out = [ @{ $rt->{'in'} } ] );
+    Crypt::Perl::Ed25519::Math::reduce( my $reduce_out = [ @{ $rt->{'in'} } ] );
 
     cmp_deeply(
         $reduce_out,
@@ -49,7 +49,7 @@ for my $idx (0 .. $#modL_tests) {
     my @r = @{ $t->{'in_r'} };
     my @x = @{ $t->{'in_x'} };
 
-    Crypt::Perl::ED25519::Math::modL(\@r, \@x);
+    Crypt::Perl::Ed25519::Math::modL(\@r, \@x);
 
     cmp_deeply(
         \@r,

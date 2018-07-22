@@ -1,9 +1,9 @@
-package Crypt::Perl::ED25519::PublicKey;
+package Crypt::Perl::Ed25519::PublicKey;
 
 use strict;
 use warnings;
 
-use parent qw( Crypt::Perl::ED25519::KeyBase );
+use parent qw( Crypt::Perl::Ed25519::KeyBase );
 
 sub new {
     my ($class, $pub) = @_;
