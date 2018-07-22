@@ -3,6 +3,8 @@ package Crypt::Perl::ED25519::Math;
 use strict;
 use warnings;
 
+use Math::Utils ();
+
 sub reduce {
     my ($r) = @_;
 
@@ -28,14 +30,10 @@ sub scalarmult {
 
     for my $i ( reverse( 0 .. 255 ) ) {
         $b = ( $s->[ ( $i >> 3 ) | 0 ] >> ($i & 7) ) & 1;
-#print "$i b: $b\n";
         _cswap( $p, $q, $b );
-#print Dumper("in scalarmult", $i, $b, $p, $q);
         add( $q, $p );
         add( $p, $p );
         _cswap( $p, $q, $b );
-if (!($i % 10)) {
-}
     }
 
     return;
@@ -109,8 +107,6 @@ sub add {
 sub modL {
     my ($r, $x) = @_;
 
-#print "modL: @$x\n";
-
     my ($k);
 
     for my $i ( reverse( 32 .. 63 ) ) {
@@ -126,46 +122,41 @@ sub modL {
             $x->[$j] += $carry - 16 * $x->[$i] * (L())[$j - ($i - 32)];
 
             # originally “>> 8” rather than “/ 256”;
-            # we need a floor(), too.
-            $carry = int( ($x->[$j] + 128) / 256 );
-            $carry-- if $x->[$j] < -128;
+            $carry = Math::Utils::floor( ($x->[$j] + 128) / 256 );
 
             $x->[$j] -= $carry * 256;
         }
 
         $x->[$j] += $carry;
         $x->[$i] = 0;
-#print "iteration: @$x\n";
     }
-#print "after first loop: @$x\n";
 
     my $carry = 0;
 
     # In Perl, -98 >> 4 = 1152921504606846969. :-<
-    my $x31_rshift_4 = int( $x->[31] / 16 );
-    $x31_rshift_4-- if $x31_rshift_4 < 0;
+    my $x31_rshift_4 = Math::Utils::floor( $x->[31] / 16 );
 
+#print "X before 3rd-last “for”: @$x\n";
     for my $j ( 0 .. 31 ) {
+#print "$j zero - $x->[$j] / $carry / $x31_rshift_4\n";
         $x->[$j] += $carry - $x31_rshift_4 * (L())[$j];
-#print "x[$j]: $x->[$j]\n";
+#print "$j one - $x->[$j]\n";
 
         # originally “>> 8” rather than “/ 256”; we also need floor
         # $carry = $x->[$j] >> 8;
-        $carry = int( $x->[$j] / 256 );
-        $carry-- if $x->[$j] < 0;
+        $carry = Math::Utils::floor( $x->[$j] / 256 );
 
         $x->[$j] &= 255;
+#print "$j two - $x->[$j] (carry = $carry)\n";
     }
-#print "after second loop: @$x\n";
+#print "X before 2nd-last “for”: @$x\n";
 
     $x->[$_] -= $carry * (L())[$_] for 0 .. 31;
-#print "after third loop: @$x\n";
 
     for my $i ( 0 .. 31 ) {
         $x->[$i + 1] += $x->[$i] >> 8;
         $r->[$i] = $x->[$i] & 255;
     }
-#print "after fourth loop: @$r\n";
 
     return;
 }
@@ -289,8 +280,7 @@ sub _M {
     my @t = (0) x 31;
 
     for my $a_idx ( 0 .. 15 ) {
-        my $v = $a->[$a_idx];
-        $t[$a_idx + $_] += $v * $b->[$_] for 0 .. 15;
+        $t[$a_idx + $_] += $a->[$a_idx] * $b->[$_] for 0 .. 15;
     }
 
     # $t->[15] left as-is
@@ -314,15 +304,15 @@ sub _car25519 {
     my $c = 1;
     my $v;
 
-    for my $o_idx ( 0 .. 15 ) {
-        $v = $o->[$o_idx] + $c + 65535;
+    for my $o_item ( @{$o}[0 .. 15] ) {
+        $v = $o_item + $c + 65535;
 
         # c = Math.floor(v / 65536)
         $c = int( $v / 65536 );
         $c-- if $v < 0;
 
         # t0 = v - c * 65536
-        $o->[$o_idx] = $v - ($c * 65536);
+        $o_item = $v - ($c * 65536);
     }
 
     $o->[0] += $c - 1 + 37 * ($c - 1);
@@ -333,7 +323,6 @@ sub _car25519 {
 # p and q are arrays of numbers
 sub _sel25519 {
     my ($p, $q, $b) = @_;
-#print STDERR Dumper( start_sel => $p, $q );
 
     # $b is either 0 or 1.
     my $c = $b && -1;
@@ -342,10 +331,8 @@ sub _sel25519 {
         my $t = $c && ($c & signed_xor($p->[$i], $q->[$i]));
 
         $p->[$i] = signed_xor($p->[$i], $t) if $t;
-#print STDERR Dumper( t => $t, i => $i, qit => $q->[$i] ^ $t );
         $q->[$i] = signed_xor($q->[$i], $t) if $t;
     }
-#print STDERR Dumper( end_sel => $p, $q );
 }
 
 # p and q are arrays of arrays
@@ -363,14 +350,12 @@ sub _cswap {
 # TODO: add tests
 sub signed_xor {
 
-#die Dumper(\@_) if grep { !defined } @_[0, 1];
-
-    # signs are same -> can use native xor
-    if ( ($_[0] < 0) eq ($_[1] < 0) ) {
-        return $_[0] ^ $_[1];
+    if ( ($_[0] < 0) xor ($_[1] < 0) ) {
+        return ($_[0] ^ $_[1]) - ~0 - 1;
     }
 
-    return ($_[0] ^ $_[1]) - ~0 - 1;
+    # signs are same -> can use native xor
+    return $_[0] ^ $_[1];
 }
 
 sub signed_or {
@@ -400,15 +385,10 @@ sub unpackneg {
     );
 
     _set25519( $r->[2], [ gf1() ]);
-#use Data::Dumper;
-#print STDERR Dumper( r => $r );
 
     _unpack25519($r->[1], $p);
-#print STDERR Dumper( r => $r );
 
     _S($num, $r->[1]);
-#print STDERR Dumper( r => $r );
-#print STDERR Dumper( num => $num );
     _M($den, $num, [ D() ]);
     _Z($num, $num, $r->[2]);
     _A($den, $r->[2], $den);
@@ -428,33 +408,23 @@ sub unpackneg {
     _S($chk, $r->[0]);
     _M($chk, $chk, $den);
 
-#print STDERR Dumper( r0 => $r->[0] );
-#print STDERR Dumper( chk => $chk, num => $num );
     if (_neq25519($chk, $num)) {
-#print STDERR "=== _neq25519 yes\n";
         _M($r->[0], $r->[0], [ I() ]);
     }
 
-#print STDERR Dumper( chk1 => $chk );
-#print STDERR Dumper( r => $r );
     _S($chk, $r->[0]);
-#print STDERR Dumper( chk2 => $chk );
     _M($chk, $chk, $den);
 
-#print STDERR Dumper( chk3 => $chk );
     if (_neq25519($chk, $num)) {
         die "-1??";
     }
-#print STDERR Dumper( $r, $p, par25519 => _par25519($r->[0]), dividend => ($p->[31] / 128) );
 
-    # orig >> 7 rather than / 128
+    # “>>” appears to be safe here.
     if (_par25519($r->[0]) == ($p->[31] >> 7)) {
-    #if (_par25519($r->[0]) == ($p->[31] / 128)) {
         _Z($r->[0], [ gf0() ], $r->[0]);
     }
 
     _M( $r->[3], $r->[0], $r->[1] );
-#print STDERR Dumper($r);
 
     return 0;
 }
@@ -515,32 +485,17 @@ sub _neq25519 {
     my $c = _pack25519($a);
     my $d = _pack25519($b);
 
-use Data::Dumper;
-#print STDERR Dumper( _pack25519_in_out => $a, $c );
-#print STDERR Dumper( _neq25519_c => $c );
-#print STDERR Dumper( _neq25519_d => $d );
     return crypto_verify_32($c, 0, $d, 0);
 }
 
 sub _vn {
     my ($x, $xi, $y, $yi, $n) = @_;
 
-use Data::Dumper;
-die Dumper @_ if grep { @$_ < ($n-1) } $x, $y;
-#print STDERR Dumper( _vn => \@_ );
-
     my $d = 0;
-use Carp::Always;
 
     for my $i ( 0 .. ($n - 1) ) {
-use Data::Dumper;
         $d = signed_or( $d, signed_xor($x->[ $xi + $i ], $y->[ $yi + $i ]) );
-#print STDERR Dumper( 'x idx, d', $xi + $i, $d );
     }
-#printf "retval: %d\n", ((1 & int(($d - 1) / 256)) - 1);
-#print STDERR Dumper(
-#    $d, int(($d-1) / 256), (1 & int(($d-1) / 256)),
-#);
 
     # Originally “>>> 8”, which appears to be JS’s equivalent
     # operator to Perl’s >>.

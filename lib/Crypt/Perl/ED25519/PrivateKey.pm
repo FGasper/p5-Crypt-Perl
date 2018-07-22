@@ -50,11 +50,13 @@ sub sign {
 
     my @r = unpack 'C*', Digest::SHA::sha512( pack 'C*', @sm[32 .. $#sm] );
 use Data::Dumper;
+#print STDERR Dumper( 'before reduce', "@r" );
     Crypt::Perl::ED25519::Math::reduce(\@r);
 #print STDERR Dumper( 'after reduce', "@r" );
     Crypt::Perl::ED25519::Math::scalarbase( \@p, \@r );
 #print STDERR Dumper( 'after scalarbase', \@p, \@r );
     @sm[ 0 .. 31 ] = @{ Crypt::Perl::ED25519::Math::pack(\@p) };
+#print STDERR Dumper('after pack', [ @sm[0 .. 31] ]);
 
     @sm[32 .. 63] = @{$self->{'_public_ar'}};
 
@@ -71,7 +73,10 @@ use Data::Dumper;
 
     my @latter_sm = @sm[32 .. $#sm];
 
+#print STDERR "before last modL: @latter_sm\n";
+#print STDERR "before last modL - x: @x\n";
     Crypt::Perl::ED25519::Math::modL( \@latter_sm, \@x );
+#print STDERR "after last modL: @latter_sm\n";
 
     @sm[32 .. $#sm] = @latter_sm;
 
