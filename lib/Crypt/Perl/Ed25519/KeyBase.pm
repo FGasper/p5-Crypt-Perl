@@ -7,6 +7,8 @@ use Crypt::Perl::Ed25519::Math;
 
 use Digest::SHA ();
 
+use parent qw( Crypt::Perl::KeyBase );
+
 use constant {
     SIGN_BYTE_LENGTH => 64,
     OID_Ed25519 => '1.3.101.112',
@@ -20,6 +22,8 @@ use constant _ASN1_BASE => q<
         parameters              ANY DEFINED BY algorithm OPTIONAL
     }
 >;
+
+use constant _JWK_THUMBPRINT_JSON_ORDER => qw( crv kty x );
 
 sub to_der {
     my ($self) = @_;

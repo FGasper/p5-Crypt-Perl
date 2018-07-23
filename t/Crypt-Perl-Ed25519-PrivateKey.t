@@ -120,4 +120,17 @@ for my $i ( 1 .. 8 ) {
     };
 }
 
+#----------------------------------------------------------------------
+
+my $private = Crypt::Perl::Ed25519::PrivateKey->new(
+    join( q<>, map { chr hex } split m<\.>, '9d.61.b1.9d.ef.fd.5a.60.ba.84.4a.f4.92.ec.2c.c4.44.49.c5.69.7b.32.69.19.70.3b.ac.03.1c.ae.7f.60' ),
+);
+
+my $thumbprint = $private->get_jwk_thumbprint('sha256');
+is(
+    $thumbprint,
+    'kPrK_qmxVWaYVA9wwBF6Iuo3vVzz7TxHCTwXBygrS4k',
+    'JWK thumbprint (SHA-256)',
+);
+
 done_testing();
