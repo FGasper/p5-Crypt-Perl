@@ -46,5 +46,6 @@ WriteMakefile(
         'Test::Simple'    => 0.44,
         'Test::Exception' => 0.40,
         'Test::NoWarnings' => 0,
+        'Test::FailWarnings' => 0,
     },
 );
