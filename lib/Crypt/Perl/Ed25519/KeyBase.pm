@@ -7,12 +7,61 @@ use Crypt::Perl::Ed25519::Math;
 
 use Digest::SHA ();
 
-use constant SIGN_BYTE_LENGTH => 64;
+use constant {
+    SIGN_BYTE_LENGTH => 64,
+    OID_Ed25519 => '1.3.101.112',
+};
+
+use constant _ASN1_BASE => q<
+    -- cf. RFC 3280 4.1.1.2
+    -- XXX COPIED FROM RSA TEMPLATE MODULE
+    AlgorithmIdentifier  ::=  SEQUENCE  {
+        algorithm               OBJECT IDENTIFIER,
+        parameters              ANY DEFINED BY algorithm OPTIONAL
+    }
+>;
+
+sub to_der {
+    my ($self) = @_;
+
+    require Crypt::Perl::ASN1;
+    my $asn1 = Crypt::Perl::ASN1->new()->prepare(
+        _ASN1_BASE() . $self->_ASN1()
+    )->find('FG_Key');
+
+    return $asn1->encode( {
+        version => 0,
+        algorithmIdentifier => {
+            algorithm => OID_Ed25519(),
+        },
+        $self->_to_der_args(),
+    } );
+}
+
+# TODO: refactor; duplicated w/ RSA
+sub to_pem {
+    my ($self) = @_;
+
+    require Crypt::Format;
+    return Crypt::Format::der2pem( $self->to_der(), $self->_PEM_HEADER() );
+}
 
 sub get_public {
     my ($self) = @_;
 
     return $self->{'_public'};
+}
+
+sub get_struct_for_public_jwk {
+    my ($self) = @_;
+
+    require MIME::Base64;
+
+    return {
+        kty => 'OKP',
+        crv => 'Ed25519',
+        x => MIME::Base64::encode_base64url($self->{'_public'}),
+    }
 }
 
 sub verify {

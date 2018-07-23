@@ -47,6 +47,41 @@ use Digest::SHA ();
 
 use Crypt::Perl::Ed25519::Math;
 
+use constant _ASN1 => q<
+    FG_Key ::= SEQUENCE {
+        version             INTEGER,
+        algorithmIdentifier AlgorithmIdentifier,
+        privateKey          PrivateKey
+    }
+
+    PrivateKey ::= OCTET STRING
+>;
+
+use constant _PEM_HEADER => 'PRIVATE KEY';
+
+sub _to_der_args {
+    my ($self) = @_;
+
+    return (
+
+        # The leading bytes are the encoding of the inner CurvePrivateKey
+        # (i.e., OCTET STRING).
+        privateKey => "\x04\x20" . $self->{'_private'},
+    );
+}
+
+sub get_struct_for_private_jwk {
+    my ($self) = @_;
+
+    my $struct = $self->get_struct_for_public_jwk();
+
+    require MIME::Base64;
+
+    $struct->{'d'} = MIME::Base64::encode_base64url($self->{'_private'});
+
+    return $struct;
+}
+
 sub new {
     my ($class, $priv, $pub) = @_;
 

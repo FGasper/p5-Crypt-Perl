@@ -41,4 +41,25 @@ sub new {
     }, $class;
 }
 
+use constant {
+    _PEM_HEADER => 'PUBLIC KEY',
+    _ASN1 => q<
+        FG_Key ::= SEQUENCE {
+            algorithmIdentifier AlgorithmIdentifier,
+            subjectPublicKey    BIT STRING
+        }
+    >,
+};
+
+sub _to_der_args {
+    my ($self) = @_;
+
+    return (
+
+        # The leading bytes are the encoding of the inner CurvePrivateKey
+        # (i.e., OCTET STRING).
+        subjectPublicKey => $self->{'_public'},
+    );
+}
+
 1;

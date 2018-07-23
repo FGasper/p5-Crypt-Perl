@@ -1,5 +1,8 @@
 Revision history for Perl module Crypt::Perl
 
+0.24
+- Ed25519 support added. (No serialization yet … is this even defined?)
+
 0.23 Mon Jun 25 2018
 - Yet another attempt to get tests passing on 32-bit.
 
