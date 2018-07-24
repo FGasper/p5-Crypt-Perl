@@ -11,7 +11,7 @@ Crypt::Perl::Ed25519::PublicKey
 
 =head1 SYNOPSIS
 
-    # This expects an octet string.
+    # This requires an octet string.
     my $import_key = Crypt::Perl::Ed25519::PublicKey->new( $pub_str );
 
     $key->verify( $message, $signature ) or die "Invalid sig for msg!";
@@ -24,6 +24,9 @@ Crypt::Perl::Ed25519::PublicKey
     # Returns an object
     my $pub_obj = $key->get_public_key();
 
+    # This returns a hash reference, NOT a JSON string.
+    my $pub_hr = $key->get_struct_for_public_jwk();
+
 =head1 DESCRIPTION
 
 This class implements Ed25519 verification.
@@ -34,6 +37,8 @@ use parent qw( Crypt::Perl::Ed25519::KeyBase );
 
 sub new {
     my ($class, $pub) = @_;
+
+    $class->_verify_binary_key_part($pub);
 
     return bless {
         _public => $pub,

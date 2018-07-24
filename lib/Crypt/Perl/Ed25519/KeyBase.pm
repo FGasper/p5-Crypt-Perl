@@ -4,6 +4,7 @@ use strict;
 use warnings;
 
 use Crypt::Perl::Ed25519::Math;
+use Crypt::Perl::X;
 
 use Digest::SHA ();
 
@@ -71,6 +72,10 @@ sub get_struct_for_public_jwk {
 sub verify {
     my ($self, $msg, $sig) = @_;
 
+    if (SIGN_BYTE_LENGTH() != length $sig) {
+        die Crypt::Perl::X::create('Generic', sprintf('Invalid length (%d) of Ed25519 signature: %v.02x', length($sig), $sig));
+    }
+
     my $public_ar = $self->{'_public_ar'};
 
     my $sig_ar = [ unpack 'C*', $sig ];
@@ -108,6 +113,14 @@ sub verify {
     my $n = @sm - SIGN_BYTE_LENGTH;
 
     return $n >= 0;
+}
+
+sub _verify_binary_key_part {
+    if (32 != length $_[1]) {
+        die Crypt::Perl::X::create('Generic', sprintf('Invalid length (%d) of Ed25519 key piece: %v.02x', length($_[1]), $_[1]));
+    }
+
+    return;
 }
 
 1;

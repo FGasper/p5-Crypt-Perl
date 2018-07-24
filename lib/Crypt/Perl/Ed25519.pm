@@ -23,9 +23,11 @@ This module contains no code; see one of:
 
 =back
 
-Crypt::Perl’s Ed25519 interface is EXPERIMENTAL. The underlying logic is ported from L<https://github.com/digitalbazaar/forge/blob/master/lib/ed25519.js>.
+Crypt::Perl’s Ed25519 interface is EXPERIMENTAL. The underlying logic is ported
+from L<https://github.com/digitalbazaar/forge/blob/master/lib/ed25519.js>.
 
-See L<RFC 8032|https://tools.ietf.org/html/rfc8032> for the gory details of EdDSA.
+See L<RFC 8032|https://tools.ietf.org/html/rfc8032> for the gory details of
+Ed25519.
 
 =cut
 

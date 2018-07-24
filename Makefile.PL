@@ -43,7 +43,6 @@ WriteMakefile(
         'Test::Class'     => 0.4,
         'Test::More'      => 1.0,
         'Test::Deep'      => 0,
-        'Test::Simple'    => 0.44,
         'Test::Exception' => 0.40,
         'Test::NoWarnings' => 0,
         'Test::FailWarnings' => 0,

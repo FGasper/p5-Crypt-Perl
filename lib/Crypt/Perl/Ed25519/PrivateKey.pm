@@ -33,6 +33,10 @@ Crypt::Perl::Ed25519::PrivateKey
     # Returns an object
     my $pub_obj = $key->get_public_key();
 
+    # These return a hash reference, NOT a JSON string.
+    my $priv_hr = $key->get_struct_for_private_jwk();
+    my $pub_hr  = $key->get_struct_for_public_jwk();
+
 =head1 DESCRIPTION
 
 This class implements Ed25519 signing and verification.
@@ -59,15 +63,37 @@ use constant _ASN1 => q<
 
 use constant _PEM_HEADER => 'PRIVATE KEY';
 
-sub _to_der_args {
-    my ($self) = @_;
+sub new {
+    my ($class, $priv, $pub) = @_;
 
-    return (
+    if (length $priv) {
+        $class->_verify_binary_key_part($priv);
+    }
+    else {
+        $priv = do {
+            require Crypt::Perl::RNG;
+            Crypt::Perl::RNG::bytes(32);
+        };
+    }
 
-        # The leading bytes are the encoding of the inner CurvePrivateKey
-        # (i.e., OCTET STRING).
-        privateKey => "\x04\x20" . $self->{'_private'},
-    );
+    my ($pub_ar);
+
+    if (length $pub) {
+        $class->_verify_binary_key_part($pub);
+
+        $pub_ar = unpack 'C*', $pub;
+    }
+    else {
+        $pub_ar = _deduce_public_from_private($priv);
+        $pub = pack 'C*', @$pub_ar;
+    }
+
+    return bless {
+        _public => $pub,
+        _public_ar => $pub_ar,
+        _private => $priv,
+        _private_ar => [ unpack 'C*', $priv ],
+    }, $class;
 }
 
 sub get_struct_for_private_jwk {
@@ -80,24 +106,6 @@ sub get_struct_for_private_jwk {
     $struct->{'d'} = MIME::Base64::encode_base64url($self->{'_private'});
 
     return $struct;
-}
-
-sub new {
-    my ($class, $priv, $pub) = @_;
-
-    $priv ||= do {
-        require Crypt::Perl::RNG;
-        Crypt::Perl::RNG::bytes(32);
-    };
-
-    $pub ||= _deduce_public_from_private($priv);
-
-    return bless {
-        _public => $pub,
-        _public_ar => [ unpack 'C*', $pub ],
-        _private => $priv,
-        _private_ar => [ unpack 'C*', $priv ],
-    }, $class;
 }
 
 sub get_private {
@@ -156,6 +164,17 @@ sub sign {
 
 #----------------------------------------------------------------------
 
+sub _to_der_args {
+    my ($self) = @_;
+
+    return (
+
+        # The leading bytes are the encoding of the inner CurvePrivateKey
+        # (i.e., OCTET STRING).
+        privateKey => "\x04\x20" . $self->{'_private'},
+    );
+}
+
 sub _deduce_public_from_private {
     my ($private) = @_;
 
@@ -169,7 +188,7 @@ sub _deduce_public_from_private {
     Crypt::Perl::Ed25519::Math::scalarbase($p, $digest_ar);
     my $pk = Crypt::Perl::Ed25519::Math::pack($p);
 
-    return pack 'C*', @$pk;
+    return \@$pk;
 }
 
 sub _digest32 {
