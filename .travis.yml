@@ -15,6 +15,9 @@ perl:
   #- "5.8.9"     #5.8.8 screws up: printf "%v.02x", "\x07\x66" (and Travis can’t get 5.8.9)
 matrix:
   include:
+    - os: linux
+      before_install:
+        - "cpanm Math::BigInt::GMP"
     - os: osx
       perl: system
       before_install:
