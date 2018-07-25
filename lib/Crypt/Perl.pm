@@ -50,7 +50,7 @@ a broad variety of extensions
 
 =item * L<ECDSA|Crypt::Perl::ECDSA>
 
-=item * L<ECDSA|Crypt::Perl::Ed25519>
+=item * L<Ed25519|Crypt::Perl::Ed25519>
 
 =back
 
