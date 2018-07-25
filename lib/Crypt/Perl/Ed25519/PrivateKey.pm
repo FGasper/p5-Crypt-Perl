@@ -66,7 +66,7 @@ use constant _PEM_HEADER => 'PRIVATE KEY';
 sub new {
     my ($class, $priv, $pub) = @_;
 
-    if (length $priv) {
+    if (defined($priv) && length($priv)) {
         $class->_verify_binary_key_part($priv);
     }
     else {
@@ -78,7 +78,7 @@ sub new {
 
     my ($pub_ar);
 
-    if (length $pub) {
+    if (defined($pub) && length($pub)) {
         $class->_verify_binary_key_part($pub);
 
         $pub_ar = unpack 'C*', $pub;
