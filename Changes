@@ -1,5 +1,8 @@
 Revision history for Perl module Crypt::Perl
 
+0.26
+- Teach X509v3.pm how to create certificates with Ed25519.
+
 0.25 Tue Jul 24 2018
 - Fix install on old Perl installs where length() warns on undef.
 
