@@ -58,8 +58,6 @@ There currently is not a parsing interface. Hopefully that can be remedied.
 
 use parent qw( Crypt::Perl::ASN1::Encodee );
 
-use Digest::SHA ();
-
 use Crypt::Perl::ASN1::Signatures ();
 use Crypt::Perl::X509::Extensions ();
 use Crypt::Perl::X509::Name ();
@@ -172,11 +170,15 @@ sub sign {
     my ($sig_alg, $sig_func, $signature);
 
     if ($signer_key->isa('Crypt::Perl::ECDSA::PrivateKey')) {
+        require Digest::SHA;
+
         $sig_alg = "ecdsa-with-SHA$digest_length";
 
         $signature = $signer_key->sign( Digest::SHA->can($digest_algorithm)->($tbs) );
     }
     elsif ($signer_key->isa('Crypt::Perl::RSA::PrivateKey')) {
+        require Digest::SHA;
+
         $sig_alg = "sha${digest_length}WithRSAEncryption";
 
         my $sign_cr = $signer_key->can("sign_RS$digest_length") or do {
