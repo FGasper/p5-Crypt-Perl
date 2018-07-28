@@ -1,6 +1,6 @@
 Revision history for Perl module Crypt::Perl
 
-0.26
+0.26 Sat Jul 28 2018
 - Teach X509v3.pm how to create certificates with Ed25519.
 
 0.25 Tue Jul 24 2018

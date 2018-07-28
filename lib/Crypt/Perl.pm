@@ -3,13 +3,13 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = '0.26-TRIAL1';
+our $VERSION = '0.26';
 
 =encoding utf-8
 
 =head1 NAME
 
-Crypt::Perl - Cryptography in Pure Perl
+Crypt::Perl - Cryptography in pure Perl
 
 =head1 DESCRIPTION
 
