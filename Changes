@@ -1,6 +1,6 @@
 Revision history for Perl module Crypt::Perl
 
-0.27
+0.27 Sat Jul 28 2018
 - Teach PKCS10.pm how to create CSRs with Ed25519.
 - Lazy-load Digest::SHA in X509v3.pm and PKCS10.pm since it’s no longer
   a given that that module will be useful.
