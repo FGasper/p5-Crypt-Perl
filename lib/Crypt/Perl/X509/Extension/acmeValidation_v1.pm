@@ -35,7 +35,7 @@ use constant {
     # id-pe-acmeIdentifier = id-pe 31
     # id-pe-acmeIdentifier-v1 = id-pe-acmeIdentifier 1
     #
-    OID => '1.3.6.1.5.5.7.1.30.1',
+    OID => '1.3.6.1.5.5.7.1.31.1',
 
     CRITICAL => 1,
 
