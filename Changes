@@ -1,5 +1,8 @@
 Revision history for Perl module Crypt::Perl
 
+0.29 Fri Aug 24 2018
+- Fix LICENSE file
+
 0.28 Fri Aug 24 2018
 - Make acmeValidation_01.pm use the updated OID from TLS-ALPN draft 05.
 - Tighten PK.pm’s JWK parsing logic for Ed25519.
