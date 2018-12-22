@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = '0.30-TRIAL1';
+our $VERSION = '0.30-TRIAL2';
 
 =encoding utf-8
 
