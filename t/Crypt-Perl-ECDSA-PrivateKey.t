@@ -144,6 +144,8 @@ sub test_sign : Tests() {
 
     my $msg = 'Hello' . rand;
 
+    diag "Message: [$msg]";
+
     #Use SHA1 since it’s the smallest digest that the latest OpenSSL accepts.
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
@@ -160,7 +162,7 @@ sub test_sign : Tests() {
                 my $curve = $1;
 
                 SKIP: {
-                    note "$curve ($param_enc, $conv_form public point)";
+                    diag "$curve ($param_enc, $conv_form public point)";
 
                     my $pkey_pem = File::Slurp::read_file("$dir/$node");
 
@@ -178,39 +180,10 @@ sub test_sign : Tests() {
                         die;
                     };
 
-                    #my $hello = $ecdsa->sign('Hello');
-                    #note unpack( 'H*', $hello );
-                    #note explain [ map { $_->as_hex(), $_->bit_length() } values %{ Crypt::Perl::ASN1->new()->prepare(Crypt::Perl::ECDSA::KeyBase::ASN1_SIGNATURE())->decode( $hello ) } ];
-
-                    #note "Key Prv: " . $ecdsa->{'private'}->as_hex();
-                    #note "Key Pub: " . $ecdsa->{'public'}->as_hex();
+                    my $signature;
 
                     try {
-                        my $signature = $ecdsa->sign($dgst);
-
-                        note "Sig: " . unpack('H*', $signature);
-
-                        ok(
-                            $ecdsa->verify( $dgst, $signature ),
-                            "$curve, $param_enc parameters, $conv_form: self-verify",
-                        );
-
-                    SKIP: {
-                            skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
-
-                            skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
-
-                            skip 'Your OpenSSL can’t correct verify an ECDSA digest against a private key!', 1 if OpenSSL_Control::has_ecdsa_verify_private_bug();
-
-                            my $ok = OpenSSL_Control::verify_private(
-                                $ecdsa->to_pem_with_explicit_curve(),
-                                $msg,
-                                $digest_alg,
-                                $signature,
-                            );
-
-                            ok( $ok, "$curve, $param_enc parameters, $conv_form: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
-                        }
+                        $signature = $ecdsa->sign($dgst);
                     }
                     catch {
                         if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {
@@ -220,6 +193,28 @@ sub test_sign : Tests() {
                         local $@ = $_;
                         die;
                     };
+
+                    diag "Sig: " . unpack('H*', $signature);
+
+                    ok(
+                        $ecdsa->verify( $dgst, $signature ),
+                        "$curve, $param_enc parameters, $conv_form: self-verify",
+                    );
+
+                    skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
+
+                    skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
+
+                    skip 'Your OpenSSL can’t correct verify an ECDSA digest against a private key!', 1 if OpenSSL_Control::has_ecdsa_verify_private_bug();
+
+                    my $ok = OpenSSL_Control::verify_private(
+                        $ecdsa->to_pem_with_explicit_curve(),
+                        $msg,
+                        $digest_alg,
+                        $signature,
+                    );
+
+                    ok( $ok, "$curve, $param_enc parameters, $conv_form: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
                 }
             }
         }
