@@ -140,9 +140,9 @@ sub test_seed : Tests(2) {
 sub test_sign : Tests() {
     my ($self) = @_;
 
-    diag "XXX NOTE: This test can take a while and/or spew a lot of text.";
+    diag "This test takes a while and spews a lot of text.";
 
-    my $msg = 'Hello' . rand;
+    my $msg = 'Hello-' . rand;
 
     diag "Message: [$msg]";
 
@@ -150,20 +150,24 @@ sub test_sign : Tests() {
     my $dgst = Digest::SHA::sha1($msg);
     my $digest_alg = 'sha1';
 
+    my %SKIPPED;
+
     for my $param_enc ( qw( named_curve explicit ) ) {
         for my $conv_form ( qw( compressed uncompressed hybrid ) ) {
             my $dir = "$FindBin::Bin/assets/ecdsa_${param_enc}_$conv_form";
 
             opendir( my $dh, $dir );
 
-            for my $node ( readdir $dh ) {
+            for my $node ( sort readdir $dh ) {
                 next if $node !~ m<(.+)\.key\z>;
 
                 my $curve = $1;
 
-                SKIP: {
-                    diag "$curve ($param_enc, $conv_form public point)";
+                my $curve_label = "$curve ($param_enc, $conv_form public point)";
 
+                diag $curve_label;
+
+                SKIP: {
                     my $pkey_pem = File::Slurp::read_file("$dir/$node");
 
                     my $ecdsa;
@@ -174,7 +178,10 @@ sub test_sign : Tests() {
                         my $ok = try { $_->isa('Crypt::Perl::X::ECDSA::CharacteristicTwoUnsupported') };
                         $ok ||= try { $_->isa('Crypt::Perl::X::ECDSA::NoCurveForOID') };
 
-                        skip $_->to_string(), 2 if $ok;
+                        if ($ok) {
+                            $SKIPPED{$curve_label} = ref;
+                            skip $_->to_string(), 2;
+                        }
 
                         local $@ = $_;
                         die;
@@ -187,6 +194,7 @@ sub test_sign : Tests() {
                     }
                     catch {
                         if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {
+                            $SKIPPED{$curve_label} = ref;
                             skip $_->to_string(), 2;
                         }
 
@@ -201,11 +209,20 @@ sub test_sign : Tests() {
                         "$curve, $param_enc parameters, $conv_form: self-verify",
                     );
 
-                    skip 'Your OpenSSL can’t ECDSA!', 1 if !OpenSSL_Control::can_ecdsa();
+                    if (!OpenSSL_Control::can_ecdsa()) {
+                        $SKIPPED{$curve_label} = '!can_ecdsa';
+                        skip 'Your OpenSSL can’t ECDSA!', 1;
+                    }
 
-                    skip 'Your OpenSSL can’t load this key!', 1 if !OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve());
+                    if (!OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve())) {
+                        $SKIPPED{$curve_label} = '!can_load_private_pem';
+                        skip 'Your OpenSSL can’t load this key!', 1;
+                    }
 
-                    skip 'Your OpenSSL can’t correct verify an ECDSA digest against a private key!', 1 if OpenSSL_Control::has_ecdsa_verify_private_bug();
+                    if (OpenSSL_Control::has_ecdsa_verify_private_bug()) {
+                        $SKIPPED{$curve_label} = 'has_ecdsa_verify_private_bug';
+                        skip 'Your OpenSSL can’t correctly verify an ECDSA digest against a private key!', 1;
+                    }
 
                     my $ok = OpenSSL_Control::verify_private(
                         $ecdsa->to_pem_with_explicit_curve(),
@@ -219,6 +236,8 @@ sub test_sign : Tests() {
             }
         }
     }
+
+    diag explain \%SKIPPED;
 
     return;
 }
