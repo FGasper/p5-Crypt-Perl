@@ -35,6 +35,13 @@ WriteMakefile(
                 web  => 'https://github.com/FGasper/p5-Crypt-Perl',
             },
         },
+        prereqs => {
+            runtime => {
+                recommends => {
+                    'Math::BigInt::GMP' => 0,
+                },
+            },
+        },
     },
     TEST_REQUIRES => {
         'Call::Context' => 0,
