@@ -140,7 +140,7 @@ sub test_seed : Tests(2) {
 sub test_sign : Tests() {
     my ($self) = @_;
 
-    diag "This test takes a while and spews a lot of text.";
+    diag "---------- This test takes a while and spews a lot of text.";
 
     my $msg = 'Hello-' . rand;
 
