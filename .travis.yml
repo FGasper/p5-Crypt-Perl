@@ -16,6 +16,7 @@ perl:
   - "5.8.9"     #5.8.8 screws up: printf "%v.02x", "\x07\x66"
 before_install:
     - eval $(curl https://travis-perl.github.io/init) --auto
+    - cpanm --notest ExtUtils::MakeMaker
     - "cpanm --notest Math::BigInt::GMP"
 jobs:
   include:
