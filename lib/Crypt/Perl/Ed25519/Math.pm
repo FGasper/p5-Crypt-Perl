@@ -3,8 +3,6 @@ package Crypt::Perl::Ed25519::Math;
 use strict;
 use warnings;
 
-use Math::Utils ();
-
 sub reduce {
     my ($r) = @_;
 
@@ -140,7 +138,7 @@ sub modL {
         $x->[$j] += $carry - $x31_rshift_4 * (L())[$j];
 
         # originally “>> 8” rather than “/ 256”; we also need floor
-        $carry = Math::Utils::floor( $x->[$j] / 256 );
+        $carry = _floor( $x->[$j] / 256 );
 
         $x->[$j] &= 255;
     }
