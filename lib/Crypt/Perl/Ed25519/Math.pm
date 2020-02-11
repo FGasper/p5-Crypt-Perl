@@ -122,7 +122,7 @@ sub modL {
             $x->[$j] += $carry - 16 * $x->[$i] * (L())[$j - ($i - 32)];
 
             # originally “>> 8” rather than “/ 256”;
-            $carry = Math::Utils::floor( ($x->[$j] + 128) / 256 );
+            $carry = _floor( ($x->[$j] + 128) / 256 );
 
             $x->[$j] -= $carry * 256;
         }
@@ -134,7 +134,7 @@ sub modL {
     my $carry = 0;
 
     # In Perl, -98 >> 4 = 1152921504606846969. :-<
-    my $x31_rshift_4 = Math::Utils::floor( $x->[31] / 16 );
+    my $x31_rshift_4 = _floor( $x->[31] / 16 );
 
     for my $j ( 0 .. 31 ) {
         $x->[$j] += $carry - $x31_rshift_4 * (L())[$j];
@@ -494,6 +494,14 @@ sub _vn {
     # Originally “>>> 8”, which appears to be JS’s equivalent
     # operator to Perl’s >>.
     return (1 & (($d - 1) >> 8)) - 1;
+}
+
+sub _floor {
+    my $int = int $_[0];
+
+    $int -= 1 if ($_[0] < 0) && ($int != $_[0]);
+
+    return $int;
 }
 
 1;

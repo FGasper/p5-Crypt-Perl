@@ -4,6 +4,7 @@ Revision history for Perl module Crypt::Perl
 - Fix ed25519 support detection.
 - Recommend Math::BigInt::GMP.
 - Add additional ECDSA key parse test.
+- Drop Math::Utils dependency.
 
 0.30 Wed Sep 11 2019
 - Fix ECDSA OpenSSL private key verification in tests.

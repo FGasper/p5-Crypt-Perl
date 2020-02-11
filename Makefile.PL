@@ -21,7 +21,6 @@ WriteMakefile(
         'Digest::SHA'              => 0,
         'Math::BigInt' => 1.999805,     #min version, yes
         'Math::ProvablePrime'   => 0.043,
-        'Math::Utils'   => 1.07,    #need floor()
         'MIME::Base64' => 3.11,
         'Symbol::Get' => 0.02,
         'Try::Tiny'        => 0,
