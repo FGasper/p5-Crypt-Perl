@@ -1,6 +1,6 @@
 Revision history for Perl module Crypt::Perl
 
-0.31
+0.31 Tue Feb 11 2020
 - Fix ed25519 support detection.
 - Recommend Math::BigInt::GMP.
 - Add additional ECDSA key parse test.
