@@ -1,5 +1,7 @@
 #!/usr/bin/env perl
 
+# Derived from Google Wycheproof
+
 use strict;
 use warnings;
 
