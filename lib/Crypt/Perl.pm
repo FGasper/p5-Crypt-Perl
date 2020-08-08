@@ -108,6 +108,8 @@ what we know!
 
 The Ed25519 logic is ported from L<forge.js|https://github.com/digitalbazaar/forge/blob/master/lib/ed25519.js>.
 
+Special thanks to Antonio de la Piedra for in-depth bug reports.
+
 Other parts are ported from L<LibTomCrypt|http://www.libtom.net>.
 
 =head1 LICENSE
