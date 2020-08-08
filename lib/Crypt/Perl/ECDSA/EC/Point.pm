@@ -3,6 +3,11 @@ package Crypt::Perl::ECDSA::EC::Point;
 use strict;
 use warnings;
 
+#----------------------------------------------------------------------
+# NOTE TO SELF: This module’s internal coordinates are Jacobi coordinates,
+# not Cartesian.
+#----------------------------------------------------------------------
+
 use Crypt::Perl::BigInt ();
 
 my ($bi1, $bi2, $bi3);
@@ -31,7 +36,13 @@ sub new {
         curve => $curve,
         x => $x,
         y => $y,
+
+        # Generally z won’t be given since we expect
+        # Cartesian coordinates as input. But accepting
+        # z allows this constructor to receive Jacobi
+        # coordinates as well.
         z => $z || $bi1->copy(),
+
         zinv => undef,
     };
 
@@ -46,14 +57,14 @@ sub is_infinity {
     return( ($self->{'z'}->is_zero() && !$self->{'y'}->to_bigint()->is_zero()) || 0 );
 }
 
-#returns ECFieldElement
+#returns ECFieldElement (Cartesian)
 sub get_x {
     my ($self) = @_;
 
     return $self->_get_x_or_y('x');
 }
 
-#returns ECFieldElement
+#returns ECFieldElement (Cartesian)
 #Used in key generation (not signing … ?)
 sub get_y {
     my ($self) = @_;
@@ -184,7 +195,8 @@ sub multiply {
     # return R0
     #
     # This thwarts the timing attacks that can recover private keys
-    # from the standard “double-and-add” algorithm.
+    # by running the standard “double-and-add” algorithm over and over
+    # and analyzing response times.
 
     my $r0 = ref($self)->new_infinity();
     my $r1 = $self;

@@ -44,10 +44,7 @@ for my $t_ar (@tests) {
     my $x_fe = $curve_obj->from_bigint($x_int);
     my $y_fe = $curve_obj->from_bigint($y_int);
 
-    #$expect_hr->{'z'} = Crypt::Perl::BigInt->from_hex($expect_hr->{'z'});
     my $k_int = Crypt::Perl::BigInt->from_hex($k);
-
-#diag explain $point_hr;
 
     my $point = Crypt::Perl::ECDSA::EC::Point->new(
         $curve_obj,
@@ -55,8 +52,6 @@ for my $t_ar (@tests) {
     );
 
     my $got = $point->multiply($k_int);
-
-diag explain [ x =>  ];
 
     for my $axis ( 'x', 'y' ) {
         my $getter = "get_$axis";
@@ -67,17 +62,6 @@ diag explain [ x =>  ];
             "$count: $axis",
         );
     }
-
-use Math::EllipticCurve::Prime;
-use Math::EllipticCurve::Prime::Point;
-my $mep_point = Math::EllipticCurve::Prime::Point->new(
-curve => 'P256',
-x => $x_int,
-y => $y_int,
-);
-diag explain [ $mep_point->x()->as_hex(), $mep_point->y()->as_hex() ];
-my $mult = $mep_point->multiply($k_int);
-diag explain [ $mult->x()->as_hex(), $mult->y()->as_hex() ];
 }
 
 done_testing;
