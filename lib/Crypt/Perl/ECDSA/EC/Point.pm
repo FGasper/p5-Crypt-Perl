@@ -4,8 +4,8 @@ use strict;
 use warnings;
 
 #----------------------------------------------------------------------
-# NOTE TO SELF: This module’s internal coordinates are Jacobi coordinates,
-# not Cartesian.
+# NOTE TO SELF: This module’s internal coordinates are
+# homogeneous/projective coordinates, not Cartesian.
 #----------------------------------------------------------------------
 
 use Crypt::Perl::BigInt ();
