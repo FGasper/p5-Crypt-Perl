@@ -26,9 +26,9 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
             b => ..., #isa Crypt::Perl::BigInt
             n => ..., #isa Crypt::Perl::BigInt
 
-            #Supposedly this can be deduced from the above, but I don’t
-            #see the math for this around. It’s not in libtomcryt, AFAICT.
-            #It may have to do with Schoof’s Algorithm?
+            # Supposedly this can be deduced from the above, but I don’t
+            # see the math for this around. It’s not in libtomcryt, AFAICT.
+            # It may have to do with Schoof’s Algorithm?
             h => ..., #isa Crypt::Perl::BigInt
 
             gx => ..., #isa Crypt::Perl::BigInt
@@ -40,13 +40,21 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
 
     my $msg = 'My message';
 
-    my $hash = Digest::SHA::sha256($msg);
+    # Deterministic signatures. This is probably the way to go
+    # for normal use cases. You can use sha1, sha224, sha256, sha384,
+    # and sha512.
+    my $det_sig = $private->sign_sha256($msg);
 
-    my $sig = $private->sign($hash);
+    my $msg_hash = Digest::SHA::sha256($msg);
 
-    die 'Wut' if !$private->verify($hash, $sig);
+    # NB: This verifies a *digest*, not the original message.
+    die 'Wut' if !$public->verify(msg_hash, $sig);
+    die 'Wut' if !$private->verify(msg_hash, $sig);
 
-    die 'Wut' if !$public->verify($hash, $sig);
+    # You can also create non-deterministic signatures. These risk a
+    # security compromise if there is any flaw in the underlying CSPRNG:
+    # Note that this signs a *digest*, not the message itself.
+    my $sig = $private->sign(msg_hash);
 
     #----------------------------------------------------------------------
 
@@ -85,6 +93,13 @@ security advantage of increasing their size diminishes.
 C<Crypt::Perl> “has no opinion” regarding which curves you use; it ships all
 of the prime-field curves that (L<OpenSSL|http://openssl.org>) includes and
 works with any of them. You can try out custom curves as well.
+
+=head2 Deterministic Signatures
+
+This library can now create deterministic signatures, as per
+L<RFC 6979|https://tools.ietf.org/html/rfc6979>. Read that RFC to learn
+why this is a good idea. (tl;dr: It probably is, unless your special use
+case dictates otherwise.)
 
 =head1 FORMATS SUPPORTED
 
