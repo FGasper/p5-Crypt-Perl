@@ -25,7 +25,7 @@ our $qlen;
 our $qlen_bytelen;
 
 sub generate_k {
-    my ($order, $key, $hashfunc, $msg) = @_;
+    my ($order, $key, $msg, $hashfunc, $blksize) = @_;
 
     local $q = $order;
     local $qlen = length $order->to_bin();
@@ -35,10 +35,10 @@ sub generate_k {
     substr( $privkey_bytes, 0, 0, "\0" x ($qlen_bytelen - length $privkey_bytes) );
 
     my $h1 = $hashfunc->($msg);
-    printf "h1: %v.02x\n", $h1;
-    printf "x: %v.02x\n", $privkey_bytes;
+    # printf "h1: %v.02x\n", $h1;
+    # printf "x: %v.02x\n", $privkey_bytes;
 
-    printf "bits2octets(h1): %v.02x\n", bits2octets($h1);
+    # printf "bits2octets(h1): %v.02x\n", bits2octets($h1);
 
     my $hashlen = length $h1;
 
@@ -50,54 +50,52 @@ sub generate_k {
         $V . "\0" . $privkey_bytes . bits2octets($h1),
         $K,
         $hashfunc,
+        $blksize,
     );
-    printf "K after step d: %v.02x\n", $K;
+    # printf "K after step d: %v.02x\n", $K;
 
-    $V = Digest::HMAC::hmac( $V, $K, $hashfunc );
-    printf "V after step E: %v.02x\n", $V;
+    $V = Digest::HMAC::hmac( $V, $K, $hashfunc, $blksize );
+    # printf "V after step E: %v.02x\n", $V;
 
     $K = Digest::HMAC::hmac(
         $V . "\1" . $privkey_bytes . bits2octets($h1),
         $K,
         $hashfunc,
+        $blksize,
     );
-    printf "K after step F: %v.02x\n", $K;
+    # printf "K after step F: %v.02x\n", $K;
 
-    $V = Digest::HMAC::hmac( $V, $K, $hashfunc );
-    printf "V after step G: %v.02x\n", $V;
+    $V = Digest::HMAC::hmac( $V, $K, $hashfunc, $blksize );
+    # printf "V after step G: %v.02x\n", $V;
 
     my $k;
 
-    my $i = 0;
     while (1) {
         my $T = q<>;
 
         while (1) {
-            $V = Digest::HMAC::hmac( $V, $K, $hashfunc );
+            $V = Digest::HMAC::hmac( $V, $K, $hashfunc, $blksize );
             $T .= $V;
 
             last if length(Math::BigInt->from_bytes($T)->to_bin()) >= $qlen;
         }
-        printf "new T: %v.02x\n", $T;
-        print Math::BigInt->from_bytes($T)->to_bin() . $/;
+        # printf "new T: %v.02x\n", $T;
+        # print Math::BigInt->from_bytes($T)->to_bin() . $/;
 
         $k = bits2int($T, $qlen);
 
         if ($k >= 1 && $k < $order) {
-            print "got good k\n";
+            # print "got good k\n";
             # TODO: determine $r’s suitability
             last;
         }
 
-        printf "bad k: %v.02x\n", $k->to_bytes();
+        # printf "bad k: %v.02x\n", $k->to_bytes();
 
-    $i++;
-    die if $i == 3;
-
-        $K = Digest::HMAC::hmac( $V . "\0", $K, $hashfunc );
-        printf "new K: %v.02x\n", $K;
-        $V = Digest::HMAC::hmac( $V, $K, $hashfunc );
-        printf "new V: %v.02x\n", $V;
+        $K = Digest::HMAC::hmac( $V . "\0", $K, $hashfunc, $blksize );
+        # printf "new K: %v.02x\n", $K;
+        $V = Digest::HMAC::hmac( $V, $K, $hashfunc, $blksize );
+        # printf "new V: %v.02x\n", $V;
     }
 
     return $k;
@@ -106,30 +104,12 @@ sub generate_k {
 sub bits2int {
     my ($bits, $qlen) = @_;
 
-#    my $bint = Math::BigInt->from_bytes($bits);
-#    $bits = $bint->to_bin();
-#    my $blen = length $bits;
-#
-#    if ($blen > $qlen) {
-#        $bint >>= ($blen - $qlen);
-#    }
-#printf "shortened: %s\n", $bint->to_bin();
-#
-#    return $bint;
-
     my $blen = 8 * length $bits;
     $bits = Math::BigInt->from_bytes($bits)->to_bin();
 
-printf "qlen: $qlen; blen $blen\n";
     if ($qlen < $blen) {
-printf "shifting: %d\n", ($blen - $qlen);
-my $chopped = substr($bits, $qlen);
-printf "chopped: %s\n", $chopped;
         substr($bits, -($blen - $qlen)) = q<>;
-printf "shortened:\n$bits (%d bits)\n", length $bits;
     }
-
-#$bits =~ s<0+\z><>; # should not be necessary??
 
     return Math::BigInt->from_bin($bits);
 }
