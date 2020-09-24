@@ -190,9 +190,14 @@ sub sign_sha512 {
 sub sign_jwa {
     my ($self, $whatsit) = @_;
 
-    my $dgst_cr = $self->_get_jwk_digest_cr();
+    # As of version 0.34 this method creates deterministic signatures.
 
-    my ($r, $s) = map { $_->as_bytes() } $self->_sign($dgst_cr->($whatsit));
+    my $dgst_name = $self->_get_jwk_digest_name();
+
+    require Digest::SHA;
+    $whatsit = Digest::SHA->can($dgst_name)->($whatsit);
+
+    my ($r, $s) = map { $_->as_bytes() } $self->_sign($whatsit, $dgst_name);
 
     my $octet_length = Crypt::Perl::Math::ceil($self->max_sign_bits() / 8);
 

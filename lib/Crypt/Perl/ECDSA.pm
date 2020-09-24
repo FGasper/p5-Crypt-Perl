@@ -51,6 +51,9 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
     die 'Wut' if !$public->verify(msg_hash, $sig);
     die 'Wut' if !$private->verify(msg_hash, $sig);
 
+    # Signature in JSON Web Algorithm format (deterministic):
+    my $jwa_sig = $private->sign_jwa($msg);
+
     # You can also create non-deterministic signatures. These risk a
     # security compromise if there is any flaw in the underlying CSPRNG:
     # Note that this signs a *digest*, not the message itself.

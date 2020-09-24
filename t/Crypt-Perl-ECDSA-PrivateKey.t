@@ -323,7 +323,7 @@ sub test_sign : Tests() {
     return;
 }
 
-sub test_jwa : Tests(6) {
+sub test_jwa : Tests(9) {
     my ($self) = @_;
 
     my %curve_dgst = (
@@ -344,6 +344,9 @@ sub test_jwa : Tests(6) {
 
         my $sig = $key->sign_jwa($msg);
         note( "Signature: " . unpack 'H*', $sig );
+
+        my $sig2 = $key->sign_jwa($msg);
+        is( $sig2, $sig, 'signature is constant for message' );
 
         is(
             $key->verify_jwa($msg, $sig),
