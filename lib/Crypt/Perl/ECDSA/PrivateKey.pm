@@ -151,8 +151,7 @@ sub _hash_sign_and_serialize {
     my ($self, $whatsit, $hashfn) = @_;
 
     require Digest::SHA;
-    $hashfn = Digest::SHA->can($hashfn);
-    $whatsit = $hashfn->($whatsit);
+    $whatsit = Digest::SHA->can($hashfn)->($whatsit);
 
     return $self->_sign_and_serialize($whatsit, $hashfn);
 }
