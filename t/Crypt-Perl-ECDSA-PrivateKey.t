@@ -161,41 +161,25 @@ END
         [ sha512 => '3081880242008d031ef7ce25ae7f93769597037d5c53ca3a597938b30957039641b2186268b21e96e7d4c30de0f605537d129d14e2d32df137dfea3d9b6c449bf2eb4137dd0520024201ddec83a86f556cf87d2137f8ef47ebb58ffb70211254a42a22bd49d151fce663a33ca0f4036acee2478b145bae7e19a2f1aeeab2241c5792fc2dbdad383a2be434' ],
     );
 
-  SKIP: {
-        if (!_can_hmac()) {
-            skip 'No Digest::HMAC', $self->num_tests();
-        }
+    for my $tt (@t) {
+        my ($hashfn, $sig) = @$tt;
 
-        for my $tt (@t) {
-            my ($hashfn, $sig) = @$tt;
+        my $fn = "sign_$hashfn";
+        my $got_sig = $key->$fn($msg);
 
-            my $fn = "sign_$hashfn";
-            my $got_sig = $key->$fn($msg);
+        is(
+            unpack('H*', $got_sig),
+            $sig,
+            "$hashfn: deterministic signature matches from python-ecdsa",
+        );
 
-            is(
-                unpack('H*', $got_sig),
-                $sig,
-                "$hashfn: deterministic signature matches from python-ecdsa",
-            );
-
-            ok(
-                $key->verify( Digest::SHA->can($hashfn)->($msg), $got_sig ),
-                "$hashfn: self-verify",
-            );
-        }
+        ok(
+            $key->verify( Digest::SHA->can($hashfn)->($msg), $got_sig ),
+            "$hashfn: self-verify",
+        );
     }
 
     return;
-}
-
-my $_can_hmac;
-
-sub _can_hmac {
-    if (!defined $_can_hmac) {
-        $_can_hmac = eval { require Digest::HMAC } || 0;
-    }
-
-    return $_can_hmac;
 }
 
 sub test_sign : Tests() {
@@ -254,11 +238,9 @@ sub test_sign : Tests() {
                         $signature = $ecdsa->sign($dgst);
                         diag "Random Sig: " . unpack('H*', $signature);
 
-                        if (_can_hmac()) {
-                            my $fn = "sign_$digest_alg";
-                            $det_signature = $ecdsa->$fn($msg);
-                            diag "Deterministic Sig: " . unpack('H*', $det_signature);
-                        }
+                        my $fn = "sign_$digest_alg";
+                        $det_signature = $ecdsa->$fn($msg);
+                        diag "Deterministic Sig: " . unpack('H*', $det_signature);
                     }
                     catch {
                         if ( try { $_->isa('Crypt::Perl::X::TooLongToSign') } ) {
@@ -275,43 +257,37 @@ sub test_sign : Tests() {
                         [ deterministic => $det_signature ],
                     );
 
-                  SKIP: {
-                        for my $st_ar (@sub_t) {
-                            my ($label, $signature) = @$st_ar;
+                    for my $st_ar (@sub_t) {
+                        my ($label, $signature) = @$st_ar;
 
-                            if (!$signature) {
-                                skip "Can’t create a $label signature.", 2;
-                            }
+                        ok(
+                            $ecdsa->verify( $dgst, $signature ),
+                            "$curve, $param_enc parameters, $conv_form, $label signature: self-verify",
+                        );
 
-                            ok(
-                                $ecdsa->verify( $dgst, $signature ),
-                                "$curve, $param_enc parameters, $conv_form, $label signature: self-verify",
-                            );
-
-                            if (!OpenSSL_Control::can_ecdsa()) {
-                                $SKIPPED{$curve_label} = '!can_ecdsa';
-                                skip 'Your OpenSSL can’t ECDSA!', 1;
-                            }
-
-                            if (!OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve())) {
-                                $SKIPPED{$curve_label} = '!can_load_private_pem';
-                                skip 'Your OpenSSL can’t load this key!', 1;
-                            }
-
-                            if (OpenSSL_Control::has_ecdsa_verify_private_bug()) {
-                                $SKIPPED{$curve_label} = 'has_ecdsa_verify_private_bug';
-                                skip 'Your OpenSSL can’t correctly verify an ECDSA digest against a private key!', 1;
-                            }
-
-                            my $ok = OpenSSL_Control::verify_private(
-                                $ecdsa->to_pem_with_explicit_curve(),
-                                $msg,
-                                $digest_alg,
-                                $signature,
-                            );
-
-                            ok( $ok, "$curve, $param_enc parameters, $conv_form, $label signature: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
+                        if (!OpenSSL_Control::can_ecdsa()) {
+                            $SKIPPED{$curve_label} = '!can_ecdsa';
+                            skip 'Your OpenSSL can’t ECDSA!', 1;
                         }
+
+                        if (!OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve())) {
+                            $SKIPPED{$curve_label} = '!can_load_private_pem';
+                            skip 'Your OpenSSL can’t load this key!', 1;
+                        }
+
+                        if (OpenSSL_Control::has_ecdsa_verify_private_bug()) {
+                            $SKIPPED{$curve_label} = 'has_ecdsa_verify_private_bug';
+                            skip 'Your OpenSSL can’t correctly verify an ECDSA digest against a private key!', 1;
+                        }
+
+                        my $ok = OpenSSL_Control::verify_private(
+                            $ecdsa->to_pem_with_explicit_curve(),
+                            $msg,
+                            $digest_alg,
+                            $signature,
+                        );
+
+                        ok( $ok, "$curve, $param_enc parameters, $conv_form, $label signature: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
                     }
                 }
             }

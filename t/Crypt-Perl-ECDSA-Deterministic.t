@@ -33,11 +33,6 @@ __PACKAGE__->new()->runtests() if !caller;
 
 #----------------------------------------------------------------------
 
-sub SKIP_CLASS {
-    return if eval { require Digest::HMAC };
-    return "Failed to load Digest::HMAC: $@";
-}
-
 use constant _TEST_TESTS => (
     (
         map {
