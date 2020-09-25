@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = '0.34_03';
+our $VERSION = '0.34_04';
 
 =encoding utf-8
 
@@ -56,10 +56,8 @@ a broad variety of extensions
 
 =head1 SECURITY
 
-L<Bytes::Random::Secure::Tiny> supplies random number generation; see that
-module’s documentation for details of its reliability. (Code paths that
-don’t need randomness—such as deterministic ECDSA signatures—should be
-even safer.)
+Random number generation here comes from L<Bytes::Random::Secure::Tiny>.
+See that module’s documentation for details of its reliability.
 
 An extensive test suite is included that compares against
 L<OpenSSL|https://openssl.org> and
@@ -70,7 +68,7 @@ That said: B<NO GUARANTEES!!!> It’s best to restrict use of this library
 to contexts where more “visible” cryptography libraries like the ones
 mentioned elsewhere here are unavailable.
 
-Of course, even L<OpenSSL has not been trouble-free, either!|https://www.openssl.org/news/vulnerabilities.html>
+And of course, L<OpenSSL has not been trouble-free, either …|https://www.openssl.org/news/vulnerabilities.html>
 
 Caveat emptor.
 
@@ -90,7 +88,7 @@ RSA key generation is slow—too slow, probably, unless you have
 L<Math::BigInt::GMP> or L<Math::BigInt::Pari> (either of which requires XS).
 It’s one application where pure-Perl cryptography just doesn’t seem
 feasible. :-( Everything else, though, including all ECDSA and Ed25519
-operations, should be fine in pure Perl.
+operations, should be fine even in pure Perl.
 
 Note that this distribution’s test suite is also pretty slow without an
 XS backend.

@@ -265,29 +265,31 @@ sub test_sign : Tests() {
                             "$curve, $param_enc parameters, $conv_form, $label signature: self-verify",
                         );
 
-                        if (!OpenSSL_Control::can_ecdsa()) {
-                            $SKIPPED{$curve_label} = '!can_ecdsa';
-                            skip 'Your OpenSSL can’t ECDSA!', 1;
+                      SKIP: {
+                            if (!OpenSSL_Control::can_ecdsa()) {
+                                $SKIPPED{$curve_label} = '!can_ecdsa';
+                                skip 'Your OpenSSL can’t ECDSA!', 1;
+                            }
+
+                            if (!OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve())) {
+                                $SKIPPED{$curve_label} = '!can_load_private_pem';
+                                skip 'Your OpenSSL can’t load this key!', 1;
+                            }
+
+                            if (OpenSSL_Control::has_ecdsa_verify_private_bug()) {
+                                $SKIPPED{$curve_label} = 'has_ecdsa_verify_private_bug';
+                                skip 'Your OpenSSL can’t correctly verify an ECDSA digest against a private key!', 1;
+                            }
+
+                            my $ok = OpenSSL_Control::verify_private(
+                                $ecdsa->to_pem_with_explicit_curve(),
+                                $msg,
+                                $digest_alg,
+                                $signature,
+                            );
+
+                            ok( $ok, "$curve, $param_enc parameters, $conv_form, $label signature: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
                         }
-
-                        if (!OpenSSL_Control::can_load_private_pem($ecdsa->to_pem_with_explicit_curve())) {
-                            $SKIPPED{$curve_label} = '!can_load_private_pem';
-                            skip 'Your OpenSSL can’t load this key!', 1;
-                        }
-
-                        if (OpenSSL_Control::has_ecdsa_verify_private_bug()) {
-                            $SKIPPED{$curve_label} = 'has_ecdsa_verify_private_bug';
-                            skip 'Your OpenSSL can’t correctly verify an ECDSA digest against a private key!', 1;
-                        }
-
-                        my $ok = OpenSSL_Control::verify_private(
-                            $ecdsa->to_pem_with_explicit_curve(),
-                            $msg,
-                            $digest_alg,
-                            $signature,
-                        );
-
-                        ok( $ok, "$curve, $param_enc parameters, $conv_form, $label signature: OpenSSL binary verifies our digest signature for “$msg” ($digest_alg)" );
                     }
                 }
             }
