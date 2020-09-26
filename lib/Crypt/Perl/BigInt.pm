@@ -27,6 +27,11 @@ BEGIN {
         *as_bytes = \&_pp_as_bytes;
     }
 
+    # Accommodate Math::BigInt::GMP 1.51 …
+    if ( !eval { __PACKAGE__->new(1234)->to_bin() } ) {
+        *to_bin = \&_pp_to_bin;
+    }
+
     $@ = q<>;
 }
 
@@ -54,6 +59,15 @@ sub _pp_as_bytes {
     }
 
     return pack 'H*', $hex;
+}
+
+sub _pp_to_bin {
+    my ($self) = @_;
+
+    my $bin = unpack 'B*', $self->as_bytes();
+    $bin =~ s<\A0+><>;
+
+    return $bin;
 }
 
 sub bit_length {
