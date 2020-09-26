@@ -33,6 +33,10 @@ __PACKAGE__->new()->runtests() if !caller;
 
 #----------------------------------------------------------------------
 
+sub print_diag : Tests(startup) {
+    diag join q< >, map { Crypt::Perl::BigInt->config($_) } qw(lib lib_version);
+}
+
 use constant _TEST_TESTS => (
     (
         map {
