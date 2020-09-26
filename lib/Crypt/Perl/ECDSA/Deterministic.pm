@@ -38,7 +38,7 @@ sub generate_k {
     local $qlen = length $order->to_bin();
     local $qlen_bytelen = Crypt::Perl::Math::ceil( $qlen / 8 );
 
-    my $privkey_bytes = $key->to_bytes();
+    my $privkey_bytes = $key->as_bytes();
     substr( $privkey_bytes, 0, 0, "\0" x ($qlen_bytelen - length $privkey_bytes) );
 
     # printf "h1: %v.02x\n", $h1;
@@ -121,7 +121,7 @@ sub bits2int {
 }
 
 sub int2octets {
-    my $octets = shift()->to_bytes();
+    my $octets = shift()->as_bytes();
 
     if (length($octets) > $qlen_bytelen) {
         substr( $octets, 0, -$qlen_bytelen ) = q<>;
