@@ -82,7 +82,8 @@ what we know!
 
 The Ed25519 logic is ported from [forge.js](https://github.com/digitalbazaar/forge/blob/master/lib/ed25519.js).
 
-Deterministic ECDSA logic derived in part from [python-ecdsa](https://github.com/ecdsa/python-ecdsa).
+Deterministic ECDSA logic derived in part from
+[python-ecdsa](https://github.com/ecdsa/python-ecdsa).
 
 Other parts are ported from [LibTomCrypt](http://www.libtom.net).
 

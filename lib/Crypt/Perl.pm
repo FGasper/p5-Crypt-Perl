@@ -3,7 +3,7 @@ package Crypt::Perl;
 use strict;
 use warnings;
 
-our $VERSION = '0.34_08';
+our $VERSION = '0.34_09';
 
 =encoding utf-8
 
@@ -120,7 +120,8 @@ what we know!
 
 The Ed25519 logic is ported from L<forge.js|https://github.com/digitalbazaar/forge/blob/master/lib/ed25519.js>.
 
-Deterministic ECDSA logic derived in part from L<python-ecdsa|https://github.com/ecdsa/python-ecdsa>.
+Deterministic ECDSA logic derived in part from
+L<python-ecdsa|https://github.com/ecdsa/python-ecdsa>.
 
 Other parts are ported from L<LibTomCrypt|http://www.libtom.net>.
 

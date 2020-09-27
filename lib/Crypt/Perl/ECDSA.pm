@@ -42,22 +42,22 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
 
     # Deterministic signatures. This is probably the way to go
     # for normal use cases. You can use sha1, sha224, sha256, sha384,
-    # and sha512.
+    # or sha512.
     my $det_sig = $private->sign_sha256($msg);
 
     my $msg_hash = Digest::SHA::sha256($msg);
 
     # NB: This verifies a *digest*, not the original message.
-    die 'Wut' if !$public->verify(msg_hash, $sig);
-    die 'Wut' if !$private->verify(msg_hash, $sig);
+    die 'Wut' if !$public->verify($msg_hash, $sig);
+    die 'Wut' if !$private->verify($msg_hash, $sig);
 
     # Signature in JSON Web Algorithm format (deterministic):
     my $jwa_sig = $private->sign_jwa($msg);
 
     # You can also create non-deterministic signatures. These risk a
-    # security compromise if there is any flaw in the underlying CSPRNG:
+    # security compromise if there is any flaw in the underlying CSPRNG.
     # Note that this signs a *digest*, not the message itself.
-    my $sig = $private->sign(msg_hash);
+    my $sig = $private->sign($msg_hash);
 
     #----------------------------------------------------------------------
 
@@ -99,10 +99,9 @@ works with any of them. You can try out custom curves as well.
 
 =head2 Deterministic Signatures
 
-This library can now create deterministic signatures, as per
-L<RFC 6979|https://tools.ietf.org/html/rfc6979>. Read that RFC to learn
-why this is a good idea. (tl;dr: It probably is, unless your special use
-case dictates otherwise.)
+This library can create deterministic signatures, as per
+L<RFC 6979|https://tools.ietf.org/html/rfc6979>. Read that RFC’s
+introduction to learn why this is a good idea.
 
 =head1 FORMATS SUPPORTED
 
@@ -132,8 +131,8 @@ required for ECDH. Moreover, unlike the seed (which nither ECDSA nor ECDH
 requires), the cofactor is small enough that its inclusion only enlarges the
 key by a few bytes.
 
-I believe the cofactor can be deduced from the other curve parameters,
-but I’ve not had time to learn how.
+I believe the cofactor can be deduced from the other curve parameters;
+if someone wants to submit a PR to do this that would be nice.
 
 Generator/base points will be exported as compressed or uncompressed
 according to the public point. If for some reason you really need a
@@ -146,8 +145,8 @@ please explain your need for such a thing in your pull request. :-)
 Functionality can be augmented as feature requests come in.
 Patches are welcome—particularly with tests!
 
-In particular, it would be great to support characteristic-two curves, though
-almost everything seems to expect the prime-field variety.
+In particular, it would be great to support characteristic-two curves,
+though almost everything seems to expect the prime-field variety.
 (OpenSSL is the only implementation I know of that
 supports characteristic-two.)
 
@@ -163,6 +162,9 @@ Curve data is copied from OpenSSL. (See the script included in the
 distribution.)
 
 The point decompression logic is ported from L<LibTomCrypt|http://libtom.net>.
+
+Deterministic ECDSA logic derived in part from
+L<python-ecdsa|https://github.com/ecdsa/python-ecdsa>.
 
 =cut
 
