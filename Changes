@@ -1,5 +1,9 @@
 Revision history for Perl module Crypt::Perl
 
+0.35
+- Bump minimum Math::BigInt version to avoid (apparent?) recent breakages.
+- Allow Math::BigInt::LTM, Math::BigInt::BitVect, and Math::BigInt::GMPz.
+
 0.34 Mon Sep 28 2020
 - Deterministic ECDSA support added. sign_jwa() now always uses it,
   and new sign_sha256() et al. methods encourage it for plain signatures.

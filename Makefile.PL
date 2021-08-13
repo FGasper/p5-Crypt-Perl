@@ -19,7 +19,7 @@ WriteMakefile(
         'Convert::ASN1' => 0.27,
         'Crypt::Format'            => 0.06,
         'Digest::SHA'              => 0,
-        'Math::BigInt' => 1.999805,     #min version, yes
+        'Math::BigInt' => 1.999818,     #min version, yes
         'Math::ProvablePrime'   => 0.043,
         'MIME::Base64' => 3.11,
         'Symbol::Get' => 0.02,
