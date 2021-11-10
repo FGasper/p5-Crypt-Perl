@@ -72,7 +72,7 @@ sub parse_jwk {
     my ($hr) = @_;
 
     if ('HASH' ne ref $hr) {
-        die Crypt::Perl::X::create('InvalidJWK', $hr);
+        die( (caller 0)[3] . " needs a HASH reference, not $hr" );
     }
 
     my $kty = $hr->{'kty'};
