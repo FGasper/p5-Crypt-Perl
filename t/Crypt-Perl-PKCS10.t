@@ -94,7 +94,7 @@ warn if !eval {
             my $pem = OpenSSL_Control::run('genrsa', $type);
             use Data::Dumper;
             local $Data::Dumper::Useqq = 1;
-            note Dumper($pem);
+            diag Dumper($pem);
             $key = Crypt::Perl::PK::parse_key($pem);
             $print_type = "RSA ($type-bit)";
         }
