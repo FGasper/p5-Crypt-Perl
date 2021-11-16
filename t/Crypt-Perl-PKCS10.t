@@ -82,6 +82,7 @@ sub _KEY_TYPES_TO_TEST {
 sub test_new : Tests() {
     my ($self) = @_;
 
+warn if !eval {
     my $ossl_bin = OpenSSL_Control::openssl_bin();
 
     for my $type ( $self->_KEY_TYPES_TO_TEST() ) {
@@ -90,7 +91,11 @@ sub test_new : Tests() {
         my $print_type;
 
         if ($type =~ m<\A[0-9]>) {
-            $key = Crypt::Perl::PK::parse_key( OpenSSL_Control::run('genrsa', $type) );
+            my $pem = OpenSSL_Control::run('genrsa', $type);
+            use Data::Dumper;
+            local $Data::Dumper::Useqq = 1;
+            note Dumper($pem);
+            $key = Crypt::Perl::PK::parse_key($pem);
             $print_type = "RSA ($type-bit)";
         }
         elsif ($type eq 'ed25519') {
@@ -150,6 +155,8 @@ sub test_new : Tests() {
         $text = OpenSSL_Control::run( qw(asn1parse -dump -in), $fpath);
         like( $text, qr/challengePassword.*iNsEcUrE/s, "$print_type: challengePassword" );
     }
+1;
+};
 
     return;
 }
