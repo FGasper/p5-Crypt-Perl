@@ -26,7 +26,7 @@ use constant BLACKLIST_CURVES => (
 
 sub openssl_version {
     my $bin = openssl_bin();
-    return $bin && scalar qx<$bin version -v -o -f>;
+    return $bin && run( qw( version -v -o -f ) );
 }
 
 sub can_load_private_pem {
@@ -40,7 +40,7 @@ sub can_load_private_pem {
     print {$fh} $pem;
     close $fh;
 
-    my $out = qx<$bin ec -text -in $fpath>;
+    my $out = run( qw(ec -text -in), $fpath);
 
     return !$? && ($out =~ m<private>i);
 }
@@ -149,7 +149,7 @@ sub verify_private {
     print {$mfh} $message or die $!;
     close $mfh;
 
-    my $ver = qx<$openssl_bin dgst -$digest_alg -prverify $key_path -signature $sig_path $msg_path>;
+    my $ver = run('dgst', "-$digest_alg", '-prverify', $key_path, '-signature', $sig_path, $msg_path);
     my $ok = $ver =~ m<OK>;
 
     diag $ver if !$ok && $ver;
@@ -161,7 +161,7 @@ sub curve_names {
     Call::Context::must_be_list();
 
     my $bin = openssl_bin();
-    my @lines = qx<$bin ecparam -list_curves>;
+    my @lines = run( qw(ecparam -list_curves) );
 
     my @all_curves = map { m<(\S+)\s*:> ? $1 : () } @lines;
 
@@ -196,7 +196,7 @@ sub __ecparam {
     require Crypt::Perl::ASN1;
 
     my $bin = openssl_bin();
-    my $out = qx<$bin ecparam -name $name -param_enc $param_enc -outform DER>;
+    my $out = run( 'ecparam', '-name', $name, '-param_enc', $param_enc, '-outform', 'DER');
 
     my $asn1 = Crypt::Perl::ASN1->new()->prepare($asn1_template);
     return ($asn1, $out);

@@ -90,7 +90,7 @@ sub test_new : Tests() {
         my $print_type;
 
         if ($type =~ m<\A[0-9]>) {
-            $key = Crypt::Perl::PK::parse_key( scalar qx<$ossl_bin genrsa $type> );
+            $key = Crypt::Perl::PK::parse_key( OpenSSL_Control::run('genrsa', $type) );
             $print_type = "RSA ($type-bit)";
         }
         elsif ($type eq 'ed25519') {
@@ -122,7 +122,7 @@ sub test_new : Tests() {
         print {$fh} $pkcs10->to_pem() or die $!;
         close $fh;
 
-        my $text = qx<$ossl_bin req -text -noout -in $fpath>;
+        my $text = OpenSSL_Control::run(qw(req -text -noout -in), $fpath);
 
         SKIP: {
             if ( $key->isa('Crypt::Perl::ECDSA::PrivateKey') ) {
@@ -147,7 +147,7 @@ sub test_new : Tests() {
 
         #Some OpenSSL versions hide the challengePassword on CSR parse,
         #so pass it through a generic ASN.1 parse instead.
-        $text = qx<$ossl_bin asn1parse -dump -in $fpath>;
+        $text = OpenSSL_Control::run( qw(asn1parse -dump -in), $fpath);
         like( $text, qr/challengePassword.*iNsEcUrE/s, "$print_type: challengePassword" );
     }
 
