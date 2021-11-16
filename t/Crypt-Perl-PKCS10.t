@@ -92,9 +92,8 @@ warn if !eval {
 
         if ($type =~ m<\A[0-9]>) {
             my $pem = OpenSSL_Control::run('genrsa', $type);
-            use Data::Dumper;
-            local $Data::Dumper::Useqq = 1;
-            diag Dumper($pem);
+            $pem =~ tr<\r><>d;
+
             $key = Crypt::Perl::PK::parse_key($pem);
             $print_type = "RSA ($type-bit)";
         }
