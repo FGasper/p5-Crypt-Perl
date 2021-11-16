@@ -53,7 +53,7 @@ sub can_ecdsa {
         my $bin = openssl_bin();
 
         if ($bin) {
-            my $pid = open my $rdr, '-|', "$bin ecparam -list_curves";
+            my $pid = open my $rdr, '-|', $bin, qw(ecparam -list_curves);
             my $out = do { local $/; <$rdr> };
             close $rdr;
 
