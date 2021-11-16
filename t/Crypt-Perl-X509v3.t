@@ -26,8 +26,8 @@ use lib "$FindBin::Bin/lib";
 use OpenSSL_Control ();
 
 use parent qw(
-    Test::Class
     NeedsOpenSSL
+    TestClass
 );
 
 use Crypt::Perl::ECDSA::Generate ();

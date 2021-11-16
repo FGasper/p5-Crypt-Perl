@@ -78,20 +78,22 @@ sub can_ed25519 {
     if (!defined $_can_ed25519) {
         my $bin = openssl_bin();
 
-        diag "Checking $bin for ed25519 support …";
+        if ($bin) {
+            diag "Checking $bin for ed25519 support …";
 
-        my $cmd = "$bin genpkey -algorithm ed25519";
+            my $cmd = "$bin genpkey -algorithm ed25519";
 
-        my $out = `$cmd`;
+            my $out = `$cmd`;
 
-        # On some OpenSSLs/OSes $? isn’t populated, even in failure.
-        if ($? || $out !~ m<BEGIN>) {
-            $_can_ed25519 = 0;
-            diag "$bin does not support ed25519.";
-        }
-        else {
-            $_can_ed25519 = 1;
-            diag "$bin supports ed25519.";
+            # On some OpenSSLs/OSes $? isn’t populated, even in failure.
+            if ($? || $out !~ m<BEGIN>) {
+                $_can_ed25519 = 0;
+                diag "$bin does not support ed25519.";
+            }
+            else {
+                $_can_ed25519 = 1;
+                diag "$bin supports ed25519.";
+            }
         }
     }
 
@@ -211,7 +213,7 @@ sub openssl_bin {
 
         my $bin = File::Which::which('openssl');
 
-        diag "Found OpenSSL: $bin";
+        diag( $bin ? "Found OpenSSL: $bin" : "NO OPENSSL FOUND" );
 
         $bin;
     };

@@ -3,6 +3,8 @@ package NeedsOpenSSL;
 use strict;
 use warnings;
 
+use parent 'Test::Class';
+
 use Test::More;
 
 use File::Which ();

@@ -24,8 +24,8 @@ use lib "$FindBin::Bin/lib";
 use OpenSSL_Control ();
 
 use parent qw(
-    TestClass
     NeedsOpenSSL
+    TestClass
 );
 
 use Crypt::Perl::ECDSA::Generate ();
@@ -82,7 +82,7 @@ sub _KEY_TYPES_TO_TEST {
 sub test_new : Tests() {
     my ($self) = @_;
 
-    my $ossl_bin = OpenSSL_Control::openssl_bin ();
+    my $ossl_bin = OpenSSL_Control::openssl_bin();
 
     for my $type ( $self->_KEY_TYPES_TO_TEST() ) {
         my $key;
