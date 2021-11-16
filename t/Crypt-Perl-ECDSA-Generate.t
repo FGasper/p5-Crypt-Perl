@@ -125,7 +125,7 @@ sub test_generate : Tests() {
             print {$fh} $key_obj->to_pem_with_explicit_curve() or die $!;
             close $fh;
 
-            system( "$ossl_bin ec -text -in $path -out $path.out" );
+            OpenSSL_Control::run( qw(ec -text -in), $path, '-out', "$path.out" );
 
             my $parsed = File::Slurp::read_file("$path.out");
 
