@@ -84,7 +84,7 @@ sub test_generate : Tests(1) {
                 print {$fh} $pem or die $!;
                 close $fh;
 
-                my $ossl_out = `$ossl_bin rsa -check -in $path 2>&1`;
+                my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in $path 2>&1) );
                 die $ossl_out if $ossl_out !~ m<RSA key ok>;
                 note "OK";
             }

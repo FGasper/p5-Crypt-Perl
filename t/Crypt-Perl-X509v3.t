@@ -334,10 +334,10 @@ sub test_creation : Tests() {
 
         my $ossl_bin = OpenSSL_Control::openssl_bin();
 
-        my $asn1parse = `$ossl_bin asn1parse -i -dump -in $fpath`;
+        my $asn1parse = OpenSSL_Control::run( qw(asn1parse -i -dump -in), $fpath );
         cmp_ok($?, '==', 0, "$label: asn1parse succeeds" ) or diag $asn1parse;
 
-        my $x509parse = `$ossl_bin x509 -text -in $fpath -noout`;
+        my $x509parse = OpenSSL_Control::run( qw(x509 -text -in), $fpath, '-noout' );
         cmp_ok($?, '==', 0, "$label: x509 parses OK") or diag $x509parse;
     }
 

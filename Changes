@@ -5,6 +5,7 @@ Revision history for Perl module Crypt::Perl
 - Bump minimum Math::BigInt version to avoid (apparent?) recent breakages.
 - Allow Math::BigInt::LTM, Math::BigInt::BitVect, and Math::BigInt::GMPz.
 - Fix tests when there is no usable OpenSSL binary.
+- Fix tests on win32 when OpenSSL’s path includes a space.
 
 0.34 Mon Sep 28 2020
 - Deterministic ECDSA support added. sign_jwa() now always uses it,

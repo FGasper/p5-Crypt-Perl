@@ -27,7 +27,7 @@ sub _get_openssl {
 
         if ($bin) {
             note "Using OpenSSL binary: $bin";
-            note `$bin version -a`;
+            note OpenSSL_Control::run(qw(version -a));
         }
 
         $bin;

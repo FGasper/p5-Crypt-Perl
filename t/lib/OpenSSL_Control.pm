@@ -81,9 +81,7 @@ sub can_ed25519 {
         if ($bin) {
             diag "Checking $bin for ed25519 support …";
 
-            my $cmd = "$bin genpkey -algorithm ed25519";
-
-            my $out = `$cmd`;
+            my $out = run( qw(genpkey -algorithm ed25519") );
 
             # On some OpenSSLs/OSes $? isn’t populated, even in failure.
             if ($? || $out !~ m<BEGIN>) {
@@ -217,6 +215,23 @@ sub openssl_bin {
 
         $bin;
     };
+}
+
+sub run {
+    my @params = @_;
+
+    use IPC::Open2;
+
+    my ($chld_out);
+
+    my $bin = openssl_bin() or die 'No OpenSSL!';
+
+    my $pid = IPC::Open2::open2($chld_out, undef, $bin, @params);
+
+    my $out = do { local $/; <$chld_out> };
+    waitpid($pid, 0);
+
+    return $out;
 }
 
 BEGIN {
