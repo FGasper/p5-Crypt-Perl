@@ -7,6 +7,7 @@ Revision history for Perl module Crypt::Perl
 - Fix tests when there is no usable OpenSSL binary.
 - Fix tests on win32 when OpenSSL’s path includes a space.
 - Fix PKCS10.t to accommodate Crypt::Format bug on win32
+- CI moved to GitHub; Cygwin is now checked as well as Linux, macOS, & Windows.
 
 0.34 Mon Sep 28 2020
 - Deterministic ECDSA support added. sign_jwa() now always uses it,
