@@ -4,7 +4,7 @@ requires parent => 0.225;
 requires 'Bytes::Random::Secure::Tiny' => 1.008;
 requires 'Class::Accessor::Fast' => 0.34;
 requires 'Convert::ASN1' => 0.27;
-requires 'Crypt::Format'            => 0.11;
+requires 'Crypt::Format'            => 0.12;
 requires 'Digest::SHA';
 requires 'Math::BigInt' => 1.999818;     #min version, yes
 requires 'Math::ProvablePrime'   => 0.043;
