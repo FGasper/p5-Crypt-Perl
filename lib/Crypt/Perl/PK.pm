@@ -95,7 +95,7 @@ sub parse_jwk {
             $module = 'Crypt::Perl::ECDSA::Parse';
         }
         else {
-            die Crypt::Perl::X::create('UnknownJTKkty', $kty);
+            die Crypt::Perl::X::create('UnknownJWKkty', $kty);
         }
 
         Module::Load::load($module);
