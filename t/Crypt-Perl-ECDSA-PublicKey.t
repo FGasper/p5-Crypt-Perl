@@ -12,6 +12,9 @@ BEGIN {
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
+use lib "$FindBin::Bin/lib";
+use OpenSSL_Control;
+
 use Test::More;
 use Test::FailWarnings;
 use Test::Deep;
@@ -98,7 +101,7 @@ sub test_jwk : Tests(2) {
     return;
 }
 
-sub test_subject_public_key : Tests(1) {
+sub test_subject_public_key : Tests(2) {
     my ($self) = @_;
 
     my $key_path = "$FindBin::Bin/assets/prime256v1.key.public";
@@ -107,11 +110,26 @@ sub test_subject_public_key : Tests(1) {
 
     $pem = Crypt::Format::pem2der($pem);
 
+    my $key_obj = Crypt::Perl::ECDSA::Parse::public($pem);
+
     isa_ok(
-        Crypt::Perl::ECDSA::Parse::public($pem),
+        $key_obj,
         'Crypt::Perl::ECDSA::PublicKey',
         'public key parse',
     );
+
+  SKIP: {
+        skip 'Needs OpenSSL', 1 if !OpenSSL_Control::openssl_bin();
+
+        my $pem = $key_obj->to_pem_with_curve_name();
+
+        my ($fh, $filename) = File::Temp::tempfile( CLEANUP => 1 );
+        print {$fh} $pem;
+        close $fh;
+
+        my $got = OpenSSL_Control::run('ec', '-pubin', '-in', $filename);
+        like($got, qr<PUBLIC KEY>, 'OpenSSL can parse to_pem_with_curve_name()’s output');
+    }
 
     return;
 }

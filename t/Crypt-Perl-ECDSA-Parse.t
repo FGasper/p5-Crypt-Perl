@@ -71,6 +71,17 @@ sub test_public : Tests(1) {
     return;
 }
 
+sub test_public__junk : Tests(2) {
+    throws_ok(
+        sub { Crypt::Perl::ECDSA::Parse::public('nonononono') },
+        'Crypt::Perl::X::Generic',
+        'garbage in',
+    );
+
+    my $err = $@;
+    like($err, qr<ECDSA>, 'error mentions ECDSA');
+}
+
 sub test_jwk_private : Tests(1) {
 
     my ($pr_jwk) = {
