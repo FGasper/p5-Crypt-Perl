@@ -56,8 +56,6 @@ sub SKIP_CLASS {
         return "RSA key generation with “$bigint_lib” is probably too slow for now. Skipping …";
     }
 
-return 'nonono';
-
     return;
 }
 
