@@ -13,6 +13,12 @@ Crypt::Perl - Cryptography in pure Perl
 
 =head1 DESCRIPTION
 
+=begin html
+
+<a href='https://coveralls.io/github/FGasper/p5-Crypt-Perl?branch=master'><img src='https://coveralls.io/repos/github/FGasper/p5-Crypt-Perl/badge.svg?branch=master' alt='Coverage Status' /></a>
+
+=end html
+
 Just as it sounds: cryptography with no non-core XS dependencies!
 This is useful if you don’t have access to
 other tools that do this work like L<OpenSSL|http://openssl.org>, L<CryptX>,
