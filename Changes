@@ -1,5 +1,8 @@
 Revision history for Perl module Crypt::Perl
 
+0.37
+- Fix flapping RSA generation test.
+
 0.36 Wed Nov 17 2021
 - Report test coverage in POD. (No code changes.)
 
