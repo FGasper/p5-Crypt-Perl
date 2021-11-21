@@ -68,6 +68,7 @@ sub test_generate : Tests(50) {
 
     my $mod_length = 512;
 
+  SKIP:
     for ( 1 .. $CHECK_COUNT ) {
         note "Key generation $_ …";
 
@@ -77,11 +78,16 @@ sub test_generate : Tests(50) {
         my $pem = $key_obj->to_pem();
 
         my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
-        print {$fh} $pem or die $!;
+        print {$fh} $pem or do {
+            skip "Failed to write PEM to temp file: $!", 1;
+        };
         close $fh;
 
         my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in), $path );
-        like( $ossl_out, qr<RSA key ok>, "key generation (run $_)" );
+        like( $ossl_out, qr<RSA key ok>, "key generation (run $_, exponent: $exp)" ) or do {
+            diag $pem;
+            diag $ossl_out;
+        };
     }
 
     return;
