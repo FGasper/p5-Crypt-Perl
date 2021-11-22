@@ -62,9 +62,13 @@ sub SKIP_CLASS {
 sub test_generate : Tests(50) {
     my ($self) = @_;
 
+warn if !eval {
+
     my $ossl_bin = $self->_get_openssl();
 
     my $CHECK_COUNT = $self->num_tests();
+
+diag "check count: $CHECK_COUNT";
 
     my $mod_length = 512;
 
@@ -89,6 +93,9 @@ sub test_generate : Tests(50) {
             diag $ossl_out;
         };
     }
+
+1;
+};
 
     return;
 }
