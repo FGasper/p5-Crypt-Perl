@@ -74,20 +74,23 @@ diag "check count: $CHECK_COUNT";
 
   SKIP:
     for ( 1 .. $CHECK_COUNT ) {
-        note "Key generation $_ …";
+        diag "Key generation $_ …";
 
         my $exp = ( 3, 65537 )[int( 0.5 + rand )];
 
         my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
         my $pem = $key_obj->to_pem();
+diag "generated key";
 
         my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
         print {$fh} $pem or do {
             skip "Failed to write PEM to temp file: $!", 1;
         };
         close $fh;
+diag "wrote temp file";
 
         my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in), $path );
+diag $ossl_out;
         like( $ossl_out, qr<RSA key ok>, "key generation (run $_, exponent: $exp)" ) or do {
             diag $pem;
             diag $ossl_out;
