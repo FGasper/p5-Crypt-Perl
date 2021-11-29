@@ -84,6 +84,7 @@ diag "generated key";
 
         my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
         print {$fh} $pem or do {
+            diag "Failed to write PEM to temp file: $!"
             skip "Failed to write PEM to temp file: $!", 1;
         };
         close $fh;
