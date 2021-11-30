@@ -62,7 +62,7 @@ sub SKIP_CLASS {
 sub test_generate : Tests(50) {
     my ($self) = @_;
 
-warn if !eval {
+my $ok = !eval {
 
     my $ossl_bin = $self->_get_openssl();
 
@@ -79,12 +79,13 @@ diag "check count: $CHECK_COUNT";
         my $exp = ( 3, 65537 )[int( 0.5 + rand )];
 
         my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
-        my $pem = $key_obj->to_pem();
 diag "generated key";
+        my $pem = $key_obj->to_pem();
+diag "PEM:\n$pem";
 
         my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
         print {$fh} $pem or do {
-            diag "Failed to write PEM to temp file: $!"
+            diag "Failed to write PEM to temp file: $!";
             skip "Failed to write PEM to temp file: $!", 1;
         };
         close $fh;
@@ -100,6 +101,7 @@ diag $ossl_out;
 
 1;
 };
+diag $@ if !$ok;
 
     return;
 }
