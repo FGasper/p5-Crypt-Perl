@@ -52,44 +52,63 @@ use Crypt::Perl::X ();
 
 use constant PUBLIC_EXPONENTS => ( 65537, 3 );
 
+use Test::More;
+
 sub create {
     my ($mod_bits, $exp) = @_;
+diag "in create";
 
     die Crypt::Perl::X::create('Generic', "Need modulus length!") if !$mod_bits;
+diag "in create";
 
     $exp ||= (PUBLIC_EXPONENTS())[0];
+diag "in create";
 
     if (!grep { $exp eq $_ } PUBLIC_EXPONENTS()) {
+diag "in create - if";
         my @allowed = PUBLIC_EXPONENTS();
+diag "in create - if";
         die Crypt::Perl::X::create('Generic', "Invalid public exponent ($exp); should be one of: [@allowed]");
+diag "in create - if";
     }
+diag "in create";
 
     my $qs = $mod_bits >> 1;
+diag "in create";
     (ref $exp) or $exp = Crypt::Perl::BigInt->new($exp);
+diag "in create";
 
     while (1) {
+diag "in create - loop start";
         my ($p, $q, $p1, $q1);
 
         #Create a random number, ($mod_bits - $qs) bits long.
         {
             $p = _get_random_prime($mod_bits - $qs);
+diag "in create - loop";
             $p1 = $p->copy()->bdec();
+diag "in create - loop";
 
             #($p - 1) needs not to be a multiple of $exp
             redo if $p1->copy()->bmod($exp)->is_zero();
         }
+diag "in create - loop";
 
         {
             $q = _get_random_prime($qs);
+diag "in create - loop";
             $q1 = $q->copy()->bdec();
+diag "in create - loop";
 
             #Same restriction as on $p applies to $q.
             #Let’s also make sure these are two different numbers!
             redo if $q1->copy()->bmod($exp)->is_zero() || $q->beq($p);
         }
+diag "in create - loop";
 
         #$p should be > $q
         if ($p->blt($q)) {
+diag "in create - loop if";
             my $t = $p;
             $p = $q;
             $q = $t;
@@ -100,8 +119,10 @@ sub create {
         }
 
         my $phi = $p1->copy()->bmul($q1);
+diag "in create - loop";
 
         my $d = $exp->copy()->bmodinv($phi);
+diag "in create - loop";
 
         my $obj = Crypt::Perl::RSA::PrivateKey->new(
             {
@@ -116,6 +137,7 @@ sub create {
                 coefficient => $q->copy()->bmodinv($p),
             },
         );
+diag "in create - pre-return";
 
         return $obj;
     }

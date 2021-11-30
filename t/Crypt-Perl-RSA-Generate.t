@@ -77,6 +77,7 @@ diag "check count: $CHECK_COUNT";
         diag "Key generation $_ …";
 
         my $exp = ( 3, 65537 )[int( 0.5 + rand )];
+diag "exponent: $exp\n";
 
         my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
 diag "generated key";
@@ -102,6 +103,8 @@ diag $ossl_out;
 1;
 };
 diag $@ if !$ok;
+
+diag "returning";
 
     return;
 }
