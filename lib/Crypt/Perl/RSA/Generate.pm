@@ -144,7 +144,10 @@ diag "in create - pre-return";
 }
 
 sub _get_random_prime {
-    return Crypt::Perl::BigInt->new( Math::ProvablePrime::find(@_) );
+diag "finding prime (@_)";
+    my @got = Math::ProvablePrime::find(@_);
+diag "found prime (@got)";
+    return Crypt::Perl::BigInt->new(@got);
 }
 
 1;
