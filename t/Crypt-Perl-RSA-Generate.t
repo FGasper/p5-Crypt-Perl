@@ -62,6 +62,8 @@ sub SKIP_CLASS {
 sub test_generate : Tests(50) {
     my ($self) = @_;
 
+    local $SIG{'XCPU'} = 'IGNORE';
+
 my $ok = !eval {
 
     my $ossl_bin = $self->_get_openssl();
