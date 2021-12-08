@@ -9,6 +9,8 @@ BEGIN {
     }
 }
 
+use Config;
+
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
@@ -62,10 +64,6 @@ sub SKIP_CLASS {
 sub test_generate : Tests(50) {
     my ($self) = @_;
 
-    local $SIG{'XCPU'} = 'IGNORE';
-
-my $ok = !eval {
-
     my $ossl_bin = $self->_get_openssl();
 
     my $CHECK_COUNT = $self->num_tests();
@@ -74,39 +72,45 @@ diag "check count: $CHECK_COUNT";
 
     my $mod_length = 512;
 
-  SKIP:
-    for ( 1 .. $CHECK_COUNT ) {
-        diag "Key generation $_ …";
+  SKIP: {
 
-        my $exp = ( 3, 65537 )[int( 0.5 + rand )];
-diag "exponent: $exp\n";
+        # Some test systems set RLIMIT_CPU low enough that this
+        # test trips it. Avoid that by catching SIGXCPU and backing
+        # off when that happens.
+        my $xcpu_handler = $Config{'sig_name'} =~ m<XCPU> && sub {
+            diag "Got signal $_[0]; pausing for a bit …";
 
-        my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
-diag "generated key";
-        my $pem = $key_obj->to_pem();
-diag "PEM:\n$pem";
+            # Give a bit of time back to the CPU so as to
+            # avoid CPU-time rlimits:
+            select undef, undef, undef, 0.01;
 
-        my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
-        print {$fh} $pem or do {
-            diag "Failed to write PEM to temp file: $!";
-            skip "Failed to write PEM to temp file: $!", 1;
+            skip "Skipping test …", 1;
         };
-        close $fh;
-diag "wrote temp file";
 
-        my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in), $path );
-diag $ossl_out;
-        like( $ossl_out, qr<RSA key ok>, "key generation (run $_, exponent: $exp)" ) or do {
-            diag $pem;
-            diag $ossl_out;
-        };
+        local $SIG{'XCPU'} = $xcpu_handler if $xcpu_handler;
+
+        for ( 1 .. $CHECK_COUNT ) {
+            diag "Key generation $_ …";
+
+            my $exp = ( 3, 65537 )[int( 0.5 + rand )];
+
+            my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
+            my $pem = $key_obj->to_pem();
+
+            my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
+            print {$fh} $pem or do {
+                diag "Failed to write PEM to temp file: $!";
+                skip "Failed to write PEM to temp file: $!", 1;
+            };
+            close $fh;
+
+            my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in), $path );
+            like( $ossl_out, qr<RSA key ok>, "key generation" ) or do {
+                diag $pem;
+                diag $ossl_out;
+            };
+        }
     }
-
-1;
-};
-diag $@ if !$ok;
-
-diag "returning";
 
     return;
 }
