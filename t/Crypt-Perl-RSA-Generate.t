@@ -72,8 +72,8 @@ diag "check count: $CHECK_COUNT";
 
     my $mod_length = 512;
 
-  SKIP: {
-
+  SKIP:
+    for ( 1 .. $CHECK_COUNT ) {
         # Some test systems set RLIMIT_CPU low enough that this
         # test trips it. Avoid that by catching SIGXCPU and backing
         # off when that happens.
@@ -89,27 +89,25 @@ diag "check count: $CHECK_COUNT";
 
         local $SIG{'XCPU'} = $xcpu_handler if $xcpu_handler;
 
-        for ( 1 .. $CHECK_COUNT ) {
-            diag "Key generation $_ …";
+        diag "Key generation $_ …";
 
-            my $exp = ( 3, 65537 )[int( 0.5 + rand )];
+        my $exp = ( 3, 65537 )[int( 0.5 + rand )];
 
-            my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
-            my $pem = $key_obj->to_pem();
+        my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
+        my $pem = $key_obj->to_pem();
 
-            my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
-            print {$fh} $pem or do {
-                diag "Failed to write PEM to temp file: $!";
-                skip "Failed to write PEM to temp file: $!", 1;
-            };
-            close $fh;
+        my ($fh, $path) = File::Temp::tempfile( CLEANUP => 1 );
+        print {$fh} $pem or do {
+            diag "Failed to write PEM to temp file: $!";
+            skip "Failed to write PEM to temp file: $!", 1;
+        };
+        close $fh;
 
-            my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in), $path );
-            like( $ossl_out, qr<RSA key ok>, "key generation" ) or do {
-                diag $pem;
-                diag $ossl_out;
-            };
-        }
+        my $ossl_out = OpenSSL_Control::run( qw(rsa -check -in), $path );
+        like( $ossl_out, qr<RSA key ok>, "key generation" ) or do {
+            diag $pem;
+            diag $ossl_out;
+        };
     }
 
     return;
