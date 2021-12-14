@@ -72,7 +72,6 @@ diag "check count: $CHECK_COUNT";
 
     my $mod_length = 512;
 
-  SKIP:
     for ( 1 .. $CHECK_COUNT ) {
         # Some test systems set RLIMIT_CPU low enough that this
         # test trips it. Avoid that by catching SIGXCPU and backing
@@ -83,8 +82,6 @@ diag "check count: $CHECK_COUNT";
             # Give a bit of time back to the CPU so as to
             # avoid CPU-time rlimits:
             select undef, undef, undef, 0.01;
-
-            skip "Skipping test …", 1;
         };
 
         local $SIG{'XCPU'} = $xcpu_handler if $xcpu_handler;
