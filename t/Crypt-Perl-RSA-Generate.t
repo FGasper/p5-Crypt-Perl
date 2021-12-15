@@ -68,27 +68,12 @@ sub test_generate : Tests(50) {
 
     my $CHECK_COUNT = $self->num_tests();
 
-diag "check count: $CHECK_COUNT";
-
     my $mod_length = 512;
 
-    for ( 1 .. $CHECK_COUNT ) {
-        # Some test systems set RLIMIT_CPU low enough that this
-        # test trips it. Avoid that by catching SIGXCPU and backing
-        # off when that happens.
-        my $xcpu_handler = $Config{'sig_name'} =~ m<XCPU> && sub {
-            diag "Got signal $_[0]; pausing for a bit …";
-
-            # Give a bit of time back to the CPU so as to
-            # avoid CPU-time rlimits:
-            select undef, undef, undef, 0.01;
-        };
-
-        local $SIG{'XCPU'} = $xcpu_handler if $xcpu_handler;
-
-        diag "Key generation $_ …";
-
+    for my $iteration ( 1 .. $CHECK_COUNT ) {
         my $exp = ( 3, 65537 )[int( 0.5 + rand )];
+
+        diag "Key generation $iteration (exponent=$exp) …";
 
         my $key_obj = Crypt::Perl::RSA::Generate::create($mod_length, $exp);
         my $pem = $key_obj->to_pem();
