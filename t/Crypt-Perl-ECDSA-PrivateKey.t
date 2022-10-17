@@ -273,7 +273,7 @@ sub test_sign : Tests() {
 
                             my $explicit_pem = $ecdsa->to_pem_with_explicit_curve();
 
-                            # Some OpenSSLs (e.g. RHEL 9) can load
+                            # Some OpenSSLs (e.g. RHEL 9’s) can load
                             # explicit-curve keys but refuse to work with them.
                             # To detect that we have OpenSSL create a dummy
                             # signature before using it to verify a

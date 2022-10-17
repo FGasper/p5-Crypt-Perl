@@ -74,7 +74,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: apt install -y libgmp3-dev
+      - run: apt install -y libgmp3-dev openssl
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
