@@ -14,17 +14,25 @@ env:
   PERL_CARTON_PATH: $GITHUB_WORKSPACE/local
 
 jobs:
-  linux-fedora:
+  linux-redhat:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        os:
+          - image: fedora
+            rpms: ''
+          - image: almalinux:9
+            rpms: gmp-devel
+
     container:
-      image: fedora
+      image: ${{ matrix.os.image }}
 
     steps:
       - uses: actions/checkout@main
 
       # Omit GMP so we test pure-Perl:
-      - run: dnf -y install perl-App-cpanminus openssl
+      - run: dnf -y install perl-App-cpanminus openssl ${{ matrix.os.rpms }}
 
       - name: perl -V
         run: perl -V
@@ -66,7 +74,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - run: dnf -y install gmp-devel
+      - run: apt install -y libgmp3-dev
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
