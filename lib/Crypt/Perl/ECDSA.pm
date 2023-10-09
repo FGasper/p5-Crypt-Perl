@@ -59,6 +59,12 @@ Crypt::Perl::ECDSA - Elliptic curve cryptography in pure Perl
     # Note that this signs a *digest*, not the message itself.
     my $sig = $private->sign($msg_hash);
 
+    # If you want deterministic signatures but also need to have more control
+    # over the hash you are signing, you can use this method. It requires a
+    # message hash, but will generate a deterministic signature using the hash
+    # function provided as second argument.
+    my $also_det_sig = $private->sign_deterministic($msg_hash, 'sha256');
+
     #----------------------------------------------------------------------
 
     $key->to_der_with_curve_name();
