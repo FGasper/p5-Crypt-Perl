@@ -76,7 +76,7 @@ jobs:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
       - run: apt install -y libgmp3-dev openssl cpanminus
       - name: perl -V
         run: perl -V
@@ -119,7 +119,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
       - name: Set up Perl
         run: |
           choco install strawberryperl curl
@@ -149,7 +149,7 @@ jobs:
         with:
             platform: x64
             packages: perl perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libgmp-devel bash
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
       - run: perl -V
         shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - run: cpan App::cpanminus
