@@ -14,6 +14,9 @@ requires 'Try::Tiny';
 
 recommends 'Math::BigInt::GMP';
 
+# Perl 5.8 needs this to avoid a spurious warning which breaks tests:
+test_requires 'File::Path' >= 2.18;
+
 test_requires 'Call::Context';
 test_requires 'File::Slurp';
 test_requires 'File::Which';
