@@ -97,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - name: Set up Perl
-        run: brew install perl cpanminus
+        run: brew install perl cpanminus gmp
       - name: perl -V
         run: perl -V
       - name: Install dependencies
