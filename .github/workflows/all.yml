@@ -53,6 +53,9 @@ jobs:
       fail-fast: false
       matrix:
         perl-version:
+          - '5.42'
+          - '5.40'
+          - '5.38'
           - '5.36'
           - '5.34'
           - '5.32'
@@ -73,8 +76,8 @@ jobs:
       image: perldocker/perl-tester:${{ matrix.perl-version }}
 
     steps:
-      - uses: actions/checkout@v2
-      - run: apt install -y libgmp3-dev openssl
+      - uses: actions/checkout@main
+      - run: apt install -y libgmp3-dev openssl cpanminus
       - name: perl -V
         run: perl -V
       - name: Install Dependencies
@@ -94,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@main
       - name: Set up Perl
-        run: brew install perl cpanminus
+        run: brew install perl cpanminus gmp
       - name: perl -V
         run: perl -V
       - name: Install dependencies
@@ -116,15 +119,19 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@main
       - name: Set up Perl
         run: |
-          choco install strawberryperl
+          choco install strawberryperl curl
           echo "C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin" >> $GITHUB_PATH
       - name: perl -V
         run: perl -V
+      - name: Download cpanminus installer
+        run: curl -L https://cpanmin.us > cpanm-install.pl
+      - name: Install App::cpanminus
+        run: perl cpanm-install.pl App::cpanminus
       - name: Install Dependencies
-        run: curl -L https://cpanmin.us | perl - --notest --with-recommends --with-configure --installdeps .
+        run: cpanm --notest --with-recommends --with-configure --installdeps .
       - name: perl Makefile.PL
         run: perl Makefile.PL
       - name: make
@@ -141,8 +148,8 @@ jobs:
         uses: egor-tensin/setup-cygwin@master
         with:
             platform: x64
-            packages: perl_base perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libgmp-devel bash
-      - uses: actions/checkout@v2
+            packages: perl perl-ExtUtils-MakeMaker make gcc-g++ libcrypt-devel libgmp-devel bash
+      - uses: actions/checkout@main
       - run: perl -V
         shell: C:\tools\cygwin\bin\bash.exe --login --norc -eo pipefail -o igncr '{0}'
       - run: cpan App::cpanminus
