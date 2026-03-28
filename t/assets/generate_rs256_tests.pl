@@ -6,7 +6,7 @@ use autodie;
 
 use FindBin ();
 
-use Crypt::OpenSSL::RSA ();
+use Crypt::PK::RSA ();
 use Data::Dumper ();
 use MIME::Base64 ();
 
@@ -14,10 +14,10 @@ my @rs256_tests = map {
     my $msg = rand;
 
     my $use_exp_3 = $msg > 0.5;
-
-    my $orsa = Crypt::OpenSSL::RSA->generate_key($_, ($use_exp_3 ? 0x3 : ()));
-    $orsa->use_sha256_hash();
-    [ "$_-bit key" . ($use_exp_3 ? ', exp = 3' : q<>), $orsa->get_private_key_string(), $msg, MIME::Base64::encode($orsa->sign($msg)) ];
+    my $size = int($_ / 8);
+    my $pk = Crypt::PK::RSA->new();
+    my $orsa = $pk->generate_key($size, ($use_exp_3 ? 0x3 : ()));
+    [ "$_-bit key" . ($use_exp_3 ? ', exp = 3' : q<>), $orsa->export_key_pem('private'), $msg, MIME::Base64::encode($orsa->sign_message($msg, 'SHA256', 'v1.5')) ];
 } (510 .. 768);
 
 open my $rs256_wfh, '>', "$FindBin::Bin/RS256.dump";

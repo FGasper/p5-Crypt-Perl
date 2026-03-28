@@ -38,7 +38,7 @@ sub new {
     $self->_load_tests();
 
     local $@;
-    $self->{'_has_ossl'} = eval { require Crypt::OpenSSL::RSA };
+    $self->{'_has_cryptx'} = eval { require Crypt::PK::RSA };
 
     $self->num_method_tests( 'do_RS256_tests', 5 * @{ $self->{'_tests'} } );
 
@@ -187,14 +187,15 @@ sub check_RS384_and_RS512 : Tests(6) {
         );
 
         SKIP: {
-            skip 'No Crypt::OpenSSL::RSA; skipping', 1 if !$self->{'_has_ossl'};
+            skip 'No Crypt::PK::RSA; skipping', 1 if !$self->{'_has_cryptx'};
 
-            my $rsa = Crypt::OpenSSL::RSA->new_private_key($largest_pem);
+            my $pk = Crypt::PK::RSA->new();
+            my $rsa = $pk->import_key(\$largest_pem);
             $alg =~ m<([0-9]+)> or die "huh? $alg";
-            $rsa->can("use_sha$1_hash")->($rsa);
+            my $bits = $1;
             ok(
-                $rsa->verify( $message, $signature ),
-                "$alg: OpenSSL verified Perl’s signature",
+                $rsa->verify_message( $signature, $message, "SHA$bits", 'v1.5' ),
+                "$alg: Crypt::PK::RSA verified Perl’s signature",
             );
         }
     }
@@ -234,7 +235,7 @@ sub test_pem_der_export : Tests(2) {
     my ($self) = @_;
 
     SKIP: {
-        skip 'No Crypt::OpenSSL::RSA; skipping', $self->num_tests() if !$self->{'_has_ossl'};
+        skip 'No Crypt::PK::RSA; skipping', $self->num_tests() if !$self->{'_has_cryptx'};
 
         my $pem = $self->{'_tests'}[-1][1];
         my $der = Crypt::Format::pem2der($pem);
@@ -270,7 +271,7 @@ sub do_RS256_tests : Tests() {
         is(
             $key->verify_RS256( $message, $ossl_sig ),
             1,
-            "$label: Perl verified OpenSSL’s signature",
+            "$label: Perl verified Crypt::PK::RSA’s signature",
         );
 
         my $signature = $key->sign_RS256( $message );
@@ -295,13 +296,13 @@ sub do_RS256_tests : Tests() {
         );
 
         SKIP: {
-            skip 'No Crypt::OpenSSL::RSA; skipping', 1 if !$self->{'_has_ossl'};
+            skip 'No Crypt::PK::RSA; skipping', 1 if !$self->{'_has_cryptx'};
 
-            my $rsa = Crypt::OpenSSL::RSA->new_private_key($key_pem);
-            $rsa->use_sha256_hash();
+            my $pk = Crypt::PK::RSA->new();
+            my $rsa = $pk->import_key(\$key_pem);
             ok(
-                $rsa->verify( $message, $signature ),
-                "$label: OpenSSL verified Perl’s signature",
+                $rsa->verify_message( $signature, $message, 'SHA256', 'v1.5' ),
+                "$label: Crypt::PK::RSA verified Perl’s signature",
             );
         }
     }

@@ -28,7 +28,7 @@ be much more feasible.
 
 =over 4
 
-=item L<Crypt::OpenSSL::RSA> - probably the fastest way to generate RSA
+=item L<Crypt::PK::RSA> - probably the fastest way to generate RSA
 keys in perl. (It relies on XS, so this project can’t use it.)
 
 =item Use the C<openssl> binary L<OpenSSL|http://openssl.org> directly,
